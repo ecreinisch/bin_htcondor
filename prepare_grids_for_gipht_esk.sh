@@ -227,8 +227,8 @@ gdal_translate -a_srs EPSG:32611 out_display_amp.tif display_amp_utm.tif
 # make Sam's leapfrog geotiff files
 master=`echo $PAIR | awk -FIn '{print $2}' | awk -F_ '{print $1}'`
 slave=`echo $PAIR | awk -F_ '{print $2}'`
-cp ~ebaluyut/bin_htcondor/phasefilt_colortable_UInt16.txt .
-cp ~ebaluyut/bin_htcondor/drange_colortable_UInt16.txt .
+cp ~ebaluyut/gmtsar-aux/phasefilt_colortable_UInt16.txt .
+cp ~ebaluyut/gmtsar-aux/drange_colortable_UInt16.txt .
 make_leapfrog_geotiffs.sh phasefilt_utm.tif ${master} ${slave}
 make_leapfrog_geotiffs.sh drange_utm.tif ${master} ${slave} 
 \rm -f phasefilt_colortable_UInt16.txt drange_colortable_UInt16.txt
