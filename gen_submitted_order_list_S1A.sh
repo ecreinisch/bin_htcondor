@@ -9,54 +9,59 @@
 
 
 # decide if looking through archives or not
-if [[ $# -eq 2 ]]
+if [[ $# -eq 1 ]]
 then
 #  if [[ $1 == winsar ]]
 #  then
 #  
-  if [[ $1 == esa ]]
-  then
-   ftype=a
-  else
-   echo "Error, unidentified source type. Use esa."
-   exit 1
-  fi
+ # if [[ $1 == esa ]]
+ # then
+ #  ftype=a
+ # else
+ #  echo "Error, unidentified source type. Use esa."
+ #  exit 1
+ # fi
+  site=$1
   arch=0
-elif [[ $# -eq 3 ]]
+elif [[ $# -eq 2 ]]
 then
-  if [[ $3 == "-a" ]]
+  site=$1
+  if [[ $2 == "-a" ]]
   then
     arch=1
   else
     echo "unsupported input. See gen_submitted_order_list_airbus.sh -h"
     exit 1
   fi
-elif [[ $# -le 1 ]]
+elif [[ $# -eq 0 ]]
 then
     echo "gen_submitted_order_list_S1A.sh"
     echo "when run in a directory containing order receipts, generates list of orders to date"
     echo "outputs S1A_Orders file with columns of #date site sat track swath frame orbit ascdes status source filename path url"
-    echo "Run with 1 argument of source when needing to update epoch list after downloading .gz file to the appropriate downloads directory (e.g., esa)"
-    echo "e.g.: ./gen_submitted_order_list_S1A.sh esa"
+    echo "Run with 1 argument of site when needing to update epoch list after downloading .gz file to the appropriate downloads directory (e.g., brady)"
+    echo "e.g.: ./gen_submitted_order_list_S1A.sh brady"
     echo "Run with second -a argument when needing check if archived files are included (and include if needed)"
-    echo "e.g.: ./gen_submitted_order_list_S1A.sh esa -a"
+    echo "e.g.: ./gen_submitted_order_list_S1A.sh brady -a"
     exit 1
 else
   echo "wrong number of inputs. See documentation for help."
   exit 1
 fi
 
+ftype=a
+
 # Initialize text files
 > OrderList
 touch Cancelled_Orders.txt
 
 # Copy TSX Order file to working file if it exists, if not create working file with header
-if [[ `ls -d ../S1A_*Orders*.txt | wc -l` == 0 ]]
+if [[ `ls -d ../S1A_OrderList.txt | wc -l` == 0 ]]
 then
   touch Submitted_Orders.txt
   #echo "#date site sat track swath frame orbit ascdes status source filename path url" > Submitted_Orders.txt
 else
-  cp `ls -d ../S1A_*Orders*.txt | tail -1` Submitted_Orders.txt
+  cp `ls -d ../S1A_OrderList.txt | tail -1` Submitted_Orders.txt
+  cp ../S1A_OrderList.txt ../Archived_OrderLists/S1A_Orders-`date +%Y%m%d_%H%M`.txt
   sed -i '/#date/d' Submitted_Orders.txt
 fi
 
@@ -65,6 +70,7 @@ if [[ $ftype == a ]]
 then
 ls ssara_search*.kml > OrderList
 while read -r a; do
+   echo READING FILE $a
     grep \<Placemark\>\<name\> $a | awk -F name\> '{print $2}' | awk '{print $1}' > scene_id.tmp
     while read -r b; do
     #pull info for scene id
@@ -79,17 +85,19 @@ while read -r a; do
     # extract information from text file 
     scene_date=`echo $epoch | sed "s/-//g"`
     trk=`grep "Relative orbit" scene_info.tmp | head -${ncount} | tail -1 | awk '{print "T"$3}'`
+    sat=S1A
     # make track directory if doesn't exist
     mkdir -p ../${trk}
     mkdir -p ../${trk}/raw
+    #site=`grep $sat ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $trk | awk '{print $1}'`
     orbit=`grep "Absolute orbit" scene_info.tmp | head -${ncount} | tail -1 | awk '{print $3}'`
     frame=`grep "First Frame" scene_info.tmp  | head -${ncount} | tail -1 | awk '{print $4}'`
-    site=$2
     swath=`grep $site ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | grep $trk | awk '{print $4}'`
     url=nan
     echo ORBIT = $orbit
     echo FRAME = $frame
     echo SITE = $site
+    echo TRACK = $trk
     echo SWATH = $swath
     # check if date is already in the list
     if [[ `grep $scene_date Submitted_Orders.txt | grep $orbit | grep $frame | wc -l` -gt 0 ]]
@@ -260,6 +268,8 @@ while read -r a; do
  # clean up
    # rm *.tmp
 
+# move kml to Archived_searches
+mv $a Archived_searches/
 done < OrderList
 fi
 
@@ -312,10 +322,12 @@ fi
 #head -1 Submitted_Orders.txt ; tail -n +2 Submitted_Orders.txt | sort -t : -k1,1 -k2,2n | column -t  > ../S1A_Orders-`date +%Y%m%d_%H%M`.txt
 sort Submitted_Orders.txt -o Submitted_Orders.txt
 sed -i '1s/^/#date site sat track swath frame orbit ascdes status source filename path url \n/' Submitted_Orders.txt
-column -t Submitted_Orders.txt > ../S1A_Orders-`date +%Y%m%d_%H%M`.txt
+#column -t Submitted_Orders.txt > ../S1A_Orders-`date +%Y%m%d_%H%M`.txt
+column -t Submitted_Orders.txt > ../S1A_OrderList.txt
 
 
 # change permissions of files for future users
 chmod a+r+w+x Submitted_Orders.txt
 chmod a+r+w+x OrderList
-chmod a+r+w+x ../S1A_Orders-`date +%Y%m%d_%H%M`.txt
+#chmod a+r+w+x ../S1A_Orders-`date +%Y%m%d_%H%M`.txt
+chmod a+r+w+x ../S1A_OrderList.txt

@@ -6,6 +6,7 @@
 # Elena Reinisch 20161010
 # update ECR 20170417 update to incoporate reordering columns, untar new downloads, and update existing epoch list
 # update ECR 20170420 update to add in archived scenes
+# update ECR 20171109 change name of Order List to TSX_OrderList.txt
 
 
 # decide if looking through archives or not
@@ -47,9 +48,9 @@ then
     echo "outputs TSX_Orders file with columns of #date site sat track swath frame orbit ascdes status source filename path url"
     echo "Run with 1 argument of source when needing to update epoch list after downloading .gz file to the appropriate downloads directory (e.g., airbus or winsar)"
     echo "Output will include content of most recent ../TSX_Orders*.txt file"
-    echo "e.g.: ./gen_submitted_order_list_airbus.sh airbus"
+    echo "e.g.: ./gen_submitted_order_list_TSX.sh airbus"
     echo "Run with second -a argument when needing check if archived files are included (and include if needed)"
-    echo "e.g.: ./gen_submitted_order_list_airbus.sh winsar -a"
+    echo "e.g.: ./gen_submitted_order_list_TSX.sh winsar -a"
     exit 1
 else
   echo "wrong number of inputs. See documentation for details."
@@ -60,12 +61,13 @@ fi
 > OrderList
 
 # Copy TSX Order file to working file if it exists, if not create working file with header
-if [[ `ls -d ../TSX_*Orders*.txt | wc -l` == 0 ]]
+if [[ `ls -d ../TSX_OrderList.txt | wc -l` == 0 ]]
 then
   touch Submitted_Orders.txt
   #echo "#date site sat track swath frame orbit ascdes status source filename path url" > Submitted_Orders.txt
 else
-  cp `ls -d ../TSX_Orders*.txt | tail -1` Submitted_Orders.txt
+  cp `ls -d ../TSX_OrderList.txt | tail -1` Submitted_Orders.txt
+  mv `ls -d ../TSX_OrderList.txt | tail -1` ../Archived_OrderLists/TSX_Orders-`date +%Y%m%d_%H%M`.txt
   sed -i '/#date/d' Submitted_Orders.txt
 fi
 
@@ -80,8 +82,8 @@ while read -r a; do
     order_number=`grep "Sales Order Number"  order.tmp | awk '{print $4}'`
 
     # get list of scene ids
-    grep $order_number -A1 order.tmp | sed "/$order_number/d" | sed "/--/d" | sed '1d' | sed '$ d'  > scene_id.tmp
-    sed -i '/Page/d' scene_id.tmp
+    # get scene ids based on order number, remove -- lines, empty lines, and Page number lines
+    grep $order_number -A1 order.tmp | sed "/$order_number/d" | sed "/--/d" | sed '1d' | sed '/^\s*$/d' | sed '/Page/d' > scene_id.tmp
 
     while read -r b; do
 
@@ -95,7 +97,7 @@ while read -r a; do
     scene_date=`sed "3q;d" scene_info.tmp | sed "s/-//g"`
     trk=T$(sed "5q;d" scene_info.tmp | awk '{print $1}')
     swath=`sed "5q;d" scene_info.tmp | awk '{print $8}'`
-    if [[ `grep $scene_date Submitted_Orders.txt | wc -l` -gt 0 && `grep $filename Submitted_Orders.txt | wc -l` -gt 0 ]]
+    if [[ `grep $scene_date Submitted_Orders.txt | grep $filename |wc -l` -gt 0 ]]
     then
     # make sure that source says winsar
     sed -i 's/[^ ]*[^ ]/airbus/10' Submitted_Orders.txt
@@ -130,8 +132,8 @@ while read -r a; do
          dirname=`head -1 tar.tmp | awk -F/ '{print $1}'`
          mv $dirname /s21/insar/TSX/${trk}/raw/
          data_loc="\/s21\/insar\/TSX\/${trk}\/raw\/${dirname}"
-         mkdir -p untarred
-         mv ${file_name} untarred
+         mkdir -p untarred/
+         mv ${filename} untarred/        #changed file_name to filename and added / to fix mv error -- sab 11/10/2017
          data_loc2=/s21/insar/TSX/${trk}/raw/${dirname}
          orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'`
          nline=`grep $scene_date Submitted_Orders.txt | sed "s/[^ ]*[^ ]/$estatus/9" | sed "s/[^ ]*[^ ]/$data_loc/12" | sed "s/[^ ]*[^ ]/${orbit}/7"`
@@ -166,7 +168,7 @@ while read -r a; do
          mv $dirname /s21/insar/TSX/${trk}/raw/
          data_loc="\/s21\/insar\/TSX\/${trk}\/raw\/${dirname}"
          mkdir -p untarred
-         mv ${file_name} untarred
+         mv ${filename} untarred/  #changed file_name to filename and added / to fix mv error -- sab 11/10/2017
          data_loc2=/s21/insar/TSX/${trk}/raw/${dirname}
          orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'`  # consider adding lines to untar filename and move directory to specified location, so we can update url and data_loc, and then we can grep for orbit
          nline=`grep $scene_date Submitted_Orders.txt | sed -e "s/[^ ]*[^ ]/$estatus/9" | sed -e "s/[^ ]*[^ ]/$data_loc/12" | sed -e "s/[^ ]*[^ ]/${orbit}/7"`
@@ -180,6 +182,7 @@ while read -r a; do
 
    else
     # info for epoch not in list yet; add information
+    echo SCENE_DATE = $scene_date
     sat=TSX
     trk=T$(sed "5q;d" scene_info.tmp | awk '{print $1}')
     swath=`sed "5q;d" scene_info.tmp | awk '{print $8}'`
@@ -224,7 +227,7 @@ while read -r a; do
          mv $dirname /s21/insar/TSX/${trk}/raw/
          data_loc="\/s21\/insar\/TSX\/${trk}\/raw\/${dirname}"
          mkdir -p untarred
-         mv ${file_name} untarred/
+         mv ${filename} untarred/
          data_loc2=/s21/insar/TSX/${trk}/raw/${dirname}
          orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'`
      else 
@@ -261,7 +264,7 @@ then
     scene_date=`grep "\<Temporal Selection\>" order.tmp | awk '{print $3}' | awk -FT '{print $1}' | sed  's/-//g'`
 
     # check to see if already in epoch list
-    if [[ `grep $scene_date Submitted_Orders.txt | grep winsar | wc -l` -gt 0 ||  `grep $scene_date Submitted_Orders.txt | grep archvd | wc -l` -gt 0 ]]
+    if [[ `grep $scene_date Submitted_Orders.txt | grep winsar | wc -l` -gt 0 || `grep $scene_date Submitted_Orders.txt | grep archvd | wc -l` -gt 0 ]]
     then
     # make sure that source says winsar
     sed -i 's/[^ ]*[^ ]/winsar/10' Submitted_Orders.txt
@@ -443,7 +446,8 @@ then
          mv $dirname /s21/insar/TSX/${trk}/raw/
          data_loc="\/s21\/insar\/TSX\/${trk}\/raw\/${dirname}"
          mkdir -p untarred
-         mv `find . -name "*${scene_date}*.gz"` untarred/
+         mv_tar_file=`find . -name "*${scene_date}*.gz"`
+         mv $mv_tar_file untarred/
          data_loc2=/s21/insar/TSX/${trk}/raw/${dirname}
          orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'`
          getTSXdata.sh -s`date -d "$scene_date -1 days" +'%Y-%m-%d'` -e`date -d "$scene_date +1 days" +'%Y-%m-%d'` -t`echo $trk | -FT '{print $2}'` -dn
@@ -550,9 +554,9 @@ fi
 #column -t Submitted_Orders.txt | sort | sed '1h;1d;$!H;$!d;G' > ../TSX_Orders-`date +%Y%m%d_%H%M`.txt
 sort Submitted_Orders.txt -o Submitted_Orders.txt
 sed -i '1s/^/#date site sat track swath frame orbit ascdes status source filename path url \n/' Submitted_Orders.txt
-column -t Submitted_Orders.txt > ../TSX_Orders-`date +%Y%m%d_%H%M`.txt
+column -t Submitted_Orders.txt > ../TSX_OrderList.txt
 
-# change permissions of files for future users
-chmod a+r+w+x Submitted_Orders.txt
-chmod a+r+w+x OrderList
-chmod a+r+w+x ../TSX_Orders-`date +%Y%m%d_%H%M`.txt
+# change permissions of files for future users.  (Not necessary now that we use groups.  Commented out -- sab 11/10/2017)
+#chmod a+r+w+x Submitted_Orders.txt
+#chmod a+r+w+x OrderList
+#chmod a+r+w+x ../TSX_OrderList.txt

@@ -6,6 +6,10 @@
 # Elena Reinisch 20161010
 # update ECR 20170417 update to incoporate reordering columns, untar new downloads, and update existing epoch list
 # update ECR 20170420 update to add in archived scenes
+# update ECR 20170913 update to work with scenes that have abs orbit numbers with less than 5 digits
+# update ECR 20171109 change order list name to ALOS_OrderList.txt
+# update KLF 20171211 delete temp files before starting
+
 
 
 # decide if looking through archives or not
@@ -51,18 +55,29 @@ fi
 touch Cancelled_Orders.txt
 
 # Copy TSX Order file to working file if it exists, if not create working file with header
-if [[ `ls -d ../ALOS_*Orders*.txt | wc -l` == 0 ]]
+if [[ `ls -d ../ALOS_OrderList.txt | wc -l` == 0 ]]
 then
   touch Submitted_Orders.txt
   #echo "#date site sat track swath frame orbit ascdes status source filename path url" > Submitted_Orders.txt
 else
-  cp `ls -d ../ALOS_*Orders*.txt | tail -1` Submitted_Orders.txt
+  #cp `ls -d ../ALOS_*Orders*.txt | tail -1` Submitted_Orders.txt
+  cp `ls -d ../ALOS_OrderList.txt | tail -1` Submitted_Orders.txt
+  mv `ls -d ../ALOS_OrderList.txt | tail -1` ../Archived_OrderLists/ALOS_Orders-`date +%Y%m%d_%H%M`.txt
   sed -i '/#date/d' Submitted_Orders.txt
 fi
 
 # get list of receipts 
 #if [[ $ftype == a ]]
 #then
+if [[ -e scene_info.tmp ]] 
+   then
+   rm scene_info.tmp
+fi
+if [[ -e OrderList ]] 
+   then
+   rm OrderList      
+fi
+
 ls ssara_search*.kml > OrderList
 while read -r a; do
     grep \<Placemark\>\<name\> $a | awk -F name\> '{print $2}' | awk '{print $1}' > scene_id.tmp
@@ -105,10 +120,10 @@ while read -r a; do
          nline=`grep $scene_date Submitted_Orders.txt | sed "s/[^ ]*[^ ]/$estatus/9"`
          sed -i "/${scene_date}/c\@${nline}" Submitted_Orders.txt
          sed -i 's/@//g' Submitted_Orders.txt
-       elif [[ ! -z `find ../${trk}/raw -name "ALPSRP${orbit}*${frame}*" ` ]]
+       elif [[ ! -z `find ../${trk}/raw -name "ALPSRP*${orbit}*${frame}*" ` ]]
        then
          estatus=D
-         dirname=`find ../${trk}/raw -maxdepth 1 -name "ALPSRP${orbit}*${frame}*" -type d | awk -Fraw/ '{print $2}' | awk -F/ '{print $1}'`
+         dirname=`find ../${trk}/raw -maxdepth 1 -name "ALPSRP*${orbit}*${frame}*" -type d | awk -Fraw/ '{print $2}' | awk -F/ '{print $1}'`
          data_loc2=/s21/insar/ALOS/${trk}/raw/${dirname}
          data_loc="\/s21\/insar\/ALOS\/${trk}\/raw\/${dirname}"
         # orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'` # consider adding lines to untar filename and move directory to specified location, so we can update url and data_loc, and then we can grep for orbit
@@ -140,10 +155,10 @@ while read -r a; do
         filename=`grep $scene_date Submitted_Orders.txt | awk '{print $11'}`
      #already untarred and put in raw dir
      #grep "Download URL" scene.tmp | awk '{print $4}'
-     if [[ ! -z `find ../${trk}/raw -name "*ALPSRP${orbit}*${frame}*" ` ]]
+     if [[ ! -z `find ../${trk}/raw -name "*ALPSRP*${orbit}*${frame}*" ` ]]
        then
          estatus=D
-         dirname=`find ../${trk}/raw -maxdepth 1 -name "*ALPSRP${orbit}*${frame}*" -type d | awk -Fraw/ '{print $2}' | awk -F/ '{print $1}'`
+         dirname=`find ../${trk}/raw -maxdepth 1 -name "*ALPSRP*${orbit}*${frame}*" -type d | awk -Fraw/ '{print $2}' | awk -F/ '{print $1}'`
          data_loc="\/s21\/insar\/ALOS\/${trk}\/raw\/${dirname}"
          data_loc2=/s21/insar/ALOS/${trk}/raw/${dirname}
         # orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'` 
@@ -202,24 +217,22 @@ while read -r a; do
    if [[ `echo $(( ( $(date +'%s') - $(date -ud $scene_date +'%s') )/60/60/24 ))` -gt 0 ]]
    then
      if [[ ! -z `grep ${scene_date} ../Cancelled_Orders.txt` ]]
-       then
+     then
        estatus=C
        dirname=nan
        data_loc2=nan
        filename=nan
-       elif [[ ! -z `find ../${trk}/raw -maxdepth 1 -name "ALPSRP${orbit}*${frame}*" ` ]]
-        then
+      elif [[ ! -z `find ../${trk}/raw -maxdepth 1 -name "ALPSRP*${orbit}*${frame}*" ` ]]
+      then
          echo "already in raw directory"
          estatus=D
-         dirname=`find ../${trk}/raw -maxdepth 1 -name "ALPSRP${orbit}*${frame}*" | awk -Fraw/ '{print $2}' | awk -F/ '{print $1}'`
+         dirname=`find ../${trk}/raw -maxdepth 1 -name "ALPSRP*${orbit}*${frame}*" | awk -Fraw/ '{print $2}' | awk -F/ '{print $1}'`
          filename=${dirname}.zip
          data_loc="\/s21\/insar\/ALOS\/${trk}\/raw\/${dirname}"
          data_loc2=/s21/insar/ALOS/${trk}/raw/${dirname}
-         #frame=`echo $dirname | awk -F- '{print substr($1, length($1)-3, 4)}'`
-        # orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'` # consider adding lines to untar filename and move directory to specified location, so we can update url and data_loc, and then we can grep for orbit
-       elif [[ ! -z `find . -name "ALPSRP${orbit}*${frame}*.zip"` ]]
-       then
-         filename=`find . -name "ALPSRP${orbit}*${frame}*.zip" | awk -F/ '{print $2}'`
+      elif [[ ! -z `find . -name "ALPSRP*${orbit}*${frame}*.zip"` ]]
+      then
+         filename=`find . -name "ALPSRP*${orbit}*${frame}*.zip" | awk -F/ '{print $2}'`
          echo FILENAME=$filename
          estatus=D
          unzip ${filename}
@@ -229,8 +242,6 @@ while read -r a; do
          mkdir -p untarred
          mv ${filename} untarred/
          data_loc2=/s21/insar/ALOS/${trk}/raw/${dirname}
-         #frame=`echo $dirname | awk -F- '{print substr($1, length($1)-3, 4)}'`
-         #orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'`
        else 
          estatus=A
          data_loc2=$data_loc
@@ -285,7 +296,7 @@ then
     swath=nan
     frame=`echo $data_loc2 | awk -F/ '{print $(NF)}' | awk -FALPSRP '{print substr($2, 6, 4)}'`
     ascdes=`ls $data_loc2/LED* | awk -F_ '{print $(NF)}'`
-    esource=archvd
+    esource=asf
     filename=${dirname}.zip
     path=`echo $data_loc2 | sed 's/../\/s21\/insar\/ALOS/'`
     #if [[ $trk == "T53" && $swath == *"008"* ]]
@@ -316,11 +327,11 @@ fi
 #column -t Submitted_Orders.txt | sort | sed '1h;1d;$!H;$!d;G' > ../ALOS_Orders-`date +%Y%m%d_%H%M`.txt
 sort Submitted_Orders.txt -o Submitted_Orders.txt
 sed -i '1s/^/#date site sat track swath frame orbit ascdes status source filename path url \n/' Submitted_Orders.txt
-column -t Submitted_Orders.txt > ../ALOS_Orders-`date +%Y%m%d_%H%M`.txt
+column -t Submitted_Orders.txt > ../ALOS_OrderList.txt
 
 #rm scene_id.tmp scene_info.tmp alos.tmp
 
 # change permissions of files for future users
 chmod a+r+w+x Submitted_Orders.txt
 chmod a+r+w+x OrderList
-chmod a+r+w+x ../ALOS_Orders-`date +%Y%m%d_%H%M`.txt
+chmod a+r+w+x ../ALOS_OrderList.txt

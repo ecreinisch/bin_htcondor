@@ -6,6 +6,7 @@
 # Elena Reinisch 20161010
 # update ECR 20170417 update to incoporate reordering columns, untar new downloads, and update existing epoch list
 # update ECR 20170420 update to add in archived scenes
+# udpate ECR 20171109 change order list name to ERS*_OrderList.txt
 
 
 # decide if looking through archives or not
@@ -48,12 +49,15 @@ fi
 touch Cancelled_Orders.txt
 
 # Copy TSX Order file to working file if it exists, if not create working file with header
-if [[ `ls -d ../ERS*_*Orders*.txt | wc -l` == 0 ]]
+#if [[ `ls -d ../ERS*_*Orders*.txt | wc -l` == 0 ]]
+sat0=`pwd | awk -F/ '{print $4}'`
+if [[ `ls -d ../${sat0}_OrderList.txt | wc -l` == 0 ]]
 then
   touch Submitted_Orders.txt
   echo "#date site sat track swath frame orbit ascdes status source filename path url" > Submitted_Orders.txt
 else
-  cp `ls -d ../ERS*_*Orders*.txt | tail -1` Submitted_Orders.txt
+  cp `ls -d ../${sat0}_OrderList.txt | tail -1` Submitted_Orders.txt
+  mv `ls -d ../${sat0}_OrderList.txt | tail -1` ../Archived_OrderLists/${sat0}_Orders-`date +%Y%m%d_%H%M`.txt
 fi
 
 # get list of receipts 
@@ -249,4 +253,5 @@ then
 fi
 
 # clean up output 
-column -t Submitted_Orders.txt | sort | sed '1h;1d;$!H;$!d;G' > ../${sat}_Orders-`date +%Y%m%d_%H%M`.txt
+#column -t Submitted_Orders.txt | sort | sed '1h;1d;$!H;$!d;G' > ../${sat}_Orders-`date +%Y%m%d_%H%M`.txt
+column -t Submitted_Orders.txt | sort | sed '1h;1d;$!H;$!d;G' > ../${sat}_OrderList.txt
