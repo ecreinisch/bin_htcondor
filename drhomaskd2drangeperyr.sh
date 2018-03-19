@@ -1,0 +1,44 @@
+#!/bin/bash
+# converts from unwrapped range change in [m] (drhomaskd) to unwrapped range change rate [m/yr] (drange)
+# edits header info and creates tif files
+# used in prepare_grids_for_gipht_esk.sh 
+# Elena C Reinisch 20170713
+
+drhofile=$1
+echo DRHOFILE = $drhofile
+
+if [[ $drhofile == *"/drho"* ]]
+then 
+ path=`echo $drhofile | awk -F/drhomaskd '{print $1}'`
+else
+ path="."
+fi
+## find time span of pair in terms of days
+#dt=`grdinfo $drhofile | grep dyear | sed 's/;//g' | awk '{printf("%5.5f", ($8-$5))}'`
+
+# find difference in years
+mast=`grdinfo $drhofile | grep dyear | sed 's/;//g' | awk '{print $5}'`
+slav=`grdinfo $drhofile | grep dyear | sed 's/;//g' | awk '{print $8}'`
+myear=`echo $mast | awk '{print substr($1, 1, 4)}'`
+myearend=`echo $mast | awk '{print substr($1, 1, 4)"-12-31" }'`
+mday=`echo $mast | awk '{print substr($1, 5, 3)}'`
+syear=`echo $slav | awk '{print substr($1, 1, 4)}'`
+syearend=`echo $slav | awk '{print substr($1, 1, 4)"-12-31"}'`
+sday=`echo $slav | awk '{print substr($1, 5, 3)}'`
+daysinmyear=`date -ud $myearend +'%j'`
+daysinsyear=`date -ud $syearend +'%j'`
+dyearm=`echo $myear $mday $daysinmyear | awk '{printf("%5.4f", $1+$2/$3)}'`
+dyears=`echo $syear $sday $daysinsyear | awk '{printf("%5.4f", $1+$2/$3)}'`
+dyears=`echo $syear $sday $daysinsyear | awk '{printf("%5.4f", $1+$2/$3)}'`
+dt=`echo $dyears $dyearm | awk '{printf("%5.4f", $1-$2)}'`
+
+# make drange file as rate [m/yr]
+grdmath $drhofile $dt DIV = $path/drange_utm.grd
+
+# replace comments
+grdedit -D:::"m/yr":::"range change rate": $path/drange_utm.grd
+
+#commands to make geotiff version of drhomaskd_utm
+grdconvert drange_utm.grd=nf out_drange.tif=gd:GTiFF
+gdal_translate -a_srs EPSG:32611 out_drange.tif drange_utm.tif
+rm out_drange.tif
