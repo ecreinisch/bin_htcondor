@@ -3,6 +3,7 @@
 # Elena C. Reinisch 20170608
 # edit ECR 20170828 remove cases statement for sites, pull polygon info from get_site_polygon.sh
 # edit ECR 20170828 add beam mode option and nan placeholder for optional parameters
+# edit ECR 20180322 add --asfResponseTimeout=25 to mitigate ASF time outs
 
 if [[ $# -eq 0 ]]
 then
@@ -81,7 +82,7 @@ qcount=0
 while [[ $lcount -lt 6 && $qcount -eq 0 ]]; do
   polygon=$(get_site_polygon.sh $site)
   echo POLYGON = $polygon
-  ssara_federated_query.py --platform=ALOS --intersectsWith="$polygon" -s $tstart -e $tend $trk $frame $beammode --kml
+  ssara_federated_query.py --platform=ALOS --intersectsWith="$polygon" --asfResponseTimeout=25 -s $tstart -e $tend $trk $frame $beammode --kml
 
   let lcount=lcount+1
   qcount=`cat $(ls ssara_search*.kml | tail -1) | grep "Start Time" | wc -l`
@@ -96,5 +97,5 @@ fi
 #if downloading, call the script again
 if [[ "$status" == "download" ]]
 then
-  ssara_federated_query.py --platform=ALOS --intersectsWith="$polygon" -s $tstart -e $tend $trk $frame $beammode --$status
+  ssara_federated_query.py --platform=ALOS --intersectsWith="$polygon" --asfResponseTimeout=25 -s $tstart -e $tend $trk $frame $beammode --$status
 fi

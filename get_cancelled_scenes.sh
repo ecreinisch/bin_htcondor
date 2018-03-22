@@ -1,8 +1,8 @@
 #!/bin/bash
 # shell script to call get_cancelled_scenes.py and grep to get relevant information
-# use Cancelled_Orders.tmp as argument
+# run without any arguments, will scrape WInSAR's cancelled orders list for all new cancelled orders based on record of cancelled orders in Cancelled_Orders.txt
 # Elena C Reinisch 20170511
-# update ECR 20180319 update for new bin_htcondor repo
+# edit ECR 20180322 update to pull canelled scene info from new WInSAR website organization
 
 #scene_file=$1
 
@@ -33,13 +33,14 @@ nlines=30
 while [[ $nlines -ge 30 ]]
 do
 let pagen=pagen+1
-if [[ $pagen == 3 ]]
-then
-    exit 1
-fi
+#if [[ $pagen == 3 ]]
+#then
+#    exit 1
+#fi
 # pull down page from WInSAR archive
 > Cancelled_Orders.tmp
-python ~ebaluyut/bin_htcondor/get_cancelled_scenes.py ${pagen}
+#python3 get_cancelled_scenes.py ${pagen} ${unavuser} ${unavpass}
+python get_cancelled_scenes.py ${pagen} ${unavuser} ${unavpass}
 scene_file=Cancelled_Orders.tmp
 
 # get cancelled scenes info
@@ -66,7 +67,7 @@ done
 sort -u orders.tmp | column -t > tmp.tmp
 # find file names that aren't in list yet
 column -t Cancelled_Orders.txt > tmp2.tmp
-comm -13  <(sort tmp2.tmp) <(sort tmp.tmp) >> new_orders.tmp
+comm -13 -i <(sort tmp2.tmp) <(sort tmp.tmp) >> new_orders.tmp
 
 nlines=`comm -13 -i <(sort tmp2.tmp) <(sort tmp.tmp) | wc -l`
 echo new lines = $nlines
@@ -76,6 +77,8 @@ done
 if [[ `cat new_orders.tmp | wc -l` -gt 0 ]]
 then
  sort new_orders.tmp >> Cancelled_Orders.txt
+ sort Cancelled_Orders.txt | column -t > Cancelled_Orderstmp.txt
+ mv Cancelled_Orderstmp.txt Cancelled_Orders.txt
 #column -t orders.tmp > Cancelled_Orders.txt
 else
     rm new_orders.tmp

@@ -61,7 +61,7 @@ then
   #echo "#date site sat track swath frame orbit ascdes status source filename path url" > Submitted_Orders.txt
 else
   cp `ls -d ../S1A_OrderList.txt | tail -1` Submitted_Orders.txt
-  cp ../S1A_OrderList.txt ../Archived_OrderLists/S1A_Orders-`date +%Y%m%d_%H%M`.txt
+  cp ../S1A_OrderList.txt ../Archived_OrderLists_tmp/S1A_Orders-`date +%Y%m%d_%H%M`.txt
   sed -i '/#date/d' Submitted_Orders.txt
 fi
 
@@ -134,7 +134,7 @@ while read -r a; do
          mv $dirname /s21/insar/S1A/${trk}/raw/
          data_loc="\/s21\/insar\/S1A\/${trk}\/raw\/${dirname}"
          mkdir -p untarred
-         mv ${file_name} untarred
+         mv ${filename} untarred/
          data_loc2=/s21/insar/S1A/${trk}/raw/${dirname}
         # orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'`
          nline=`grep $scene_date Submitted_Orders.txt | sed "s/[^ ]*[^ ]/$estatus/9" | sed "s/[^ ]*[^ ]/$data_loc/12" | sed "s/[^ ]*[^ ]/${orbit}/7"`
@@ -170,7 +170,7 @@ while read -r a; do
          mv $dirname /s21/insar/S1A/${trk}/raw/
          data_loc="\/s21\/insar\/S1A\/${trk}\/raw\/${dirname}"
          mkdir -p untarred
-         mv ${filename} untarred
+         mv ${filename} untarred/
          data_loc2=/s21/insar/TSX/${trk}/raw/${dirname}
          #orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'`  # consider adding lines to untar filename and move directory to specified location, so we can update url and data_loc, and then we can grep for orbit
          nline=`grep $scene_date Submitted_Orders.txt | grep $site | sed -e "s/[^ ]*[^ ]/$estatus/9" | sed -e "s/[^ ]*[^ ]/$data_loc/12" | sed -e "s/[^ ]*[^ ]/${orbit}/7"`
@@ -232,7 +232,7 @@ while read -r a; do
          echo FILENAME=$filename
          estatus=D
          unzip ${filename}
-         dirname=`echo $filename | awk -F\.zip '{print $1}'`
+         dirname=`echo $filename | awk -F\.zip '{print $1".SAFE"}'`
          mv $dirname /s21/insar/S1A/${trk}/raw/
          data_loc="\/s21\/insar\/S1A\/${trk}\/raw\/${dirname}"
          mkdir -p untarred

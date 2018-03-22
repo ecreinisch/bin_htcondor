@@ -2,6 +2,7 @@
 # script to copy and rename S1A data for HTCondor workflow
 # run in raw directory one level below track directory
 # Elena C Reinisch 20170725
+# update ECR 20180322 process only new directories to save time and avoid re-processing
 
 if [[ $# -eq 0 ]]
 then
@@ -11,8 +12,11 @@ then
   exit 1
 fi
 
-# get list of S1A data directories
-ls -d S1A* > dirlist.tmp
+# get list of S1A data directories that need EOF files (presumably newly downloaded data)
+#ls -d S1A* > dirlist.tmp
+ls -d *SAFE > allSAFEdir.tmp
+ls *SAFE/*.EOF | awk -F/ '{print $1}' > SAFEdirEOF.tmp
+comm -13 <(sort SAFEdirEOF.tmp) <(sort allSAFEdir.tmp) > dirlist.tmp
 
 # make preproc directory if doesn't already exist
 mkdir -p ../preproc
@@ -24,7 +28,7 @@ site=$2
 sentinel_orb.sh dirlist.tmp
 
 #paste dirlist.tmp newEOF.lst > preproc_porotomo.lst
-cp new_raw.lst  preproc_porotomo.lst
+cp new_raw.lst preproc_porotomo.lst
 
 # put data in condor format 
 preS1A_htc.sh $trk $site preproc_porotomo.lst
@@ -32,4 +36,4 @@ preS1A_htc.sh $trk $site preproc_porotomo.lst
 scp preproc_porotomo.lst $t31/insar/S1A/${trk}/raw/
 
 # remove temporary list files
-rm dirlist.tmp 
+rm dirlist.tmp SAFEdirEOF.tmp allSAFEdir.tmp

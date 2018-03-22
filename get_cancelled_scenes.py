@@ -1,6 +1,8 @@
 # python script to scrape cancelled scene info from WInSAR collection
+# use in conjunction with get_cancelled_scenes.sh
 # Elena C Reinisch 20170508 
 # edit ECR 20170511 add next_token to go to correct page
+# edit ECR 20180322 update login url for WInSAR's change
 
 import requests # access website
 from lxml import html # pull information from website
@@ -9,7 +11,7 @@ import time # use for date string when naming file
 from sys import argv
 
 # define input variables
-script, pageval = argv
+script, pageval, unavuser, unavpass = argv
 
 
 # loop over all current pages in WInSAR's cancelled orders archive
@@ -18,7 +20,8 @@ for pagen in range(int(pageval), int(pageval)-1, -1):
     session_requests = requests.session()
 
     # set login url as login page leading to page with cancelled orders
-    login_url =  "https://winsar.unavco.org/portal/account/login/?next=/portal/tasking/BeingCancelled/?page={}".format(pagen)
+    #login_url =  "https://winsar.unavco.org/portal/account/login/?next=/portal/tasking/BeingCancelled/?page={}".format(pagen)
+    login_url =  "https://winsar.unavco.org/account/login/?next=/tasking/BeingCancelled/?page={}".format(pagen)
 
     # try accessing the url
     result = session_requests.get(login_url)
@@ -41,8 +44,8 @@ for pagen in range(int(pageval), int(pageval)-1, -1):
 
     # set website credentials
     payload = {
-            "username": "ebaluyut", 
-            "password": "Mis51adyM", 
+            "username": unavuser, 
+            "password": unavpass, 
             "csrfmiddlewaretoken": authenticity_token,
             "next": next_token
     }
