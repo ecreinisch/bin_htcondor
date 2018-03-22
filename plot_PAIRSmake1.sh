@@ -48,8 +48,8 @@ while read -r line; do
    if [[ -e $pair/${pha1}.grd ]]
    then
    mmperfringe=`echo $line | awk '{printf("%2.1f\n", $13 /2 * 1000)}'`
-   ~ebaluyut/bin_htcondor/plot_pair.sh $sat $trk $site $pair $pair/${pha1}.grd ${pair}_${pha1}.ps $mmperfringe $bperp $user $filter_wv $dt $demf
-   ~ebaluyut/bin_htcondor/ps2pdf_crop.sh  ${pair}_${pha1}.ps
+   ${bin_htcondor_home}/plot_pair.sh $sat $trk $site $pair $pair/${pha1}.grd ${pair}_${pha1}.ps $mmperfringe $bperp $user $filter_wv $dt $demf
+   ${bin_htcondor_home}/ps2pdf_crop.sh  ${pair}_${pha1}.ps
    mv ${pair}_${pha1}.ps ${pair}/
    mv ${pair}_${pha1}.pdf ${pair}/
    fi

@@ -3,6 +3,7 @@
 # to be run in subdirectory intf 
 # Elena C Reinisch 20170520
 # update ECR 20180319 update for new bin_htcondor repo
+# update ECR 20180321 update to use user defined ${bin_htcondor_home} for script paths
 
 if [[ $# -eq 0 ]]
 then
@@ -53,22 +54,22 @@ while read -r line; do
      echo COUNT = $count
      case $count in
  	1)
-          ~ebaluyut/bin_htcondor/plot_pair_panel_ls.sh $sat $trk $site Observed $pair/${pfile}.grd ${pair}_${pfile}_${count}-tmp.ps $mmperfringe $bperp $user $filter_wv $dt $pair
+          ${bin_htcondor_home}/plot_pair_panel_ls.sh $sat $trk $site Observed $pair/${pfile}.grd ${pair}_${pfile}_${count}-tmp.ps $mmperfringe $bperp $user $filter_wv $dt $pair
           ;;
         2)
-          ~ebaluyut/bin_htcondor/plot_pair_panel_cs.sh $sat $trk $site Modeled $pair/${pfile}.grd ${pair}_${pfile}_${count}-tmp.ps $mmperfringe $bperp $user $filter_wv $dt $demf
+          ${bin_htcondor_home}/plot_pair_panel_cs.sh $sat $trk $site Modeled $pair/${pfile}.grd ${pair}_${pfile}_${count}-tmp.ps $mmperfringe $bperp $user $filter_wv $dt $demf
           ;;
         3)
-          ~ebaluyut/bin_htcondor/plot_pair_panel_rs.sh $sat $trk $site Residual $pair/${pfile}.grd ${pair}_${pfile}_${count}-tmp.ps $mmperfringe $bperp $user $filter_wv $dt $demf
+          ${bin_htcondor_home}/plot_pair_panel_rs.sh $sat $trk $site Residual $pair/${pfile}.grd ${pair}_${pfile}_${count}-tmp.ps $mmperfringe $bperp $user $filter_wv $dt $demf
           ;;
 #        4)
-#          ~ebaluyut/bin_htcondor/plot_pair_panel_rs.sh $sat $trk $site Deviation $pair/${pfile}.grd ${pair}_${pfile}_${count}-tmp.ps $mmperfringe $bperp $user $filter_wv $dt $demf
+#          ${bin_htcondor_home}/plot_pair_panel_rs.sh $sat $trk $site Deviation $pair/${pfile}.grd ${pair}_${pfile}_${count}-tmp.ps $mmperfringe $bperp $user $filter_wv $dt $demf
 #          ;;
         *)
           exit 1
           ;;
       esac  
-       ~ebaluyut/bin_htcondor/ps2pdf_crop_short.sh  ${pair}_${pfile}_${count}-tmp.ps
+       ${bin_htcondor_home}/ps2pdf_crop_short.sh  ${pair}_${pfile}_${count}-tmp.ps
        mv ${pair}_${pfile}_${count}-tmp.ps ../Plots
        mv ${pair}_${pfile}_${count}-tmp.pdf ../Plots
       count=`expr $count + 1`
@@ -84,7 +85,7 @@ while read -r line; do
   convert -density 300 tmp3.pdf -quality 100 ${pair}_3comp.pdf
   rm *tmp*.pdf
   #convert ${pair}_${pha1}.ps ${pair}_${pha2}.ps ${pair}_${pha3}.ps ${pair}_${pha4}.ps +append ${pair}_4comp.ps 
-  #~ebaluyut/bin_htcondor/ps2pdf_crop.sh  ${pair}_4comp.ps
+  #${bin_htcondor_home}/ps2pdf_crop.sh  ${pair}_4comp.ps
 
   # merge to one page
 #  pdf2ps merged.pdf merged.ps

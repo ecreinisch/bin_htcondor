@@ -2,6 +2,7 @@
 # script to add new site info to appropriate metadata text files
 # Elena C Reinisch 20170828
 # edit ECR 20170830 check to see if ID is already in get_site_dims.sh
+# edit ECR 20180321 update for new gmtsar-aux organization
 
 if [[ $# -eq 0 ]]
 then
@@ -21,26 +22,27 @@ utmregion=$5
 utmzone=$6
 
 # check to see if site ID is already in use
-if [[ `grep $site ~ebaluyut/gmtsar-aux/get_site_dims.sh | wc -l` -gt 0 ]]
+if [[ `grep $site get_site_dims.sh | wc -l` -gt 0 ]]
 then
    echo "site ID in use already.  Please choose a different site ID"
    exit 1
 fi
 
 # add site information to site_dems.txt 
-echo "$site $demf" >> ~ebaluyut/gmtsar-aux/txt_files/site_dems.txt
-scp ~ebaluyut/gmtsar-aux/txt_files/site_dems.txt $t31/ebaluyut/gmtsar-aux/txt_files/
+echo "$site $demf" >> ~ebaluyut/gmtsar-aux/site_dems.txt
+scp ~ebaluyut/gmtsar-aux/site_dems.txt $t31/ebaluyut/gmtsar-aux/
 cp $demf /s21/insar/condor/feigl/insar/dem/
 scp $demf $t31/ebaluyut/scratch/TEST_GMTSAR/insar/dem/
 
 # add region information to get_site_dims.sh
 sed -i "/*)/i \
-\"$site\")" ~ebaluyut/gmtsar-aux/get_site_dims.sh
-sed -i "/\"$site\"/a \  echo \"$region\"" ~ebaluyut/gmtsar-aux/get_site_dims.sh
-sed -i "/*)/i \  ;;" ~ebaluyut/gmtsar-aux/get_site_dims.sh
+\"$site\")" get_site_dims.sh
+sed -i "/\"$site\"/a \  echo \"$region\"" get_site_dims.sh
+sed -i "/*)/i \  ;;" get_site_dims.sh
 
-scp ~ebaluyut/gmtsar-aux/get_site_dims.sh $t31/ebaluyut/gmtsar-aux
-scp ~ebaluyut/gmtsar-aux/get_site_dims.sh $submit3:/home/ebaluyut/binKF
+#scp get_site_dims.sh $t31/ebaluyut/gmtsar-aux
+scp get_site_dims.sh $ice:/usr1/ebaluyut/bin_htcondor
+scp get_site_dims.sh $submit3:/home/ebaluyut/binKF
 
 # add polygon information 
 sed -i "/*)/i \

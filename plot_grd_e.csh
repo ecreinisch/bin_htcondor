@@ -1,5 +1,5 @@
 #!/bin/csh -fvex
-#  Kurt Feigl 20150807
+# Created by Elena C Reinisch based on script from Kurt Feigl 20150807
 # Elena C Reinisch 20170518 plot grd file from any coordinate system
 # update ECR 20180319 update for new bin_htcondor repo
 # 
@@ -40,7 +40,7 @@ cp ~ebaluyut/gmtsar-aux/txt_files/${site}_* .
 # determine if UTM or not
 if ( `grdinfo $in | grep UTM | wc -l` > 0  || $in == *"utm"* ) then
    set ranges = `get_site_dims_utm.sh $site`
-   set uzone = `~ebaluyut/gmtsar-aux/get_site_utmzone.sh $site`
+   set uzone = `get_site_utmzone.sh $site`
    set isutm = 1
 else
    set ranges = `get_site_dims.sh $site`

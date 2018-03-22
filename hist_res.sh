@@ -2,6 +2,7 @@
 # given txt file with 2 columns of grd files, find residuals and plot in histogram
 # Elena C Reinisch 20170318
 # update ECR 20180319 update for new bin_htcondor repo
+# update ECR 20180321 update so that scripts are referenced from user defined ${bin_htcondor_home}
 
 dir1=$1
 dir2=$2
@@ -84,7 +85,7 @@ $x1 $y5  `echo "DEM for ${iname}_2: $demf2"`
 EOF
 
 
-   ~ebaluyut/bin_htcondor/ps2pdf_crop.sh  hist_res_${pair}-${iname}.ps
+   ${bin_htcondor_home}/ps2pdf_crop.sh  hist_res_${pair}-${iname}.ps
   # mv ${pair}_phafilt_unw.ps ../Plots
   # mv ${pair}_phafilt_unw.pdf ../Plots
    

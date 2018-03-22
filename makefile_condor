@@ -1,4 +1,10 @@
 # Make file for copying to different servers
+# to be used after transferring files from submit3 using pairs2porotomo.sh
+# site info will be filled in by pairs2porotomo.sh
+# make sure you source your setup.sh script before running
+# to do a generic post-processing directory setup, run "make" with no arguments
+# Elena C Reinisch
+# update ECR 20180320 - do not append script paths 
 site=
 
 .PHONY : all
@@ -24,19 +30,19 @@ setup :
 .PHONY : get_in
 get_in :
 	@echo "transfer pairs from maule"
-	@~ebaluyut/bin_htcondor/getmaulepairs.sh intf/maule_pairs.lst
+	@getmaulepairs.sh intf/maule_pairs.lst
 
 .PHONY : untar_in
 untar_in :
 	@echo "untar pairs from maule"
 	@cdir=`pwd`
 	@echo "tar -xzvf In*.tgz"
-	@cd intf; ~ebaluyut/bin_htcondor/untar_condor.sh; cd ${cdir}
+	@cd intf; untar_condor.sh; cd ${cdir}
 
 .PHONY : prep_log
 prep_log :
 	@echo "move log files to intf/[pair] directories"
-	@cd log; ~ebaluyut/bin_htcondor/mv_log_files.sh; cd ${cdir}
+	@cd log; mv_log_files.sh; cd ${cdir}
 
 .PHONY : topo
 topo :
@@ -47,7 +53,7 @@ topo :
 pre_gipht :
 	@echo "prepare files for gipht"
 	@cdir=`pwd`
-	@cd gipht; ~ebaluyut/bin_htcondor/prepare_grids_for_gipht_esk.sh ${site}; cd ${cdir}
+	@cd gipht; prepare_grids_for_gipht_esk.sh ${site}; cd ${cdir}
 
 .PHONY : plot_comp
 plot_comp :
