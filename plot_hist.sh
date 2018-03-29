@@ -2,10 +2,13 @@
 # script for plotting histogram of 1 grd file with footer information
 # Elena C Reinisch 20161004
 # update ECR 20180319 update for new bin_htcondor repo
+# update ECR 20180327 update for new gmtsar-aux layout
+# update ECR 20180327 update for new get_site_dims.sh
 
 if [[ $# -eq 0 ]]
 then
 echo "script for plotting histogram of 1 grd file with footer information"
+echo "currently works with lat/lon versions only"
 echo "plot_hist.sh [sat] [track] [site] [pair_name] [grdfile] [data unit] [outfile] [user] [baseline] [filter_wv] [time span] [DEM file name with path]"
 echo "pair_name is used as title for plot"
 echo "arguments [user] [baseline] [filter_wv] [time span] [DEM file name with path] are used for comments only"
@@ -30,7 +33,7 @@ echo $pha1
 echo $outfile
 
 # get appropriate well files
-cp ~ebaluyut/gmtsar-aux/txt_files/${site}_* .
+cp ~ebaluyut/gmtsar-aux/${site}/* .
 
 # set gmt environment varibles
 #gmtset PS_MEDIA = letter
@@ -55,7 +58,7 @@ gmtset MAP_TITLE_OFFSET = 3p
 gmtset FORMAT_FLOAT_OUT = %3.2f
 
 # define region for cutting/plotting
-region=`get_site_dims.sh ${site}`
+region=`get_site_dims.sh ${site} 1`
 echo $region
 
 # image wrapped phase first, adding title to figure

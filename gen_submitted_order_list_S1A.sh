@@ -6,6 +6,7 @@
 # Elena Reinisch 20161010
 # update ECR 20170417 update to incoporate reordering columns, untar new downloads, and update existing epoch list
 # update ECR 20170420 update to add in archived scenes
+# update ECR 20180327 update for new gmtsar-aux layout
 
 
 # decide if looking through archives or not
@@ -89,10 +90,10 @@ while read -r a; do
     # make track directory if doesn't exist
     mkdir -p ../${trk}
     mkdir -p ../${trk}/raw
-    #site=`grep $sat ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $trk | awk '{print $1}'`
+    #site=`grep $sat ~ebaluyut/gmtsar-aux/site_sats.txt | grep $trk | awk '{print $1}'`
     orbit=`grep "Absolute orbit" scene_info.tmp | head -${ncount} | tail -1 | awk '{print $3}'`
     frame=`grep "First Frame" scene_info.tmp  | head -${ncount} | tail -1 | awk '{print $4}'`
-    swath=`grep $site ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | grep $trk | awk '{print $4}'`
+    swath=`grep $site ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $trk | awk '{print $4}'`
     url=nan
     echo ORBIT = $orbit
     echo FRAME = $frame
@@ -195,13 +196,13 @@ while read -r a; do
     url=`grep "Download URL" scene_info.tmp | awk '{print $4}'`
     data_loc=nan
   
-   # if [[ `grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
+   # if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
    # then
-   #    if [[ `grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
+   #    if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
    #    then
-   #       site=`grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
+   #       site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
    #    else
-   #       site=`grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | awk '{print $1}'`
+   #       site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | awk '{print $1}'`
    #    fi
    # else
    #    site=nan
@@ -251,7 +252,7 @@ while read -r a; do
      #frame=nan
    fi
     # add line for each site using this data
-   grep $sat ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $trk > site_sat.tmp
+   grep $sat ~ebaluyut/gmtsar-aux/site_sats.txt | grep $trk > site_sat.tmp
     while read line; do
       site=`echo $line | awk '{print $1}'`
       echo SITE = $site
@@ -300,7 +301,7 @@ then
     filename=$dirname
     path=`echo $data_loc2 | sed 's/../\/s21\/insar\/S1A/'`
     # add line for each site using this data
-   grep $sat ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $trk > site_sat.tmp
+   grep $sat ~ebaluyut/gmtsar-aux/site_sats.txt | grep $trk > site_sat.tmp
     while read line; do
       site=`echo $line | awk '{print $1}'`
       echo SITE = $site

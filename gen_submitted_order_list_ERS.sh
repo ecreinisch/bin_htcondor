@@ -7,6 +7,7 @@
 # update ECR 20170417 update to incoporate reordering columns, untar new downloads, and update existing epoch list
 # update ECR 20170420 update to add in archived scenes
 # udpate ECR 20171109 change order list name to ERS*_OrderList.txt
+# update ECR 20180327 update for new gmtsar-aux layout
 
 
 # decide if looking through archives or not
@@ -157,13 +158,13 @@ while read -r a; do
     data_loc=nan
     #filename=
   
-    if [[ `grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
+    if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
     then
-       if [[ `grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
+       if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
        then
-          site=`grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
+          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
        else
-          site=`grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | awk '{print $1}'`
+          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | awk '{print $1}'`
        fi
     else
        site=nan
@@ -234,13 +235,13 @@ then
     ascdes=nan
     esource=archvd
     filename=$dirname
-    if [[ `grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
+    if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
     then
-       if [[ `grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
+       if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
        then
-          site=`grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
+          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
        else
-          site=`grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | awk '{print $1}'`
+          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | awk '{print $1}'`
        fi
     else
        site=nan

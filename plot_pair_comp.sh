@@ -5,6 +5,8 @@
 # 20171212 Sam & Kurt plot wells on second panel
 # 20171212 Sam & Kurt fix text labelling in UTM coordinates
 # update ECR 20180319 update for new bin_htcondor repo
+# update ECR 20180327 update for new gmtsar-aux layout
+# update ECR 20180327 update for new get_site_dims.sh
 
 
 if [[ $# -eq 0 ]]
@@ -34,7 +36,7 @@ cdir=`pwd`
 echo ${outfile}
 
 # get appropriate well files
-cp ~ebaluyut/gmtsar-aux/txt_files/${site}_* .
+cp ~ebaluyut/gmtsar-aux/${site}/* .
 
 # set gmt environment varibles
 #gmtset PS_MEDIA = letter
@@ -61,25 +63,25 @@ gmtset FORMAT_FLOAT_OUT = %3.2f
 # define region for cutting/plotting
 if [[ `grdinfo $pha1 | grep UTM | wc -l` -gt 0 ]] || [[ $pha1 == *"utm"* ]]
 then
-    region=`get_site_dims_utm.sh ${site}`
+    region=`get_site_dims.sh ${site} 2`
     isutm=1
 else
-    region=`get_site_dims.sh ${site}`
+    region=`get_site_dims.sh ${site} 1`
     isutm=0
 fi
 echo $region
 
 # set plotting scheme for UTM.  Determine scaling ratio between X and Y and plot larger axis with size 10
-dx=`get_site_dims_utm.sh ${site} | awk -FR '{print $2}' | awk -F/ '{print $2 - $1}'`
-dy=`get_site_dims_utm.sh ${site} | awk -FR '{print $2}' | awk -F/ '{print $4 - $3}'`
+dx=`get_site_dims.sh ${site} 2 | awk -FR '{print $2}' | awk -F/ '{print $2 - $1}'`
+dy=`get_site_dims.sh ${site} 2 | awk -FR '{print $2}' | awk -F/ '{print $4 - $3}'`
 echo DY = $dy
 echo DX = $dx
 if [[ $dy -ge $dx ]]
 then
-  pratio=`get_site_dims_utm.sh ${site} | awk -FR '{print $2}' | awk -F/ '{printf("%1d\n", ($2-$1)/($4-$3)*7)}'`
+  pratio=`get_site_dims.sh ${site} 2 | awk -FR '{print $2}' | awk -F/ '{printf("%1d\n", ($2-$1)/($4-$3)*7)}'`
   jflag="-JX${pratio}/7"
 else
-  pratio=`get_site_dims_utm.sh ${site} | awk -FR '{print $2}' | awk -F/ '{printf("%1d\n", ($4-$3)/($2-$1)*7)}'`
+  pratio=`get_site_dims.sh ${site} 2 | awk -FR '{print $2}' | awk -F/ '{printf("%1d\n", ($4-$3)/($2-$1)*7)}'`
   jflag="-JX7/${pratio}"
 fi
 lengthx=`echo $jflag | awk -F/ '{print $1}' | awk -FX '{print $2}'`
@@ -99,7 +101,7 @@ echo $dlon
 # define region in km if UTM 
 if [[ $isutm == 1 ]]
 then
-  region_km=`get_site_dims_utm.sh $site | awk -FR '{print $2}' | awk -F/ '{printf("-R%6.6f/%6.6f/%6.6f/%6.6f", $1/1e3, $2/1e3, $3/1e3, $4/1e3)}'`
+  region_km=`get_site_dims.sh $site 2 | awk -FR '{print $2}' | awk -F/ '{printf("-R%6.6f/%6.6f/%6.6f/%6.6f", $1/1e3, $2/1e3, $3/1e3, $4/1e3)}'`
   dlat_km=`echo $dlat | awk '{print $1/1e3}'`
   dlon_km=`echo $dlon | awk '{print $1/1e3}'`
 fi 

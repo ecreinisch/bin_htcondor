@@ -2,6 +2,8 @@
 # script for plotting 1 pair with footer information
 # Elena C Reinisch 20170520
 # update ECR 20180319 update for new bin_htcondor repo
+# update ECR 20180327 update for new gmtsar-aux layout
+# update ECR 20180327 update for new get_site_dims.sh
 
 if [[ $# -eq 0 ]]
 then
@@ -30,7 +32,7 @@ demf=${12}
 cdir=`pwd`
 
 # get appropriate well files
-cp ~ebaluyut/gmtsar-aux/txt_files/${site}_* .
+cp ~ebaluyut/gmtsar-aux/${site}/* .
 
 # set gmt environment varibles
 #gmtset PS_MEDIA = letter
@@ -57,10 +59,10 @@ gmtset FORMAT_FLOAT_OUT = %3.2f
 # define region for cutting/plotting
 if [[ `grdinfo $pha1 | grep UTM | wc -l` -gt 0 || $pha1 == *"utm"* ]]
 then
-    region=`get_site_dims_utm.sh ${site}`
+    region=`get_site_dims.sh ${site} 2`
     isutm=1
 else
-    region=`get_site_dims.sh ${site}`
+    region=`get_site_dims.sh ${site} 1`
     isutm=0
 fi
 echo $region
@@ -74,7 +76,7 @@ echo $dlon
 # define region in km if UTM
 if [[ $isutm == 1 ]]
 then
-  region_km=`get_site_dims_utm.sh $site | awk -FR '{print $2}' | awk -F/ '{printf("-R%6.6f/%6.6f/%6.6f/%6.6f", $1/1e3, $2/1e3, $3/1e3, $4/1e3)}'`
+  region_km=`get_site_dims.sh $site 2 | awk -FR '{print $2}' | awk -F/ '{printf("-R%6.6f/%6.6f/%6.6f/%6.6f", $1/1e3, $2/1e3, $3/1e3, $4/1e3)}'`
   dlat_km=`echo $dlat | awk '{print $1/1e3}'`
   dlon_km=`echo $dlon | awk '{print $1/1e3}'`
 fi

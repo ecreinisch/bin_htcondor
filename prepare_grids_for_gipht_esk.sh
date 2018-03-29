@@ -17,6 +17,8 @@
 # 20170914 ECR more robust for PRM files
 # 20170926 Kurt and Sam - update RANGES for tungs
 # 20180319 ECR update for new bin_htcondor repo
+# 20180327 ECR update for new gmtsar-aux layout
+# 20180327 ECR update for new get_site_dims.sh
 
 if [[ $# -eq 0 ]]
 then
@@ -64,9 +66,9 @@ echo $SAREA
 #  exit 1
 #  ;;
 #esac
-RANGES=`~ebaluyut/gmtsar-aux/get_site_dims.sh $SAREA`
-URANGES=`~ebaluyut/gmtsar-aux/get_site_dims_utm.sh $SAREA`
-ZONE=`~ebaluyut/gmtsar-aux/get_site_utmzone.sh $SAREA` 
+RANGES=`get_site_dims.sh $SAREA 1`
+URANGES=`get_site_dims.sh $SAREA 2`
+ZONE=`get_site_dims.sh $SAREA 3` 
 echo $RANGES
 echo $ZONE
 DEM=../topo/dem.grd

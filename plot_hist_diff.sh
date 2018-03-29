@@ -1,17 +1,12 @@
 #!/bin/bash
-# script for making clean gmt plots comparing phase from 2 different satellites
-# THIS VERSION PLOTS IN CYCLES
-# compares wrapped phase and unwrapped range
-# Tabrez Ali
-# Edits by Elena C Reinisch 20161004
-# inputs SAT1 TRACK1 PAIR1_DATES phase.grd.file baseline_file_1 output.ps.file
-# can be run iteratively using ~/SCRIPTS/run_plot_brady_comp.sh sat1 trk 1 sat2 trk2 pair_list_file
-#
-# requires the following text files: prd.ll, stm.ll, inj.ll, box.txt
+# script for plotting histogram of differenced grd files with footer info 
+# Elena C Reinisch 20170904
+# update ECR 20180327 update for new get_site_dims.sh
 
 if [[ $# -eq 0 ]]
 then
 echo "script for plotting histogram of differenced grd files with footer information"
+echo "currently works with lat/lon versions only"
 echo "plot_hist_diff.sh [sat] [track] [site] [pair1_name] [grdfile1] [pair2_name] [grdfile2] [data unit] [outfile] [user] [baseline] [filter_wv] [time span] [DEM file name with path]"
 echo "pair_name is used as title for plot"
 echo "arguments [user] [baseline] [filter_wv] [time span] [DEM file name with path] are used for comments only"
@@ -48,7 +43,7 @@ gmtset MAP_TITLE_OFFSET = 5p
 gmtset FORMAT_FLOAT_OUT = %3.2f
 
 # define region for cutting/plotting
-region=`get_site_dims.sh ${site}`
+region=`get_site_dims.sh ${site} 1`
 echo $region
 
 # image wrapped phase first, adding title to figure

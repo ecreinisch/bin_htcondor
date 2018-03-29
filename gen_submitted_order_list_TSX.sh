@@ -7,6 +7,7 @@
 # update ECR 20170417 update to incoporate reordering columns, untar new downloads, and update existing epoch list
 # update ECR 20170420 update to add in archived scenes
 # update ECR 20171109 change name of Order List to TSX_OrderList.txt
+# update ECR 20180327 update for new gmtsar-aux layout
 
 
 # decide if looking through archives or not
@@ -194,13 +195,13 @@ while read -r a; do
     data_loc=nan
     filename=SO_${full_order_number}${b}_1.tar.gz
   
-    if [[ `grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
+    if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
     then
-       if [[ `grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
+       if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
        then
-          site=`grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
+          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
        else
-          site=`grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | awk '{print $1}'`
+          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | awk '{print $1}'`
        fi
     else
        site=nan
@@ -375,13 +376,13 @@ then
       swath=`grep "\<Beam\>" order.tmp | head -1 | awk '{print $12}' | sed 's/.$//g'`
       ascdes=nan
 
-      if [[ `grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
+      if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
       then
-        if [[ `grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
+        if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
         then
-           site=`grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
+           site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
         else
-           site=`grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | awk '{print $1}'`
+           site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | awk '{print $1}'`
         fi
       else
         site=nan
@@ -399,13 +400,13 @@ then
     filename=`grep "Order Name" order.tmp | awk '{print $3}'`
     #data_loc=$data_loc2
 
-    if [[ `grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
+    if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
     then
-       if [[ `grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
+       if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
        then
-          site=`grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
+          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
        else
-          site=`grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | awk '{print $1}'`
+          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | awk '{print $1}'`
        fi
     else
        site=nan
@@ -498,13 +499,13 @@ then
     esource=archvd
     filename=$dirname
     path=`echo $data_loc2 | sed 's/../\/s21\/insar\/TSX/'`
-    if [[ `grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
+    if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
     then
-       if [[ `grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
+       if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
        then
-          site=`grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
+          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
        else
-          site=`grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | awk '{print $1}'`
+          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | awk '{print $1}'`
        fi
     else
        site=nan
@@ -532,13 +533,13 @@ then
     esource=archvd
     filename=$dirname
     path=`echo $data_loc2 | sed 's/../\/s21\/insar\/TSX/'`
-    if [[ `grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
+    if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
     then
-       if [[ `grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
+       if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
        then
-          site=`grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
+          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
        else
-          site=`grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | awk '{print $1}'`
+          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | awk '{print $1}'`
        fi
     else
        site=nan

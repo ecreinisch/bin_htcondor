@@ -10,6 +10,7 @@
 # edit ECR 20170828 add frame option for ALOS
 # edit ECR 20171109 change inputs from [site] [trk] [epoch list path] [optional frame] to [site] [sat] [trk] [optional frame]; now copies appropriate OrderList from maule to /t31/insar/[sat]/ and pulls relevant information
 # edit ECR 20171205 change to S1A steps for newly downloaded data
+# edit ECR 20180327 update for new gmtsar-aux layout
 
 if [[ $# -eq 0 ]]
 then
@@ -106,7 +107,7 @@ then
   wv=0.0562356424
 fi
 orbdir=`head -1 RAW.tmp | awk '{print $8}'`
-dem=`grep $site /t31/ebaluyut/gmtsar-aux/txt_files/site_dems.txt | awk '{print $2}'`
+dem=`grep $site /t31/ebaluyut/gmtsar-aux/site_dems.txt | awk '{print $2}'`
 ## cut down S1A file names to epoch and subswath only
 #if [[ "$sat" == "S1A" ]]
 #then
@@ -218,7 +219,7 @@ while read line; do
    SAT_baseline S1A${mast}_${subswath}.PRM S1A${slav}_${subswath}.PRM > bline.tmp
   elif [[ "$sat" == "TSX" ]]
   then
-    ~ebaluyut/gmtsar-aux/GMTSAR_scripts/eTSX_baseline.csh $mast.PRM $slav.PRM > bline.tmp
+    eTSX_baseline.csh $mast.PRM $slav.PRM > bline.tmp
   elif [[ "$sat" == "ALOS"* ]]
   then
     ALOS_baseline $mast.PRM $slav.PRM > bline.tmp

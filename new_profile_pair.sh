@@ -5,6 +5,7 @@
 # e.g. ./profile_pair2.sh PHA phase; ./profile_pair2.sh PHAFILT phase-filtered
 # 20170531 ECR update to allow for UTM plots
 # update ECR 20180319 update for new bin_htcondor repo
+# update ECR 20180327 update for new gmtsar-aux layout
 
 if [[ $# -eq 0 ]]
 then
@@ -40,11 +41,11 @@ then
 type="unwrapped"
 else
 type="undefined"
-echo "Warning: undefined filetype. See new_profile_pair_brady.sh for more details"
+echo "Warning: undefined filetype. See new_profile_pair.sh for more details"
 fi 
 
 # make list of pairs
-ls -d In*/ > InList
+ls -d In*/ | awk -F/ '{print $1}' > InList
 
 # make directory to save profiles to (if doesn't exist)
 mkdir -p ../Profiles
@@ -53,7 +54,6 @@ mkdir -p ../Profiles
 while read -r a; do
 cd $a
 # get necessary text file that holds Brady box coordinates
-cp ~ebaluyut/gmtsar-aux/txt_files/bradys_latlon .
 > GrdList
 > profile.rsp
 > coord.rsp
@@ -73,7 +73,7 @@ tcsh -f ${bin_htcondor_home}/make_profile_e.csh ${lon0} ${lat0} ${strikecw} .05
 sort profile.rsp | uniq -u
 
 # plot profile
-tcsh -f ${bin_htcondor_home}/plot_grd_ll_e.csh $pha1 $quantity $type $a
+tcsh -f ${bin_htcondor_home}/plot_grd_e.csh $pha1 $quantity $type $a $sat $track $site
 #tcsh -f ~ebaluyut/bin_htcondor/plot_grd_e_BradyInSARRCF.csh $pha1 $quantity $type $a $sat $track $site
 
 # crop and move plots

@@ -2,6 +2,7 @@
 # script for pre-processing S1A data; to be used on porotomo for getting pair list metadata (not for forming actual pairs)
 # run in raw directory
 # 20170427 Elena C Reinisch
+# update ECR 20180327 update for new get_site_dims.sh
 
 if [[ $# -eq 0 ]]
 then
@@ -17,7 +18,7 @@ fi
 trk=$1
 site=$2
 sat="S1A"
-#site=`grep $sat /t31/ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $trk | awk '{print $1}'`
+#site=`grep $sat /t31/ebaluyut/gmtsar-aux/site_sats.txt | grep $trk | awk '{print $1}'`
 subswath=`grep $site /t31/ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | grep $trk | awk '{print $4}' | awk -FF '{print $2}'`
 demf=`grep $site /t31/ebaluyut/gmtsar-aux/txt_files/site_dems.txt | awk '{print $2}'`
 
@@ -46,7 +47,7 @@ cd raw_tmp
 > data.in
 
 # set up dem link
-region=`get_site_dims.sh $site`
+region=`get_site_dims.sh $site 1`
 echo DEMF = $demf
 grdcut /t31/ebaluyut/scratch/TEST_GMTSAR/insar/dem/$demf -Gdem.grd $region 
 

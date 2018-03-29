@@ -3,6 +3,7 @@
 # Elena C Reinisch 20170828
 # edit ECR 20170830 check to see if ID is already in get_site_dims.sh
 # edit ECR 20180321 update for new gmtsar-aux organization
+# edit ECR 20180327 update for new get_site_dims.sh organization
 
 if [[ $# -eq 0 ]]
 then
@@ -22,11 +23,18 @@ utmregion=$5
 utmzone=$6
 
 # check to see if site ID is already in use
-if [[ `grep $site get_site_dims.sh | wc -l` -gt 0 ]]
+if [[ `grep $site ~ebaluyut/gmtsar-aux/site_sats.txt | wc -l` -gt 0 ]]
 then
    echo "site ID in use already.  Please choose a different site ID"
    exit 1
 fi
+
+## get UTM information if needed
+#if [[ ! -z $utmregion ]]
+#then
+#  
+#fi
+
 
 # add site information to site_dems.txt 
 echo "$site $demf" >> ~ebaluyut/gmtsar-aux/site_dems.txt
@@ -35,31 +43,17 @@ cp $demf /s21/insar/condor/feigl/insar/dem/
 scp $demf $t31/ebaluyut/scratch/TEST_GMTSAR/insar/dem/
 
 # add region information to get_site_dims.sh
-sed -i "/*)/i \
-\"$site\")" get_site_dims.sh
-sed -i "/\"$site\"/a \  echo \"$region\"" get_site_dims.sh
-sed -i "/*)/i \  ;;" get_site_dims.sh
+echo "" >> ~ebaluyut/gmtsar-aux/site_dims.txt
+echo "${site}:" >> ~ebaluyut/gmtsar-aux/site_dims.txt
+echo $region >> ~ebaluyut/gmtsar-aux/site_dims.txt
+echo $utmregion >> ~ebaluyut/gmtsar-aux/site_dims.txt
+echo $utmzone >> ~ebaluyut/gmtsar-aux/site_dims.txt
 
-#scp get_site_dims.sh $t31/ebaluyut/gmtsar-aux
-scp get_site_dims.sh $ice:/usr1/ebaluyut/bin_htcondor
-scp get_site_dims.sh $submit3:/home/ebaluyut/binKF
+scp ~ebaluyut/gmtsar-aux/site_dims.txt $t31/ebaluyut/gmtsar-aux/
 
 # add polygon information 
-sed -i "/*)/i \
-\"$site\")" ~ebaluyut/gmtsar-aux/get_site_polygon.sh
-sed -i "/\"$site\"/a \  echo \"$polygon\""  ~ebaluyut/gmtsar-aux/get_site_polygon.sh
-sed -i "/*)/i \  ;;"  ~ebaluyut/gmtsar-aux/get_site_polygon.sh 
+echo "" >> ~ebaluyut/gmtsar-aux/site_poly.txt
+echo "${site}:" >> ~ebaluyut/gmtsar-aux/site_poly.txt
+echo "${polygon}" >> ~ebaluyut/gmtsar-aux/site_poly.txt
 
-# utm if supplied
-if [[ ! -z $utmregion && ! -z $utmzone ]]
-then
-sed -i "/*)/i \
-\"$site\")" ~ebaluyut/gmtsar-aux/get_site_dims_utm.sh
-sed -i "/\"$site\"/a \  echo \"$utmregion\"" ~ebaluyut/gmtsar-aux/get_site_dims_utm.sh
-sed -i "/*)/i \  ;;" ~ebaluyut/gmtsar-aux/get_site_dims_utm.sh
-
-sed -i "/*)/i \
-\"$site\")" ~ebaluyut/gmtsar-aux/get_site_utmzone.sh
-sed -i "/\"$site\"/a \  echo \"$utmzone\""  ~ebaluyut/gmtsar-aux/get_site_utmzone.sh
-sed -i "/*)/i \  ;;"  ~ebaluyut/gmtsar-aux/get_site_utmzone.sh
-fi
+scp ~ebaluyut/gmtsar-aux/site_poly.txt $t31/ebaluyut/gmtsar-aux/

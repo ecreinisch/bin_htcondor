@@ -2,6 +2,7 @@
 # run a check for duplicate pairs and  suggest reorganization scheme
 # run in site directory (e.g., /t31/insar/TSX/brady/)
 # Elena C Reinisch 20180320
+# update ECR 20180327 update for new gmtsar-aux layout
 
 if [[ $# -eq 0 ]]; then
   echo "script to run a check for duplicate pairs and  suggest reorganization scheme"
@@ -19,7 +20,7 @@ fi
 wavelength=$1
 sat=$2 # enter in lowercase
 site=$3
-demf=`grep $site ~ebaluyut/gmtsar-aux/txt_files/site_dems.txt | awk '{print $2}'`
+demf=`grep $site ~ebaluyut/gmtsar-aux/site_dems.txt | awk '{print $2}'`
 
 # get list of all files which match directory order, wavelength, and DEM
 #find . -name drhomaskd_utm.grd > allfiles.tmp # consider all files regardless of directory level

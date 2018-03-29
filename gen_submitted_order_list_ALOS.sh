@@ -9,6 +9,7 @@
 # update ECR 20170913 update to work with scenes that have abs orbit numbers with less than 5 digits
 # update ECR 20171109 change order list name to ALOS_OrderList.txt
 # update KLF 20171211 delete temp files before starting
+# update ECR 20180327 update for new gmtsar-aux layout
 
 
 
@@ -202,13 +203,13 @@ while read -r a; do
     data_loc=nan
     #filename=
   
-    if [[ `grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
+    if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
     then
-       if [[ `grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
+       if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
        then
-          site=`grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
+          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
        else
-          site=`grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | awk '{print $1}'`
+          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | awk '{print $1}'`
        fi
     else
        site=nan
@@ -305,13 +306,13 @@ then
     #else
     #  site=nan
     #fi  
-    if [[ `grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
+    if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
     then
-       if [[ `grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
+       if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
        then
-          site=`grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
+          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
        else
-          site=`grep $trk ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | awk '{print $1}'`
+          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | awk '{print $1}'`
        fi
     else
        site=nan
