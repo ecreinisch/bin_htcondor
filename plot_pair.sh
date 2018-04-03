@@ -145,12 +145,14 @@ then
 # if file is stacked unwrapped (unwrap_ll.grd)
 elif [[ "$pha1" == *"avg_range"* ]] || [[ "$pha1" == *"stack"* ]] || [[ "$pha1"* == *"summed"* ]]
 then
-  grdmath $pha1 ISFINITE $pha1 MUL PI DIV 2.0 DIV $mmperfringe  MUL = r2mm.grd
+  #grdmath $pha1 ISFINITE $pha1 MUL PI DIV 2.0 DIV $mmperfringe  MUL = r2mm.grd
+  grdmath $pha1 1000  MUL = r2mm.grd
   zmin=`grdinfo -C -L2 r2mm.grd | awk '{print $6}'`
   zmax=`grdinfo -C -L2 r2mm.grd | awk '{print $7}'`
   dz=`echo $zmax $zmin | awk '{print ($1-$2)/50}'`
-  #makecpt -T${zmin}/${zmax}/${dz} -Cpolar -D -I > cpt.cpt # unwrapped phase plot
-  makecpt -T-3.5/0.5/0.05 -Cpolar -D -I > cpt.cpt # unwrapped phase plot
+  makecpt -T${zmin}/${zmax}/${dz} -Cpolar -D -I > cpt.cpt # unwrapped phase plot
+  #makecpt -T-3.5/0.5/0.05 -Cpolar -D -I > cpt.cpt # unwrapped phase plot
+  #makecpt -T-0.04/0.07/0.005 -Cpolar -D -I > cpt.cpt # unwrapped phase plot
   if [[ $isutm == 0 ]] # if not UTM, plot with file's region, dlat, and dlon
   then
     grdimage r2mm.grd -Y7 -C${cdir}/cpt.cpt $jflag $region -P -Bx${dlon} -By${dlat} -BWSne+t"${sat1} ${trk1} ${pair1}" -K > ${outfile}
