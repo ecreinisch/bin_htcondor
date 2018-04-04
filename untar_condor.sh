@@ -2,6 +2,7 @@
 # script to untar condor pairs from maule and place PRM and LED files in preproc directory
 # Elena C Reinisch 20170430
 # edit ECR 20170725 add option to copy PRM and LED files from preproc if they weren't transferred with the job
+# edit ECR 20180404 correct metadata files to make soft links in preproc dir; check that links don't exist before trying to make them
 
 # get list of pair tar files
 ls In*.tgz > tarlist
@@ -34,10 +35,14 @@ while read -r a; do
      slavPRM=`find $pair -name *${slav}*PRM`
   fi
   # make links to preproc files
-  ln $mastLED ../preproc/$mast.LED
-  ln $mastPRM ../preproc/$mast.PRM
-  ln $slavLED ../preproc/$slav.LED
-  ln $slavPRM ../preproc/$slav.PRM
+  if [[ ! -e ../preproc/${mast}.LED && ! -L ../preproc/$mast.LED ]]; then
+    ln -s $mastLED ../preproc/$mast.LED
+    ln -s $mastPRM ../preproc/$mast.PRM
+  fi
+  if [[ ! -e ../preproc/${slav}.LED && ! -L ../preproc/$slav.LED ]]; then 
+    ln -s $slavLED ../preproc/$slav.LED
+    ln -s $slavPRM ../preproc/$slav.PRM
+  fi
 done < tarlist
 
 # clean up
