@@ -6,6 +6,7 @@ all :
 	@make setup
 	@make get_in
 	@make untar_in
+	@make prep_log
 	@make topo
 	@make pre_gipht
 
@@ -31,6 +32,13 @@ untar_in :
 	@cdir=`pwd`
 	@echo "tar -xzvf In*.tgz"
 	@cd intf; untar_condor.sh; cd ${cdir}
+
+
+.PHONY : prep_log
+prep_log :
+	@echo "move log files to intf/[pair] directories"
+	@cd log; mv_log_files.sh; cd ${cdir}
+
 
 .PHONY : topo
 topo :
