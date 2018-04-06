@@ -4,6 +4,7 @@
 # Elena C Reinisch 20170123
 # edit ECR 20170831 fix to -l and -g options; just take arg $7 
 # edit ECR 20171128 add -o and -q options for month matching
+# edit ECR 20180406 remove duplicate lines
 
 if [[ $# -eq 0 ]]
 then
@@ -180,6 +181,6 @@ else
 fi
 
 # clean up
- cp PAIRSmake.txt  file.tmp 
+ awk '!seen[$0]++' PAIRSmake.txt > file.tmp 
  column -t file.tmp > PAIRSmake.txt
  rm pairs.tmp file.tmp
