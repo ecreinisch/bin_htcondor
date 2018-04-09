@@ -1,6 +1,5 @@
 #!/bin/bash
-# how to run a pair of insar images 2060804 Kurt Feigl
-#
+# how to run a pair of insar images 2060804 Kurt Feigl 20160806 Elena C Reinisch
 # edit 20170218 Elena C Reinisch, change S1A setup for preprocessing per pair; save PRM and LED files to output
 # edit 20170710 copy data from maule during job, send email when job has finished; transfer pair directly to maule 
 # edit 20170801 ECR update to copy maule ALOS data with frame in the name

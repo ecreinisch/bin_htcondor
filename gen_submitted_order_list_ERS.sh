@@ -1,8 +1,5 @@
 #!/bin/bash
-# when run in a directory containing order receipts, generates list of orders to date
-# outputs text file Submitted_Orders.txt with the following columns:
-# Order ID, Order Date, Order Name, Track, Epoch
-# To be used with ~/SCRIPTS/gen_TSX_SAR_log.sh to get full Epoch log file
+# when run in ERS downloads directory, generates list of orders to date and outputs text file ERS_OrderList.txt
 # Elena Reinisch 20161010
 # update ECR 20170417 update to incoporate reordering columns, untar new downloads, and update existing epoch list
 # update ECR 20170420 update to add in archived scenes

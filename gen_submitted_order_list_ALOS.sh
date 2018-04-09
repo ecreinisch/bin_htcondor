@@ -1,8 +1,5 @@
 #!/bin/bash
-# when run in a directory containing order receipts, generates list of orders to date
-# outputs text file Submitted_Orders.txt with the following columns:
-# Order ID, Order Date, Order Name, Track, Epoch
-# To be used with ~/SCRIPTS/gen_TSX_SAR_log.sh to get full Epoch log file
+# when run in the ALOS downloads directory, generates list of orders to date outputs text file ALOS_OrderList.txt 
 # Elena Reinisch 20161010
 # update ECR 20170417 update to incoporate reordering columns, untar new downloads, and update existing epoch list
 # update ECR 20170420 update to add in archived scenes
@@ -16,9 +13,6 @@
 # decide if looking through archives or not
 if [[ $# -eq 1 ]]
 then
-#  if [[ $1 == winsar ]]
-#  then
-#  
   if [[ $1 == asf ]]
   then
    ftype=a
@@ -33,7 +27,7 @@ then
   then
     arch=1
   else
-    echo "unsupported input. See gen_submitted_order_list_airbus.sh -h"
+    echo "unsupported input. See gen_submitted_order_list_ALOS.sh -h"
     exit 1
   fi
 elif [[ $# -eq 0 ]]
