@@ -9,8 +9,9 @@
 if [[ $# -eq 0 ]]
 then
  echo "script to form PAIRSmake.txt for HTCondor GMTSAR workflow"
- echo "Must specify pair list (see egenerate_pairlist.sh) first with -f option."
- echo "Must specify filter wavelength option in [m] with -w option."
+ echo "Required parameters are as follows:"
+ echo "-f[val]: name of pair list (e.g., TSX_T53_brady_pairs.txt; see egenerate_pairlist.sh)"
+ echo "-w[val] : assign a filter wavelength of [val] in m"
  echo "Optional parameters are defined as follows:"
  echo "-b[val] : print pairs with abs. perpendicular baseline <= [val]"
  echo "-M[val] : print pairs with master equal to [val] in yyyymmdd format"
