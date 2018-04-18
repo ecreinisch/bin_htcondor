@@ -64,6 +64,10 @@ tar -czvf ${c_tar}.tgz $c.PRM $c.SLC $c.LED
 scp ${c_tar}.tgz $maule:${maule_path}
 # scp -r $i $maule:${maule_path}
 
+# remove temp files
+rm -r $i
+rm ${c_tar}.tgz 
+
 done < $rawlst #$TList
 
 mkdir -p ../preproc

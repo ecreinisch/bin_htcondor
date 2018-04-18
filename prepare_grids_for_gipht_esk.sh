@@ -19,6 +19,7 @@
 # 20180319 ECR update for new bin_htcondor repo
 # 20180327 ECR update for new gmtsar-aux layout
 # 20180327 ECR update for new get_site_dims.sh
+# 20180418 ECR update removing outdated line for amp_utm
 
 if [[ $# -eq 0 ]]
 then
@@ -220,8 +221,8 @@ echo ii is $ii
 #grdinfo phasefilt_utm.grd
 
 # make geotiffs for amp and display_amp
-grdconvert amp_utm.grd=nf out_amp.tif=gd:GTiFF
-gdal_translate -a_srs EPSG:32611 out_amp.tif amp_utm.tif
+#grdconvert amp_utm.grd=nf out_amp.tif=gd:GTiFF
+#gdal_translate -a_srs EPSG:32611 out_amp.tif amp_utm.tif
 echo converting display_amp_utm.grd
 grdconvert display_amp_utm.grd=nf out_display_amp.tif=gd:GTiFF
 gdal_translate -a_srs EPSG:32611 out_display_amp.tif display_amp_utm.tif

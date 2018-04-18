@@ -3,6 +3,7 @@
 # Elena C Reinisch 20170430
 # edit ECR 20170725 add option to copy PRM and LED files from preproc if they weren't transferred with the job
 # edit ECR 20180404 correct metadata files to make soft links in preproc dir; check that links don't exist before trying to make them
+# edit ECR 20180418 fix pathnames to LED and PRM files
 
 # get list of pair tar files
 ls In*.tgz > tarlist
@@ -36,12 +37,20 @@ while read -r a; do
   fi
   # make links to preproc files
   if [[ ! -e ../preproc/${mast}.LED && ! -L ../preproc/$mast.LED ]]; then
-    ln -s $mastLED ../preproc/$mast.LED
-    ln -s $mastPRM ../preproc/$mast.PRM
+    mastLEDname=`echo $mastLED | awk -F/ '{print $2}'`
+    mastPRMname=`echo $mastPRM | awk -F/ '{print $2}'`
+    cd $pair
+    ln -s $mastLEDname ../../preproc/$mast.LED
+    ln -s $mastPRMname ../../preproc/$mast.PRM
+    cd ..
   fi
   if [[ ! -e ../preproc/${slav}.LED && ! -L ../preproc/$slav.LED ]]; then 
-    ln -s $slavLED ../preproc/$slav.LED
-    ln -s $slavPRM ../preproc/$slav.PRM
+    slavLEDname=`echo $slavLED | awk -F/ '{print $2}'`
+    slavPRMname=`echo $slavPRM | awk -F/ '{print $2}'`
+    cd $pair
+    ln -s $slavLEDname ../preproc/$slav.LED
+    ln -s $slavPRMname ../preproc/$slav.PRM
+    cd ..
   fi
 done < tarlist
 

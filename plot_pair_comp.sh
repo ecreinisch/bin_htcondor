@@ -7,6 +7,7 @@
 # update ECR 20180319 update for new bin_htcondor repo
 # update ECR 20180327 update for new gmtsar-aux layout
 # update ECR 20180327 update for new get_site_dims.sh
+# update ECR SB 20180418 change polar cpt to copper cpt for unwrap/drange
 
 
 if [[ $# -eq 0 ]]
@@ -141,7 +142,10 @@ then
 elif [[ "$pha1" == *"drho"* ]] || [[ "$pha1" == *"range"* ]]
 then
   grdmath $pha1 1000 MUL = r2mm.grd # convert to mm
-  makecpt -T-15/15/0.1 -Cpolar -D -I > cpt.cpt # unwrapped phase plot
+  zmin=`grdinfo -C -L2 r2mm.grd | awk '{print $6}'`
+  zmax=`grdinfo -C -L2 r2mm.grd | awk '{print $7}'`
+  dz=`echo $zmax $zmin | awk '{print ($1-$2)/50}'`
+  makecpt -T${zmin}/${zmax}/${dz} -Ccopper -D -I > cpt.cpt # unwrapped phase plot
   if [[ $isutm == 0 ]] # if not UTM, plot with file's region, dlat, and dlon
   then
     grdimage r2mm.grd -Y7 -C./cpt.cpt $jflag $region -P -Bx${dlon} -By${dlat} -BWSne+t"${sat1} ${trk1}" -K > ${outfile}
@@ -149,7 +153,8 @@ then
     grdimage r2mm.grd -Y7 -C./cpt.cpt $jflag $region -P -K > ${outfile}
   fi
   psscale -C./cpt.cpt -D3.5/-1/${lengthx}/0.1h -Baf1+l"Range change (mm)" -O -K  >> ${outfile}
-  rm cpt.cpt r2mm.grd
+  #rm cpt.cpt r2mm.grd
+  rm r2mm.grd
 else
   cptname=`echo $pha1 | awk -Famp '{print $1"amp.cpt"}'`
   echo $cptname
@@ -332,7 +337,10 @@ then
 elif [[ "$pha2" == *"drho"* ]] || [[ "$pha2" == *"range"* ]]
 then
   grdmath $pha2 1000 MUL = r2mm.grd # convert to mm
-  makecpt -T-15/15/0.1 -Cpolar -D -I > cpt.cpt # unwrapped phase plot
+  zmin=`grdinfo -C -L2 r2mm.grd | awk '{print $6}'`
+  zmax=`grdinfo -C -L2 r2mm.grd | awk '{print $7}'`
+  dz=`echo $zmax $zmin | awk '{print ($1-$2)/50}'`
+  makecpt -T${zmin}/${zmax}/${dz} -Ccopper -D -I > cpt.cpt # unwrapped phase plot
   if [[ $isutm == 0 ]] # if not UTM, plot with file's region, dlat, and dlon
   then
     grdimage r2mm.grd -X7.5 -C./cpt.cpt $jflag $region -P -Bx${dlon} -By${dlat} -BwSnE+t"${pair1}" -K -O >> ${outfile}
@@ -340,7 +348,8 @@ then
     grdimage r2mm.grd -X7.5 -C./cpt.cpt $jflag $region -P -K -O >> ${outfile}
   fi
   psscale -C./cpt.cpt -D3.5/-1/${lengthx}/0.1h -Baf1+l"Range change (mm)" -O -K  >> ${outfile}
-  rm cpt.cpt r2mm.grd
+  #rm cpt.cpt r2mm.grd
+  rm r2mm.grd
 else
   cptname=`echo $pha2 | awk -Famp '{print $1"amp.cpt"}'`
   echo $cptname
