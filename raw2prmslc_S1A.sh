@@ -19,8 +19,8 @@ trk=$1
 site=$2
 sat="S1A"
 #site=`grep $sat /t31/ebaluyut/gmtsar-aux/site_sats.txt | grep $trk | awk '{print $1}'`
-subswath=`grep $site /t31/ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | grep $trk | awk '{print $4}' | awk -FF '{print $2}'`
-demf=`grep $site /t31/ebaluyut/gmtsar-aux/txt_files/site_dems.txt | awk '{print $2}'`
+subswath=`grep $site /t31/ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $trk | awk '{print $4}' | awk -FF '{print $2}'`
+demf=`grep $site /t31/ebaluyut/gmtsar-aux/site_dems.txt | awk '{print $2}'`
 
 echo subswath =  $subswath
 
