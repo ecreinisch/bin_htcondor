@@ -32,7 +32,7 @@ site=$2
 sat=S1A
 #site=`grep $sat ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $trk | awk '{print $1}'`
 #subswath=`grep $sat ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $site | awk '{print $3}' | awk -FF '{print $2}'`
-subswath=`grep $site ~ebaluyut/gmtsar-aux/txt_files/site_sats.txt | grep $sat | grep $trk | awk '{print $4}' | awk -FF '{print $2}'`
+subswath=`grep $site ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $trk | awk '{print $4}' | awk -FF '{print $2}'`
 
 #ls -d *.SAFE > SAFE.lst
 #ls *EOF > EOF.lst
