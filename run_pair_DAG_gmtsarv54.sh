@@ -13,6 +13,7 @@
 # edit 20180212 no longer require linux 6 OS (not needed)
 # edit 20180319 save process.err and process.out for each file
 # edit 20180406 update to pull from bin_htcondor repo
+# edit 20180510 fix region commands for new get_site_dims.sh
 
 # set path save pairs to
 user=`echo $HOME | awk -F/ '{print $(NF)}'`
@@ -22,10 +23,10 @@ filter_wv=`tail -1 $1 | awk '{print $19}'`
 
 # set cut region
 site=`tail -1 $1 | awk '{print $12}'`
-xmin=`get_site_dims.sh ${site} | awk -F-R '{print $2}' | awk -F/ '{print $1}'`
-xmax=`get_site_dims.sh ${site} | awk -F-R '{print $2}' | awk -F/ '{print $2}'`
-ymin=`get_site_dims.sh ${site} | awk -F-R '{print $2}' | awk -F/ '{print $3}'`
-ymax=`get_site_dims.sh ${site} | awk -F-R '{print $2}' | awk -F/ '{print $4}'`
+xmin=`get_site_dims.sh ${site} 1 | awk -F-R '{print $2}' | awk -F/ '{print $1}'`
+xmax=`get_site_dims.sh ${site} 1 | awk -F-R '{print $2}' | awk -F/ '{print $2}'`
+ymin=`get_site_dims.sh ${site} 1 | awk -F-R '{print $2}' | awk -F/ '{print $3}'`
+ymax=`get_site_dims.sh ${site} 1 | awk -F-R '{print $2}' | awk -F/ '{print $4}'`
 
 # set DEM and make sure cut version of DEM exists on maule
 echo "check for cut dem on maule"
