@@ -8,7 +8,8 @@
 # update ECR 20180327 update for new gmtsar-aux layout
 # update ECR 20180327 update for new get_site_dims.sh
 # update ECR SB 20180418 change polar cpt to copper cpt for unwrap/drange
-
+# update SAB 20180508 change copper cpt to cool cpt for unwrap/drange
+# update SAB 20180510 changed makecpt to grd2cpt for unwrapped to improve contrast
 
 if [[ $# -eq 0 ]]
 then
@@ -129,7 +130,10 @@ then
 elif [[ "$pha1" == *"unwrap"*  ]]
 then
   grdmath $pha1 ISFINITE $pha1 MUL PI DIV 2.0 DIV $mmperfringe  MUL = r2mm.grd
-  makecpt -T-15/15/0.1 -Cpolar -D -I > cpt.cpt # unwrapped phase plot
+
+#  change to improve contrast SAB
+#  makecpt -T-15/15/0.1 -Cpolar -D -I > cpt.cpt # unwrapped phase plot
+  grd2cpt r2mm.grd -Cpolar -D -I > cpt.cpt # unwrapped phase plot
   if [[ $isutm == 0 ]] # if not UTM, plot with file's region, dlat, and dlon
   then
     grdimage r2mm.grd -Y7 -C${cdir}/cpt.cpt $jflag $region -P -Bx${dlon} -By${dlat} -BWSne+t"${sat1} ${trk1}" -K > ${outfile}
@@ -145,7 +149,9 @@ then
   zmin=`grdinfo -C -L2 r2mm.grd | awk '{print $6}'`
   zmax=`grdinfo -C -L2 r2mm.grd | awk '{print $7}'`
   dz=`echo $zmax $zmin | awk '{print ($1-$2)/50}'`
-  makecpt -T${zmin}/${zmax}/${dz} -Ccopper -D -I > cpt.cpt # unwrapped phase plot
+#  changed to improve contrast SAB
+#  makecpt -T${zmin}/${zmax}/${dz} -Ccool -D -I > cpt.cpt # unwrapped phase plot
+  grd2cpt r2mm.grd -Ccool -D -I > cpt.cpt # unwrapped phase plot
   if [[ $isutm == 0 ]] # if not UTM, plot with file's region, dlat, and dlon
   then
     grdimage r2mm.grd -Y7 -C./cpt.cpt $jflag $region -P -Bx${dlon} -By${dlat} -BWSne+t"${sat1} ${trk1}" -K > ${outfile}
@@ -323,7 +329,9 @@ then
 elif [[ "$pha2" == *"unwrap"*  ]]
 then
   grdmath $pha2 ISFINITE $pha2 MUL PI DIV 2.0 DIV $mmperfringe  MUL = r2mm.grd
-  makecpt -T-15/15/0.1 -Cpolar -D -I > cpt.cpt # unwrapped phase plot
+#  changed to improve contrast SAB
+#  makecpt -T-15/15/0.1 -Cpolar -D -I > cpt.cpt # unwrapped phase plot
+  grd2cpt r2mm.grd -Cpolar -D -I > cpt.cpt # unwrapped phase plot
   if [[ $isutm == 0 ]] # if not UTM, plot with file's region, dlat, and dlon
   then
    # cp $pair1/unwrap.cpt cpt.cpt
@@ -340,7 +348,9 @@ then
   zmin=`grdinfo -C -L2 r2mm.grd | awk '{print $6}'`
   zmax=`grdinfo -C -L2 r2mm.grd | awk '{print $7}'`
   dz=`echo $zmax $zmin | awk '{print ($1-$2)/50}'`
-  makecpt -T${zmin}/${zmax}/${dz} -Ccopper -D -I > cpt.cpt # unwrapped phase plot
+#  changed to improve contrast
+#  makecpt -T${zmin}/${zmax}/${dz} -Ccool -D -I > cpt.cpt # unwrapped phase plot
+  grd2cpt r2mm.grd -Ccool -D -I > cpt.cpt # unwrapped phase plot
   if [[ $isutm == 0 ]] # if not UTM, plot with file's region, dlat, and dlon
   then
     grdimage r2mm.grd -X7.5 -C./cpt.cpt $jflag $region -P -Bx${dlon} -By${dlat} -BwSnE+t"${pair1}" -K -O >> ${outfile}
