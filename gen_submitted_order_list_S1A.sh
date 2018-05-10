@@ -91,6 +91,9 @@ while read -r a; do
     orbit=`grep "Absolute orbit" scene_info.tmp | head -${ncount} | tail -1 | awk '{print $3}'`
     frame=`grep "First Frame" scene_info.tmp  | head -${ncount} | tail -1 | awk '{print $4}'`
     swath=`grep $site ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $trk | awk '{print $4}'`
+    if [[ -z $swath ]]; then
+      swath=TBD
+    fi
     url=nan
     echo ORBIT = $orbit
     echo FRAME = $frame
@@ -254,6 +257,9 @@ while read -r a; do
       site=`echo $line | awk '{print $1}'`
       echo SITE = $site
       swath=`echo $line | awk '{print $4}'`
+      if [[ -z $swath ]]; then
+        swath=TBD
+      fi
       echo swath = $swath
       # save information to new text file 
       echo "$scene_date $site $sat $trk $swath $frame $orbit $ascdes $estatus $esource $filename $data_loc2 $url"  >> Submitted_Orders.txt
@@ -303,6 +309,9 @@ then
       site=`echo $line | awk '{print $1}'`
       echo SITE = $site
       swath=`echo $line | awk '{print $4}'`
+      if [[ -z $swath ]]; then
+        swath=TBD
+      fi
       echo swath = $swath
       # save information to new text file
       echo "$scene_date $site $sat $trk $swath $frame $orbit $ascdes $estatus $esource $filename $data_loc2 $url"  >> Submitted_Orders.txt
