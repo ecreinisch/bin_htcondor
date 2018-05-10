@@ -91,6 +91,9 @@ while read -r a; do
     orbit=`grep "Absolute orbit" scene_info.tmp | head -${ncount} | tail -1 | awk '{print $3}'`
     frame=`grep "First Frame" scene_info.tmp  | head -${ncount} | tail -1 | awk '{print $4}'`
     swath=`grep $site ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $trk | awk '{print $4}'`
+    if [[ -z $swath ]]; then
+      swath=TBD
+    fi
     url=nan
     echo ORBIT = $orbit
     echo FRAME = $frame
@@ -124,7 +127,7 @@ while read -r a; do
          nline=`grep $scene_date Submitted_Orders.txt |  sed "s/[^ ]*[^ ]/$estatus/9" | sed "s/[^ ]*[^ ]/$data_loc/12" | sed "s/[^ ]*[^ ]/${orbit}/7"`
          sed -i "/${scene_date}/c\@${nline}" Submitted_Orders.txt
          sed -i 's/@//g' Submitted_Orders.txt
-       elif [[ ! -z `find . -name ${filename}` ]]
+       elif [[ ! -z `find . -maxdepth 0 -name ${filename}` ]]
        then
          estatus=D
          tar -xzvf ${filename} > tar.tmp
@@ -159,7 +162,7 @@ while read -r a; do
          sed -i "/${scene_date}/c\@${nline}" Submitted_Orders.txt
          sed -i 's/@//g' Submitted_Orders.txt
       # nor untarred yet
-       elif [[ ! -z `find . -name ${filename}` ]]
+       elif [[ ! -z `find . -maxdepth 0 -name ${filename}` ]]
        then
          estatus=D
          tar -xzvf ${filename} > tar.tmp
@@ -223,10 +226,10 @@ while read -r a; do
          data_loc2=/s21/insar/S1A/${trk}/raw/${dirname}
          #frame=`echo $dirname | awk -F- '{print substr($1, length($1)-3, 4)}'`
         # orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'` # consider adding lines to untar filename and move directory to specified location, so we can update url and data_loc, and then we can grep for orbit
-     elif [[ ! -z `find . -name "S1A*${scene_date}*${orbit}*.zip"` ]]
+     elif [[ ! -z `find . -maxdepth 0 -name "S1A*${scene_date}*${orbit}*.zip"` ]]
        then
          echo "data in zip file"
-         filename=`find . -name "S1A*${scene_date}*${orbit}*.zip" | awk -F/ '{print $2}'`
+         filename=`find . -maxdepth 0 -name "S1A*${scene_date}*${orbit}*.zip" | awk -F/ '{print $2}'`
          echo FILENAME=$filename
          estatus=D
          unzip ${filename}
@@ -254,6 +257,9 @@ while read -r a; do
       site=`echo $line | awk '{print $1}'`
       echo SITE = $site
       swath=`echo $line | awk '{print $4}'`
+      if [[ -z $swath ]]; then
+        swath=TBD
+      fi
       echo swath = $swath
       # save information to new text file 
       echo "$scene_date $site $sat $trk $swath $frame $orbit $ascdes $estatus $esource $filename $data_loc2 $url"  >> Submitted_Orders.txt
@@ -303,6 +309,9 @@ then
       site=`echo $line | awk '{print $1}'`
       echo SITE = $site
       swath=`echo $line | awk '{print $4}'`
+      if [[ -z $swath ]]; then
+        swath=TBD
+      fi
       echo swath = $swath
       # save information to new text file
       echo "$scene_date $site $sat $trk $swath $frame $orbit $ascdes $estatus $esource $filename $data_loc2 $url"  >> Submitted_Orders.txt
