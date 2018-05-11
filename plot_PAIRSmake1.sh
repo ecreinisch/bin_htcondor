@@ -5,6 +5,7 @@
 # edit ECR 20180319 save plot to intf/[pair] directory
 # update ECR 20180319 update for new bin_htcondor repo
 # update ECR 20180418 also save copy of pdf plot to Plots dir
+# update ECR 20180511 don't add full paths to scripts since already on path
 
 if [[ $# -eq 0 ]]
 then
@@ -44,13 +45,14 @@ while read -r line; do
    slav=`echo $line | awk '{printf("%s-%s-%s\n", substr($2, 1, 4), substr($2, 5, 2), substr($2, 7, 2))}'`
    dt=`echo $(( ( $(date -ud $slav +'%s') - $(date -ud $mast +'%s') )/60/60/24 ))` 
    demf=`echo $line | awk '{print $18}'`
+   echo $demf
 
     # run plotting scripts
    if [[ -e $pair/${pha1}.grd ]]
    then
    mmperfringe=`echo $line | awk '{printf("%2.1f\n", $13 /2 * 1000)}'`
-   ${bin_htcondor_home}/plot_pair.sh $sat $trk $site $pair $pair/${pha1}.grd ${pair}_${pha1}.ps $mmperfringe $bperp $user $filter_wv $dt $demf
-   ${bin_htcondor_home}/ps2pdf_crop.sh  ${pair}_${pha1}.ps
+   plot_pair.sh $sat $trk $site $pair $pair/${pha1}.grd ${pair}_${pha1}.ps $mmperfringe $bperp $user $filter_wv $dt $demf
+   ps2pdf_crop.sh  ${pair}_${pha1}.ps
    cp ${pair}_${pha1}.pdf ../Plots/
    mv ${pair}_${pha1}.ps ${pair}/
    mv ${pair}_${pha1}.pdf ${pair}/
