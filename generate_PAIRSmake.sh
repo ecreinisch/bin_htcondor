@@ -5,6 +5,7 @@
 # edit ECR 20170831 fix to -l and -g options; just take arg $7 
 # edit ECR 20171128 add -o and -q options for month matching
 # edit ECR 20180406 remove duplicate lines
+# edit ECR 20180514 fix sed line for replacing outdated header
 
 if [[ $# -eq 0 ]]
 then
@@ -176,7 +177,7 @@ header=`head -1 PAIRSmake.txt`
 
 if [[ "$header"  =~ ^#.*$ && "$a" != [[:blank:]]  ]]
 then
-  sed -i "/$header/c\#mast slav orb1 orb2 doy_mast doy_slav dt nan trk orbdir swath site wv bpar bperp burst sat dem processed unwrapped pha_std t_crit t_stat res_mean res_std res_nu user" PAIRSmake.txt
+  sed -i "/#/c\#mast slav orb1 orb2 doy_mast doy_slav dt nan trk orbdir swath site wv bpar bperp burst sat dem processed unwrapped pha_std t_crit t_stat res_mean res_std res_nu user" PAIRSmake.txt
 else
   sed -i '1 i\#mast slav orb1 orb2 doy_mast doy_slav dt nan trk orbdir swath site wv bpar bperp burst sat dem processed unwrapped pha_std t_crit t_stat res_mean res_std res_nu user' PAIRSmake.txt
 fi
