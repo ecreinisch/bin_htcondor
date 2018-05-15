@@ -132,8 +132,8 @@ then
   grdmath $pha1 ISFINITE $pha1 MUL PI DIV 2.0 DIV $mmperfringe  MUL = r2mm.grd
 
 #  change to improve contrast SAB
-#  makecpt -T-15/15/0.1 -Cpolar -D -I > cpt.cpt # unwrapped phase plot
-  grd2cpt r2mm.grd -Cpolar -D -I > cpt.cpt # unwrapped phase plot
+  makecpt -T-15/15/0.1 -Cpolar -D -I > cpt.cpt # unwrapped phase plot
+#  grd2cpt r2mm.grd -Cpolar -D -I > cpt.cpt # unwrapped phase plot
   if [[ $isutm == 0 ]] # if not UTM, plot with file's region, dlat, and dlon
   then
     grdimage r2mm.grd -Y7 -C${cdir}/cpt.cpt $jflag $region -P -Bx${dlon} -By${dlat} -BWSne+t"${sat1} ${trk1}" -K > ${outfile}
@@ -158,7 +158,7 @@ then
   else
     grdimage r2mm.grd -Y7 -C./cpt.cpt $jflag $region -P -K > ${outfile}
   fi
-  psscale -C./cpt.cpt -D3.5/-1/${lengthx}/0.1h -Baf1+l"Range change (mm)" -O -K  >> ${outfile}
+  psscale -C./cpt.cpt -D3.5/-1/${lengthx}/0.1h -Baf1+l"Range change (mm/yr)" -O -K  >> ${outfile}
   #rm cpt.cpt r2mm.grd
   rm r2mm.grd
 else
@@ -330,8 +330,8 @@ elif [[ "$pha2" == *"unwrap"*  ]]
 then
   grdmath $pha2 ISFINITE $pha2 MUL PI DIV 2.0 DIV $mmperfringe  MUL = r2mm.grd
 #  changed to improve contrast SAB
-#  makecpt -T-15/15/0.1 -Cpolar -D -I > cpt.cpt # unwrapped phase plot
-  grd2cpt r2mm.grd -Cpolar -D -I > cpt.cpt # unwrapped phase plot
+  makecpt -T-15/15/0.1 -Cpolar -D -I > cpt.cpt # unwrapped phase plot
+#  grd2cpt r2mm.grd -Cpolar -D -I > cpt.cpt # unwrapped phase plot
   if [[ $isutm == 0 ]] # if not UTM, plot with file's region, dlat, and dlon
   then
    # cp $pair1/unwrap.cpt cpt.cpt
@@ -357,7 +357,7 @@ then
   else
     grdimage r2mm.grd -X7.5 -C./cpt.cpt $jflag $region -P -K -O >> ${outfile}
   fi
-  psscale -C./cpt.cpt -D3.5/-1/${lengthx}/0.1h -Baf1+l"Range change (mm)" -O -K  >> ${outfile}
+  psscale -C./cpt.cpt -D3.5/-1/${lengthx}/0.1h -Baf1+l"Range change (mm/yr)" -O -K  >> ${outfile}
   #rm cpt.cpt r2mm.grd
   rm r2mm.grd
 else

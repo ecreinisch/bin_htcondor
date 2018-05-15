@@ -137,8 +137,8 @@ then
   grdmath $pha1 ISFINITE $pha1 MUL PI DIV 2.0 DIV $mmperfringe  MUL = r2mm.grd
 
 #20180510 SAB changed makecpt to grd2cpt for unwrapped phase plot 
-#  makecpt -T-25/25/0.25 -Cpolar -D -I > cpt.cpt # unwrapped phase plot
-  grd2cpt r2mm.grd -Cpolar -D -I > cpt.cpt # unwrapped phase plot
+  makecpt -T-25/25/0.25 -Cpolar -D -I > cpt.cpt # unwrapped phase plot
+#  grd2cpt r2mm.grd -Cpolar -D -I > cpt.cpt # unwrapped phase plot
   if [[ $isutm == 0 ]] # if not UTM, plot with file's region, dlat, and dlon
   then
     grdimage r2mm.grd -Y7 -C${cdir}/cpt.cpt $jflag $region -P -Bx${dlon} -By${dlat} -BWSne+t"${sat1} ${trk1} ${pair1}" -K > ${outfile}
@@ -155,9 +155,9 @@ then
   zmin=`grdinfo -C -L2 r2mm.grd | awk '{print $6}'`
   zmax=`grdinfo -C -L2 r2mm.grd | awk '{print $7}'`
   dz=`echo $zmax $zmin | awk '{print ($1-$2)/50}'`
-#  makecpt -T${zmin}/${zmax}/${dz} -Cpolar -D -I > cpt.cpt # unwrapped phase plot
+  makecpt -T${zmin}/${zmax}/${dz} -Cpolar -D -I > cpt.cpt # unwrapped phase plot
 # 20180510 SAB changed makecpt to grd2cpt for unwrapped phase plot 
-  grd2cpt r2mm.grd -Cpolar -D -I > cpt.cpt # unwrapped phase plot
+#  grd2cpt r2mm.grd -Cpolar -D -I > cpt.cpt # unwrapped phase plot
   #makecpt -T-3.5/0.5/0.05 -Cpolar -D -I > cpt.cpt # unwrapped phase plot
   #makecpt -T-0.04/0.07/0.005 -Cpolar -D -I > cpt.cpt # unwrapped phase plot
   if [[ $isutm == 0 ]] # if not UTM, plot with file's region, dlat, and dlon
@@ -185,7 +185,7 @@ then
   else
     grdimage r2mm.grd -X7.5 -C./cpt.cpt $jflag $region -P -K > ${outfile}
   fi
-  psscale -C./cpt.cpt -D3.5/-1/${lengthx}/0.1h -Baf1+l"Range change (mm)" -O -K  >> ${outfile}
+  psscale -C./cpt.cpt -D3.5/-1/${lengthx}/0.1h -Baf1+l"Range change (mm/yr)" -O -K  >> ${outfile}
   #rm cpt.cpt r2mm.grd
   rm r2mm.grd
 elif [[ "$pha1" == *"dem"* ]]
@@ -194,8 +194,8 @@ then
   zmax=`grdinfo -C -L2 $pha1 | awk '{print $7}'`
   dz=`echo $zmax $zmin | awk '{print ($1-$2)/50}'`
 #20180510 SAB changed makecpt to grd2cpt for unwrapped phase plot 
-#  makecpt -T${zmin}/${zmax}/${dz} -Cpolar -D  > cpt.cpt # unwrapped phase plot
-  grd2cpt r2mm.grd -Cpolar -D  > cpt.cpt # unwrapped phase plot
+  makecpt -T${zmin}/${zmax}/${dz} -Cpolar -D  > cpt.cpt # unwrapped phase plot
+#  grd2cpt r2mm.grd -Cpolar -D  > cpt.cpt # unwrapped phase plot
   if [[ $isutm == 0 ]] # if not UTM, plot with file's region, dlat, and dlon
   then
     grdimage $pha1 -X7.5 -C./cpt.cpt -JX7/12 $region -P -Bwsne -K > ${outfile}
@@ -211,8 +211,8 @@ then
   zmax=`grdinfo -C -L2 $pha1 | awk '{print $7}'`
   dz=`echo $zmax $zmin | awk '{print ($1-$2)/50}'`
 #20180510 SAB changed makecpt to grd2cpt for unwrapped phase plot 
-#  makecpt -T${zmin}/${zmax}/${dz} -Cpolar -D  > cpt.cpt # unwrapped phase plot
-  grd2cpt r2mm.grd -Cpolar -D  > cpt.cpt # unwrapped phase plot
+  makecpt -T${zmin}/${zmax}/${dz} -Cpolar -D  > cpt.cpt # unwrapped phase plot
+#  grd2cpt r2mm.grd -Cpolar -D  > cpt.cpt # unwrapped phase plot
   if [[ $isutm == 0 ]] # if not UTM, plot with file's region, dlat, and dlon
   then
     grdimage $pha1 -X7.5 -C./cpt.cpt -JX7/12 $region -P -Bwsne -K > ${outfile}
@@ -228,8 +228,8 @@ then
   zmax=`grdinfo -C -L2 $pha1 | awk '{print $7}'`
   dz=`echo $zmax $zmin | awk '{print ($1-$2)/50}'`
 #20180510 SAB changed makecpt to grd2cpt for unwrapped phase plot 
-#  makecpt -T${zmin}/${zmax}/${dz} -Cpolar -D  > cpt.cpt # unwrapped phase plot
-  grd2cpt r2mm.grd -Cpolar -D  > cpt.cpt # unwrapped phase plot
+  makecpt -T${zmin}/${zmax}/${dz} -Cpolar -D  > cpt.cpt # unwrapped phase plot
+#  grd2cpt r2mm.grd -Cpolar -D  > cpt.cpt # unwrapped phase plot
   if [[ $isutm == 0 ]] # if not UTM, plot with file's region, dlat, and dlon
   then
     grdimage $pha1 -X7.5 -Y5 -C./cpt.cpt $jflag $region -P -Bwsne -K > ${outfile}
