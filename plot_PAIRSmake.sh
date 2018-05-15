@@ -5,6 +5,7 @@
 # update ECR 20180319 update for new bin_htcondor repo
 # update ECR 20180321 use user defined ${bin_htcondor_home} for script paths
 # update ECR 20180418 also save copy of pdf plot to Plots dir
+# update ECR 20180515 remove unnecessary prepending path names to bin scripts
 
 if [[ $# -eq 0 ]]
 then
@@ -50,8 +51,8 @@ while read -r line; do
    if [[ -e $pair/${pha1}.grd && -e $pair/${pha2}.grd ]]
    then
    mmperfringe=`echo $line | awk '{printf("%2.1f\n", $13 /2 * 1000)}'`
-   ${bin_htcondor_home}/plot_pair_comp.sh $sat $trk $site $pair $pair/${pha1}.grd $pair/${pha2}.grd ${pair}_${pha1}_${pha2}.ps $mmperfringe $bperp $user $filter_wv $dt $demf
-   ${bin_htcondor_home}/ps2pdf_crop.sh  ${pair}_${pha1}_${pha2}.ps
+   plot_pair_comp.sh $sat $trk $site $pair $pair/${pha1}.grd $pair/${pha2}.grd ${pair}_${pha1}_${pha2}.ps $mmperfringe $bperp $user $filter_wv $dt $demf
+   ps2pdf_crop.sh  ${pair}_${pha1}_${pha2}.ps
    cp ${pair}_${pha1}_${pha2}.pdf ../Plots/
    mv ${pair}_${pha1}_${pha2}.ps ${pair}/
    mv ${pair}_${pha1}_${pha2}.pdf ${pair}/
