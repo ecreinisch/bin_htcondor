@@ -8,22 +8,25 @@
 # edit ECR 20180515 fix symlink for LED and PRM files to establish link from within preproc dir
 
 # get list of pair tar files
-ls -d In* > tarlist #.tgz > tarlist
+ls In*.tgz > tarlist
 cpwd=`pwd`
 
 while read -r a; do 
   echo $a
   # untar interferogram directory
- # tar -xzvf $a
+  tar -xzvf $a
+
   # get pair and mast/slav names
   pair=`echo $a | awk -F. '{print $1}'`
   mast=`echo $pair | awk -F_ '{print $1}' | awk -Fn '{print $2}'`
   slav=`echo $pair | awk -F_ '{print $2}'`
+
   # get PRM and LED file names
   mastLED=`find $pair -name *${mast}*LED`
   slavLED=`find $pair -name *${slav}*LED`
   mastPRM=`find $pair -name *${mast}*PRM`
   slavPRM=`find $pair -name *${slav}*PRM`
+
   # copy PRM and LED files from preproc directory if they aren't in pair directory already
   preproc_dir=`pwd | awk -F/ '{print $1"/"$2"/"$3"/"$4"/"$5"/preproc"}'`
   if [[ -z $mastLED ]]
@@ -65,7 +68,7 @@ while read -r a; do
     cd ../intf
   fi
 done < tarlist
-exit
+
 # clean up
 rm tarlist
 rm In*.tgz
