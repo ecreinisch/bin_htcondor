@@ -11,6 +11,7 @@
 # edit ECR 20171109 change inputs from [site] [trk] [epoch list path] [optional frame] to [site] [sat] [trk] [optional frame]; now copies appropriate OrderList from maule to /t31/insar/[sat]/ and pulls relevant information
 # edit ECR 20171205 change to S1A steps for newly downloaded data
 # edit ECR 20180327 update for new gmtsar-aux layout
+# edit ECR 20180604 update for S1A (don't count pairs that are too recent and don't have EOF files yet)
 
 if [[ $# -eq 0 ]]
 then
@@ -45,7 +46,9 @@ while read line; do
  dirname=`echo $line | awk '{print $12}'`
  if [[ ! -e "${epoch}.PRM" && ! -e "S1A${epoch}_${subswath}.PRM" ]]
  then
+   if [[ $sat == S1A && $epoch -lt `ssh -Y $maule "head -1 /s21/insar/S1A/aux_poeorb | awk -F_ '{print $8}' | awk -FT '{print $1}'"` ]]; then
    echo "$epoch $dirname" >> missing_preproc.tmp
+   fi
  fi
 done < RAW.tmp
 
