@@ -5,6 +5,7 @@
 # edit ECR 20170220 take input of list of new SAFE directories
 # edit ECR 20170425 now moves EOF file to SAFE dir
 # edit ECR 20180322 automatically runs update_auxpoeorb.sh to make sure file is up to date
+# edit ECR 20180604 add check to make sure orbit file is available for download before processing
 
 # get list of new SAFE directories
 SAFElst=$1
@@ -33,7 +34,7 @@ while read -r a; do
   echo ORBITFILE = $orbitfile
   #wget https://www.unavco.org/data/imaging/sar/lts1/winsar/s1qc/aux_poeorb/${orbitfile}
   echo DIR is $a
-  if [[ ! -e ${a}/${orbitfile} ]] 
+  if [[ ! -e ${a}/${orbitfile} && ! -z ${orbitfile} ]] 
   then
   wget --no-check-certificate https://qc.sentinel1.eo.esa.int/aux_poeorb/${orbitfile} -O $a/${orbitfile}
   # save name to text file

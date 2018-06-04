@@ -127,7 +127,7 @@ while read -r a; do
          nline=`grep $scene_date Submitted_Orders.txt |  sed "s/[^ ]*[^ ]/$estatus/9" | sed "s/[^ ]*[^ ]/$data_loc/12" | sed "s/[^ ]*[^ ]/${orbit}/7"`
          sed -i "/${scene_date}/c\@${nline}" Submitted_Orders.txt
          sed -i 's/@//g' Submitted_Orders.txt
-       elif [[ ! -z `find . -maxdepth 0 -name ${filename}` ]]
+       elif [[ ! -z `find . -maxdepth 1 -name ${filename}` ]]
        then
          estatus=D
          tar -xzvf ${filename} > tar.tmp
@@ -162,7 +162,7 @@ while read -r a; do
          sed -i "/${scene_date}/c\@${nline}" Submitted_Orders.txt
          sed -i 's/@//g' Submitted_Orders.txt
       # nor untarred yet
-       elif [[ ! -z `find . -maxdepth 0 -name ${filename}` ]]
+       elif [[ ! -z `find . -maxdepth 1 -name ${filename}` ]]
        then
          estatus=D
          tar -xzvf ${filename} > tar.tmp
@@ -194,6 +194,7 @@ while read -r a; do
     ascdes=`grep "Flight Direction" scene_info.tmp | awk '{print substr($4,1,1)}'`
     esource=esa
     url=`grep "Download URL" scene_info.tmp | awk '{print $4}'`
+    echo URL=$url
     data_loc=nan
   
    # if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
@@ -226,10 +227,10 @@ while read -r a; do
          data_loc2=/s21/insar/S1A/${trk}/raw/${dirname}
          #frame=`echo $dirname | awk -F- '{print substr($1, length($1)-3, 4)}'`
         # orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'` # consider adding lines to untar filename and move directory to specified location, so we can update url and data_loc, and then we can grep for orbit
-     elif [[ ! -z `find . -maxdepth 0 -name "S1A*${scene_date}*${orbit}*.zip"` ]]
+     elif [[ ! -z `find . -maxdepth 1 -name "S1A*${scene_date}*${orbit}*.zip"` ]]
        then
          echo "data in zip file"
-         filename=`find . -maxdepth 0 -name "S1A*${scene_date}*${orbit}*.zip" | awk -F/ '{print $2}'`
+         filename=`find . -maxdepth 1 -name "S1A*${scene_date}*${orbit}*.zip" | awk -F/ '{print $2}'`
          echo FILENAME=$filename
          estatus=D
          unzip ${filename}

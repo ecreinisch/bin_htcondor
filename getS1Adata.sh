@@ -8,15 +8,18 @@
 # edit ECR 20180319 comment out outdate portions of script at bottom and fix fi issue
 # edit ECR 20180319 remove case statement and replace with output of get_site_polygon.sh 
 # edit ECR 20180322 add --asfResponseTimeout=25 to mitigate ASF time outs; add check to see if EarthData End User Agreement has been signed
+# edit ECR 20180604 add option for frame specification
 
 if [[ $# -eq 0 ]]
 then
   echo "query and download S1A data"
-  echo "inputs: [site] [query start interval date, given in YYYY-MM-DD] [query end interval date, given in YYYY-MM-DD] [optional track, number only, e.g. 144] [d/k, d for download k for kml file]"
+  echo "inputs: [site] [query start interval date, given in YYYY-MM-DD] [query end interval date, given in YYYY-MM-DD] [optional track/frame, number only, e.g. 144 (for track only), 144/14 (for tack and frame)] [d/k, d for download k for kml file]"
   echo "Example, kml only:"
   echo " getS1Adata.sh brady 2016-10-01 2016-12-01 k"
   echo "Example, with download and track specified:"
   echo " getS1Adata.sh brady 2016-10-01 2016-12-01 144 d"
+  echo "Example, with download, track, and frame specified:"
+  echo "getS1Adata.sh fuego 2018-01-01 2018-06-04 136/43 d"
   exit 1
 fi
 
@@ -53,7 +56,14 @@ then
      echo "unrecognized option (enter d for download or k for kml). Defaulting to kml"
      status=kml
    fi
-   trk="-r $4"
+   if [[ `echo $4 | grep / | wc -l` -eq 0  ]]
+   then
+     trk="-r $4"
+     frame=""
+   else
+     trk="-r $(echo $4 | awk -F/ '{print $1}')"
+     frame="-f $(echo $4 | awk -F/ '{print $2}')"
+   fi
 fi
 
 # use SSARA query based on site's polygon
@@ -71,7 +81,7 @@ fi
 lount=0
 qcount=0
 while [[ $lcount -lt 6 && $qcount -eq 0 ]]; do
-  ssara_federated_query.py --platform=SENTINEL-1A --intersectsWith="$polygon" ${trk} --asfResponseTimeout=25 -s $tstart -e $tend --kml
+  ssara_federated_query.py --platform=SENTINEL-1A --intersectsWith="$polygon" ${trk} ${frame} --asfResponseTimeout=25 -s $tstart -e $tend --kml
 
   let lcount=lcount+1
   qcount=`cat $(ls ssara_search*.kml | tail -1) | grep "Start Time" | wc -l`
@@ -86,7 +96,10 @@ fi
 # add in pre-preprocessing and transfer of data to to HTC if data was downloaded
 if [[ "$status" == "download" ]]
 then
-  ssara_federated_query.py --platform=SENTINEL-1A --intersectsWith="$polygon" $trk --asfResponseTimeout=25 -s $tstart -e $tend --$status
+#  ssara_federated_query.py --platform=SENTINEL-1A --intersectsWith="$polygon" $trk --asfResponseTimeout=25 -s $tstart -e $tend --$status
+
+grep "Download URL" $(ls ssara_search*.kml | tail -1) | awk '{print $4}' > ziplist.tmp
+wget --user $asfuser --password $asfpass -i ziplist.tmp
 
 # check that END_USER agreement has been signed
 if [[ `ls -l *zip | awk '{print $5}' | grep 1544` -gt 0 ]]; then
