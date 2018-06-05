@@ -5,6 +5,7 @@
 # edit 20170801 ECR update to copy maule ALOS data with frame in the name
 # edit 20171114 ECR comment out renaming of p2p_TSX script for airbus and instead add $site to pair2e.sh call
 # edit 20180406 ECR update to use new bin_htcondor repo
+# edit 20180604 ECR add S1B
 
 # set up environment variables with path names for GMT and GMTSAR
 mkdir bin_htcondor
@@ -108,9 +109,9 @@ fi
 #fi
 
 # ECR 20170709 update raw2prmslc and other data get, test in interactive
-if [[ "$sat" == "S1A" ]]
+if [[ "$sat" == "S1A" || "$sat" == "S1B" ]]
 then
-  raw2prmslc_S1A_htc.sh $mast $slav $trk $demf $satparam
+  raw2prmslc_${sat}_htc.sh $mast $slav $trk $demf $satparam
 elif [[ "$sat" == *"ALOS"* ]]
 then 
   scp $maule:/s21/insar/${sat}/${trk}/preproc/${mast}_${satparam}.tgz RAW/${mast}.tgz
@@ -159,7 +160,7 @@ else
 fi
 
  # if data is ALOS then rename files to match epoch dates, otherwise untar as normal
-if [[ "$sat" != "S1A" ]]
+if [[ "$sat" != "S1"*  ]]
 then
  if [[ "$sat" == "ALOS"* ]]
  then

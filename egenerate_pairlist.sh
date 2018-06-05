@@ -12,6 +12,7 @@
 # edit ECR 20171205 change to S1A steps for newly downloaded data
 # edit ECR 20180327 update for new gmtsar-aux layout
 # edit ECR 20180604 update for S1A (don't count pairs that are too recent and don't have EOF files yet)
+# edit ECR 20180604 add S1B
 
 if [[ $# -eq 0 ]]
 then
@@ -44,9 +45,9 @@ subswath=`head -1 RAW.tmp | awk '{print $5}'`
 while read line; do
  epoch=`echo $line | awk '{print $1}'`
  dirname=`echo $line | awk '{print $12}'`
- if [[ ! -e "${epoch}.PRM" && ! -e "S1A${epoch}_${subswath}.PRM" ]]
+ if [[ ! -e "${epoch}.PRM" && ! -e "S1A${epoch}_${subswath}.PRM" && ! -e "S1B${epoch}_${subswath}.PRM" ]]
  then
-   if [[ $sat == S1A && $epoch -lt `ssh -Y $maule "head -1 /s21/insar/S1A/aux_poeorb | awk -F_ '{print $8}' | awk -FT '{print $1}'"` ]]; then
+   if [[ $sat == "S1"* && $epoch -lt `ssh -Y $maule "head -1 /s21/insar/${sat}/aux_poeorb | awk -F_ '{print $8}' | awk -FT '{print $1}'"` ]]; then
    echo "$epoch $dirname" >> missing_preproc.tmp
    fi
  fi
@@ -65,7 +66,10 @@ then
   echo "Missing directories are listed in ../raw/newraw.lst. Consider doing the following:"
   echo "For S1A Data:"
   echo "cd ../raw"
-  echo "raw2prmslc_S1A.sh [trk] [site]  preproc_porotomo.lst"
+  echo "raw2prmslc_S1B.sh [trk] [site]  preproc_porotomo.lst"
+  echo "For S1B Data:"
+  echo "cd ../raw"
+  echo "raw2prmslc_S1B.sh [trk] [site]  preproc_porotomo.lst"
   echo "For all other satellites:"
   echo "cd ../raw"
   echo "for i in ""\`""cat"" newraw.lst""\`"";"" do  scp -r""  $""maule:""$""i .; done"
@@ -99,9 +103,9 @@ then
    fi
 fi
 
-if [[ $sat == "S1A" ]]
+if [[ $sat == "S1"* ]]
 then
-  wv=`grep radar_wavelength S1A${first_epoch}_${subswath}.PRM | awk '{printf("%0.4f\n", $3)}'`
+  wv=`grep radar_wavelength ${sat}${first_epoch}_${subswath}.PRM | awk '{printf("%0.4f\n", $3)}'`
 else
   wv=`grep radar_wavelength $first_epoch.PRM | awk '{printf("%0.4f\n", $3)}'`
 fi
@@ -168,22 +172,22 @@ done < RAW.tmp
 #loop through each epoch in list
 while read line; do
  mast=`echo $line | awk '{print $1}'`
- if [[ $sat == S1A ]]
+ if [[ $sat == "S1"* ]]
  then
    mode=`echo $line | awk '{print $11}' | awk -F_ '{print $5}'`
  fi
  # finds all new epochs that are suitable slaves
  awk -v var="$mast" '$(1) > var' new_epochs.tmp > slav.tmp
- if [[ $sat == S1A ]]
+ if [[ $sat == "S1"* ]]
  then
-   grep $mode slav.tmp > slav_s1a.tmp
-   mv slav_s1a.tmp slav.tmp
+   grep $mode slav.tmp > slav_s1.tmp
+   mv slav_s1.tmp slav.tmp
  fi
 
  # pull master epoch ddoy information from PRM files
- if [[ "$sat" == "S1A" ]]
+ if [[ "$sat" == "S1"* ]]
   then
-   ddoy_mast=`grep clock_start S1A${mast}_${subswath}.PRM | awk '{print $3}' |tail -1 | awk '{printf("%3.12f\n", $1)}'` 
+   ddoy_mast=`grep clock_start ${sat}${mast}_${subswath}.PRM | awk '{print $3}' |tail -1 | awk '{printf("%3.12f\n", $1)}'` 
    burst=nan
  else
    ddoy_mast=`grep clock_start $mast.PRM | awk '{print $3}' |tail -1 | awk '{printf("%3.12f\n", $1)}'`
@@ -200,9 +204,9 @@ while read line; do
  while read line; do
   slav=`echo $line | awk '{print $1}'`
   # pull slave epoch ddoy information from PRM files
-  if [[ "$sat" == "S1A" ]]
+  if [[ "$sat" == "S1"* ]]
    then
-    ddoy_slav=`grep clock_start S1A${slav}_${subswath}.PRM | awk '{print $3}' |tail -1 | awk '{printf("%3.12f\n", $1)}'`
+    ddoy_slav=`grep clock_start ${sat}${slav}_${subswath}.PRM | awk '{print $3}' |tail -1 | awk '{printf("%3.12f\n", $1)}'`
   else
     ddoy_slav=`grep clock_start $slav.PRM | awk '{print $3}' |tail -1 | awk '{printf("%3.12f\n", $1)}'`
   fi
@@ -217,9 +221,9 @@ while read line; do
   ddays=`echo $(( ( $(date -ud "${slav}" +'%s') - $(date -ud "${mast}" +'%s') )/60/60/24 ))`
 
   # get pair baseline information
-  if [[ "$sat" == "S1A" ]]
+  if [[ "$sat" == "S1"* ]]
   then
-   SAT_baseline S1A${mast}_${subswath}.PRM S1A${slav}_${subswath}.PRM > bline.tmp
+   SAT_baseline ${sat}${mast}_${subswath}.PRM ${sat}${slav}_${subswath}.PRM > bline.tmp
   elif [[ "$sat" == "TSX" ]]
   then
     eTSX_baseline.csh $mast.PRM $slav.PRM > bline.tmp

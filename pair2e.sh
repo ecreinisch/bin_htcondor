@@ -7,6 +7,7 @@
 # 20160806 Elena correct relative path name for DEM
 # update ECR 20171114 add variable for site so that p2p_TSX_SLC_airbus.csh is called for tungs and dcamp
 # update ECR 20180116 add variable for site so that p2p_TSX_SLC_airbus.csh is called for dixie (as well as tungs and dcamp)
+# udpate ECR 20180605 add S1B
 
 sat=$1
 mst=$2
@@ -77,6 +78,10 @@ if [ $# -gt 3 ]
     ;;
   S1A)
     #cnf=$homedir/gmtsar/config/config.s1a.txt
+    cp $homedir/gmtsar/config/config.s1a.txt .
+    cnf=$homedir/config.s1a.txt
+    ;;
+  S1B)
     cp $homedir/gmtsar/config/config.s1a.txt .
     cnf=$homedir/config.s1a.txt
     ;;
@@ -153,11 +158,11 @@ elif [ "$sat" == "TSX" ]
   ln -s $RAWdir/$3.LED .
   ln -s $RAWdir/$2.SLC .
   ln -s $RAWdir/$3.SLC .
-elif [ "$sat" == "S1A" ]
+elif [[ "$sat" == "S1"* ]]
   then
   subswath=$satparam
-  ln -s $RAWdir/S1A*${2}_${subswath}.* .
-  ln -s $RAWdir/S1A*${3}_${subswath}.* .
+  ln -s $RAWdir/${sat}*${2}_${subswath}.* .
+  ln -s $RAWdir/${sat}*${3}_${subswath}.* .
 ##  ln -s $RAWdir/S1A*$2*.SAFE/annotation/*.xml .
 ##  ln -s $RAWdir/S1A*$2*.SAFE/measurement/*.tiff .
 ##  ln -s $RAWdir/S1A*$3*.SAFE/annotation/*.xml .
@@ -269,9 +274,9 @@ then
   else
     echo p2p_TSX_SLC.csh $mst $slv $cnf >> run.sh
   fi
-elif [ "$sat" == "S1A" ]
+elif [[ "$sat" == "S1"* ]]
 then
-  echo p2p_S1A_TOPS.csh S1A${mst}_${subswath} S1A${slv}_${subswath} $cnf >> run.sh
+  echo p2p_S1A_TOPS.csh ${sat}${mst}_${subswath} ${sat}${slv}_${subswath} $cnf >> run.sh
 elif [ "$sat" == "ALOS" ]
 then
   if [[ $mst == *"1.1"* ]]
