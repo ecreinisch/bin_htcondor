@@ -47,7 +47,11 @@ while read line; do
  dirname=`echo $line | awk '{print $12}'`
  if [[ ! -e "${epoch}.PRM" && ! -e "S1A${epoch}_${subswath}.PRM" && ! -e "S1B${epoch}_${subswath}.PRM" ]]
  then
-   if [[ $sat == "S1"* && $epoch -lt `ssh -Y $maule "head -1 /s21/insar/${sat}/aux_poeorb | awk -F_ '{print $8}' | awk -FT '{print $1}'"` ]]; then
+   if [[ $sat == "S1A" && $epoch -lt `ssh -Y $maule "head -1 /s21/insar/${sat}/aux_poeorb | awk -F_ '{print $8}' | awk -FT '{print $1}'"` ]]; then
+   echo "$epoch $dirname" >> missing_preproc.tmp
+   elif [[ $sat == "S1B"* && $epoch -lt `ssh -Y $maule "head -1 /s21/insar/${sat}/aux_poeorb_S1B | awk -F_ '{print $8}' | awk -FT '{print $1}'"` ]]; then
+   echo "$epoch $dirname" >> missing_preproc.tmp
+   else
    echo "$epoch $dirname" >> missing_preproc.tmp
    fi
  fi
