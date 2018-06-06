@@ -55,7 +55,7 @@ while read line; do
      if [[ $epoch -lt $auxepoch ]]; then
         echo "$epoch $dirname" >> missing_preproc.tmp
      else
-        sed -i '/${epoch}/d' RAW.tmp
+        sed -i "/${epoch}/d" RAW.tmp
      fi
    elif [[ $sat == "S1B" ]]; then
      scp $maule:/s21/insar/${sat}/aux_poeorb_S1B .
