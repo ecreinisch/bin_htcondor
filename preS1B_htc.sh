@@ -1,5 +1,6 @@
 #!/bin/bash
 # 20180604 Elena C Reinisch copy necessary data to submit-3 for preprocessing
+# update 20180606 ECR fix s1a references to s1b
 
 if [[ $# -eq 0 ]]
 then
@@ -39,6 +40,8 @@ subswath=`grep $site ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $trk 
 cp $3 raw.lst
 
 while read -r a b; do
+ echo $a
+ echo $b
  epoch=`echo $a | awk -FT '{print $1}' | awk -F_ '{print $(NF)}'`
 # mkdir tmp/S1B${epoch}_F${subswath}
 # cp $a/annotation/*${subswath}.xml tmp/S1B${epoch}_F${subswath}/
@@ -47,8 +50,8 @@ while read -r a b; do
 # cd tmp
 # tar -czvf S1B${epoch}_${subswath}.tgz S1B${epoch}_F${subswath}
  #tar -czvf S1B${epoch}_${subswath}.tgz $a/annotation/*${subswath}.xml $a/measurement/*${subswath}.tiff $a/$b
- xmlname=`find $a/annotation -maxdepth 1 -name "s1a*${subswath}.xml"`
- tiffname=`find $a/measurement -maxdepth 1 -name "s1a*${subswath}.tiff"`
+ xmlname=`find $a/annotation -maxdepth 1 -name "s1b*${subswath}.xml"`
+ tiffname=`find $a/measurement -maxdepth 1 -name "s1b*${subswath}.tiff"`
  tar -czvf S1B${epoch}_${subswath}.tgz $xmlname $tiffname $a/$b
  mv S1B${epoch}_${subswath}.tgz ../preproc/
 done < raw.lst
