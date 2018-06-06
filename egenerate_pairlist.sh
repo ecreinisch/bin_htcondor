@@ -13,6 +13,7 @@
 # edit ECR 20180327 update for new gmtsar-aux layout
 # edit ECR 20180604 update for S1A (don't count pairs that are too recent and don't have EOF files yet)
 # edit ECR 20180604 add S1B
+# edit ECR 20180605 updates for S1B naming convention 
 
 if [[ $# -eq 0 ]]
 then
@@ -47,12 +48,28 @@ while read line; do
  dirname=`echo $line | awk '{print $12}'`
  if [[ ! -e "${epoch}.PRM" && ! -e "S1A${epoch}_${subswath}.PRM" && ! -e "S1B${epoch}_${subswath}.PRM" ]]
  then
-   if [[ $sat == "S1A" && $epoch -lt `ssh -Y $maule "head -1 /s21/insar/${sat}/aux_poeorb | awk -F_ '{print $8}' | awk -FT '{print $1}'"` ]]; then
-   echo "$epoch $dirname" >> missing_preproc.tmp
-   elif [[ $sat == "S1B"* && $epoch -lt `ssh -Y $maule "head -1 /s21/insar/${sat}/aux_poeorb_S1B | awk -F_ '{print $8}' | awk -FT '{print $1}'"` ]]; then
-   echo "$epoch $dirname" >> missing_preproc.tmp
+   if [[ $sat == "S1A" ]]; then
+     scp $maule:/s21/insar/${sat}/aux_poeorb .
+     auxepoch=`head -1 aux_poeorb | awk -F_ '{print $8}' | awk -FT '{print $1}'`
+     rm aux_poeorb
+     if [[ $epoch -lt $auxepoch ]]; then
+        echo "$epoch $dirname" >> missing_preproc.tmp
+     else
+        sed -i '/${epoch}/d' RAW.tmp
+     fi
+   elif [[ $sat == "S1B" ]]; then
+     scp $maule:/s21/insar/${sat}/aux_poeorb_S1B .
+     auxepoch=`head -1 aux_poeorb_S1B | awk -F_ '{print $8}' | awk -FT '{print $1}'`
+     echo $epoch
+     echo $auxepoch
+     rm aux_poeorb_S1B
+     if [[ $epoch -lt $auxepoch ]]; then
+        echo "$epoch $dirname" >> missing_preproc.tmp
+     else
+        sed -i "/${epoch}/d" RAW.tmp
+     fi
    else
-   echo "$epoch $dirname" >> missing_preproc.tmp
+     echo "$epoch $dirname" >> missing_preproc.tmp
    fi
  fi
 done < RAW.tmp
@@ -203,7 +220,7 @@ while read line; do
  then
   orb1="orb1"
  fi
- 
+
  # loop through slave epochs
  while read line; do
   slav=`echo $line | awk '{print $1}'`
@@ -225,8 +242,17 @@ while read line; do
   ddays=`echo $(( ( $(date -ud "${slav}" +'%s') - $(date -ud "${mast}" +'%s') )/60/60/24 ))`
 
   # get pair baseline information
-  if [[ "$sat" == "S1"* ]]
+  if [[ "$sat" == "S1A" ]]
   then
+   SAT_baseline ${sat}${mast}_${subswath}.PRM ${sat}${slav}_${subswath}.PRM > bline.tmp
+  elif [[ "$sat" == "S1B" ]]
+  then
+   ln -s ${sat}${mast}_${subswath}.PRM S1A${mast}_${subswath}.PRM
+   ln -s ${sat}${slav}_${subswath}.PRM S1A${slav}_${subswath}.PRM
+   ln -s ${sat}${slav}_${subswath}.LED S1A${slav}_${subswath}.LED
+   ln -s ${sat}${slav}_${subswath}.LED S1A${slav}_${subswath}.LED
+   ln -s ${sat}${slav}_${subswath}.SLC S1A${slav}_${subswath}.SLC
+   ln -s ${sat}${slav}_${subswath}.SLC S1A${slav}_${subswath}.SLC
    SAT_baseline ${sat}${mast}_${subswath}.PRM ${sat}${slav}_${subswath}.PRM > bline.tmp
   elif [[ "$sat" == "TSX" ]]
   then

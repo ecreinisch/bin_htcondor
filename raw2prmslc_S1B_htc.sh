@@ -1,6 +1,7 @@
 #!/bin/sh
 # Script to pre-process Sentinel-1B TOPS mode in batch form on HTCondor
 # Elena C Reinisch 20180604
+# edit ECR 20180606 fix S1B naming convention 
 
 # set variables
 mast=$1
@@ -68,6 +69,10 @@ echo $sEOF_file
 align_tops.csh `echo ${mbase_name} ${mEOF_file} ${sbase_name} $sEOF_file dem.grd`
 
 # rename PRM, LED, and SLC files
+for i in `ls *.LED *.PRM *.SLC`; do
+ mv $i `echo $i | sed 's/S1A/S1B/'`
+done
+
 for i in `ls *.LED *.PRM *.SLC`; do
  mv $i `echo $i | awk -F_ '{printf("%s_%s\n", $1, $3)}'`
  if [[ $i == *"PRM"* ]]

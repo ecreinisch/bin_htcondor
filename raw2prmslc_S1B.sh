@@ -2,6 +2,7 @@
 # script for pre-processing S1B data; to be used on porotomo for getting pair list metadata (not for forming actual pairs)
 # run in raw directory
 # 20180604 Elena C Reinisch
+# 20180605 ECR rename files to have S1B instead of S1A
 
 if [[ $# -eq 0 ]]
 then
@@ -137,6 +138,10 @@ done < SV.lst
 done < mastSV.lst
 
 # rename PRM, LED, and SLC files
+for i in `ls *.LED *.PRM *.SLC`; do
+ mv $i `echo $i | sed 's/S1A/S1B/'`
+done
+
 for i in `ls *.LED *.PRM *.SLC`; do
  mv $i `echo $i | awk -F_ '{printf("%s_%s\n", $1, $3)}'`
  if [[ $i == *"PRM"* ]]
