@@ -5,6 +5,7 @@
 # Elena C Reinisch
 # 20170214
 # update ECR 20180319 update for new bin_htcondor repo
+# update ECR 20180709 remove collection restriction to WInSAR ESA
 
 if [[ $# -eq 0 ]]
 then
@@ -87,7 +88,7 @@ done
 # save collection name to query string
 collection_name=`echo '&collectionName=WInSAR%20ESA'`
 echo COLLECTION_NAME = $collection_name
-query_string=${query_string}${collection_name}
+#query_string=${query_string}${collection_name}
 echo QUERY_STRING =  $query_string
 
 # pull html data for download metadata
