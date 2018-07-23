@@ -31,7 +31,7 @@ then
 fi
 
 # get UTM information if needed
-if [[ ! -z $utmregion ]]
+if [[ -z $utmregion ]]
 then
    utm_check=$(check_python_modules.sh utm)
    if [[ $utm_check -eq 1 ]]; then
@@ -54,21 +54,21 @@ then
    minlon=$(echo ${region} | awk -F/ '{print $1}' | awk -FR '{print $2}')
    maxlon=$(echo ${region} | awk -F/ '{print $2}')
    # get list of corresponding easting and northing coordinates 
-   python python2deg2utm.py $minlat $minlon | grep Easting | awk '{print $3}' >> utmx.tmp
-   python python2deg2utm.py $minlat $maxlon | grep Easting | awk '{print $3}' >> utmx.tmp
-   python python2deg2utm.py $maxlat $minlon | grep Easting | awk '{print $3}' >> utmx.tmp
-   python python2deg2utm.py $maxlat $maxlon | grep Easting | awk '{print $3}' >> utmx.tmp
-   python python2deg2utm.py $minlat $minlon | grep Northing | awk '{print $3}' >> utmy.tmp
-   python python2deg2utm.py $minlat $maxlon | grep Northing | awk '{print $3}' >> utmy.tmp
-   python python2deg2utm.py $maxlat $minlon | grep Northing | awk '{print $3}' >> utmy.tmp
-   python python2deg2utm.py $maxlat $maxlon | grep Northing | awk '{print $3}' >> utmy.tmp
+   python ${bin_htcondor_home}/python2deg2utm.py $minlat $minlon | grep Easting | awk '{print $3}' >> utmx.tmp
+   python ${bin_htcondor_home}/python2deg2utm.py $minlat $maxlon | grep Easting | awk '{print $3}' >> utmx.tmp
+   python ${bin_htcondor_home}/python2deg2utm.py $maxlat $minlon | grep Easting | awk '{print $3}' >> utmx.tmp
+   python ${bin_htcondor_home}/python2deg2utm.py $maxlat $maxlon | grep Easting | awk '{print $3}' >> utmx.tmp
+   python ${bin_htcondor_home}/python2deg2utm.py $minlat $minlon | grep Northing | awk '{print $3}' >> utmy.tmp
+   python ${bin_htcondor_home}/python2deg2utm.py $minlat $maxlon | grep Northing | awk '{print $3}' >> utmy.tmp
+   python ${bin_htcondor_home}/python2deg2utm.py $maxlat $minlon | grep Northing | awk '{print $3}' >> utmy.tmp
+   python ${bin_htcondor_home}/python2deg2utm.py $maxlat $maxlon | grep Northing | awk '{print $3}' >> utmy.tmp
    # get min and max from each
    minx=$(cat utmx.tmp | sort -u | head -1)
    maxx=$(cat utmx.tmp | sort -u | tail -1)
    miny=$(cat utmy.tmp | sort -u | head -1)
    maxy=$(cat utmy.tmp | sort -u | tail -1)
    # define -R region
-   utmzone=$(python python2deg2utm.py $maxlat $maxlon | grep Zone |  awk '{print $3}')
+   utmzone=$(python ${bin_htcondor_home}/python2deg2utm.py $maxlat $maxlon | grep Zone |  awk '{print $3}')
    utmregion="-R${minx}/${maxx}/${miny}/${maxy}"
 fi
 
