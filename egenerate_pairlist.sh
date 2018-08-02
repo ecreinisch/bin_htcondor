@@ -14,6 +14,7 @@
 # edit ECR 20180604 update for S1A (don't count pairs that are too recent and don't have EOF files yet)
 # edit ECR 20180604 add S1B
 # edit ECR 20180605 updates for S1B naming convention 
+# edit ECR 20180802 allow twins to be recorded
 
 if [[ $# -eq 0 ]]
 then
@@ -198,7 +199,7 @@ while read line; do
    mode=`echo $line | awk '{print $11}' | awk -F_ '{print $5}'`
  fi
  # finds all new epochs that are suitable slaves
- awk -v var="$mast" '$(1) > var' new_epochs.tmp > slav.tmp
+ awk -v var="$mast" '$(1) >= var' new_epochs.tmp > slav.tmp
  if [[ $sat == "S1"* ]]
  then
    grep $mode slav.tmp > slav_s1.tmp
