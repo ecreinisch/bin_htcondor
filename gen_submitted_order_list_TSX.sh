@@ -5,6 +5,7 @@
 # update ECR 20170420 update to add in archived scenes
 # update ECR 20171109 change name of Order List to TSX_OrderList.txt
 # update ECR 20180327 update for new gmtsar-aux layout
+# update ECR 20180802 check for missing prepended 0s for order IDs in receipts, adjust as necessary 
 
 
 # decide if looking through archives or not
@@ -89,6 +90,11 @@ while read -r a; do
     echo $b
     grep $order_number -A 5 order.tmp | grep "\<$b\>" -A 4 > scene_info.tmp
     full_order_number=`grep ${order_number}_ order.tmp | head -1`
+    # pad filename with zeros if needed for new Airbus orders
+    if [[ $(echo $full_order_number | wc -c) -eq 7 ]]; then
+       full_order_number="0000"${full_order_number}
+    fi 
+
     filename=SO_${full_order_number}${b}_1.tar.gz
 
     # extract information from text file 
