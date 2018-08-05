@@ -15,7 +15,6 @@
 # edit ECR 20180604 add S1B
 # edit ECR 20180605 updates for S1B naming convention 
 # edit ECR 20180802 allow twins to be recorded
-# edit ECR 20180803 make script able to be run on maule
 
 if [[ $# -eq 0 ]]
 then
@@ -37,26 +36,9 @@ frame=$4
 > RAW.tmp
 > missing_preproc.tmp
 
-# determine host machine
-servername=$(echo $HOSTNAME | awk -F. '{print $1}')
-if [[ ${servername} == "ice" ]]; then
-   echo "Currently on ice server. Please log in to porotomo and re-source your setup.sh script before proceeding."
-   exit 1
-fi
-
-echo "host machine is: " ${servername}
-
 # get epoch list for site, keeping only the scenes that have been downloaded
-if [[ ${servername} == "porotomo" ]]; then
-   scp $maule:/s21/insar/${sat}/${sat}_OrderList.txt /t31/insar/${sat}/
-   elist="/t31/insar/${sat}/${sat}_OrderList.txt"
-elif [[ ${servername} == "maule" ]]; then
-   elist="/s21/insar/${sat}/${sat}_OrderList.txt"
-else
-   echo "Unrecognize host server name.  Please make sure you are using maule or porotomo servers."
-   exit 1
-fi 
-
+scp $maule:/s21/insar/${sat}/${sat}_OrderList.txt /t31/insar/${sat}/
+elist="/t31/insar/${sat}/${sat}_OrderList.txt"
 grep $site $elist | grep $trk | awk '$9 == "D"'| sort -u -k1,1 -k2,2  > RAW.tmp
 first_epoch=`head -1 RAW.tmp | awk '{print $1}'`
 subswath=`head -1 RAW.tmp | awk '{print $5}'`
@@ -68,26 +50,20 @@ while read line; do
  if [[ ! -e "${epoch}.PRM" && ! -e "S1A${epoch}_${subswath}.PRM" && ! -e "S1B${epoch}_${subswath}.PRM" ]]
  then
    if [[ $sat == "S1A" ]]; then
-     if [[ ${servername} == "porotomo" ]]; then
-       scp $maule:/s21/insar/${sat}/aux_poeorb .
-       auxepoch=`head -1 aux_poeorb | awk -F_ '{print $8}' | awk -FT '{print $1}'`
-       rm aux_poeorb
-     else
-       auxepoch=`head -1 /s21/insar/${sat}/aux_poeorb | awk -F_ '{print $8}' | awk -FT '{print $1}'`
-     fi
+     scp $maule:/s21/insar/${sat}/aux_poeorb .
+     auxepoch=`head -1 aux_poeorb | awk -F_ '{print $8}' | awk -FT '{print $1}'`
+     rm aux_poeorb
      if [[ $epoch -lt $auxepoch ]]; then
         echo "$epoch $dirname" >> missing_preproc.tmp
      else
         sed -i "/${epoch}/d" RAW.tmp
      fi
    elif [[ $sat == "S1B" ]]; then
-     if [[ ${servername} == "porotomo" ]]; then
-       scp $maule:/s21/insar/${sat}/aux_poeorb_S1B .
-       auxepoch=`head -1 aux_poeorb_S1B | awk -F_ '{print $8}' | awk -FT '{print $1}'`
-       rm aux_poeorb_S1B
-     else
-       auxepoch=`head -1 /s21/insar/${sat}/aux_poeorb_S1B | awk -F_ '{print $8}' | awk -FT '{print $1}'`
-     fi
+     scp $maule:/s21/insar/${sat}/aux_poeorb_S1B .
+     auxepoch=`head -1 aux_poeorb_S1B | awk -F_ '{print $8}' | awk -FT '{print $1}'`
+     echo $epoch
+     echo $auxepoch
+     rm aux_poeorb_S1B
      if [[ $epoch -lt $auxepoch ]]; then
         echo "$epoch $dirname" >> missing_preproc.tmp
      else
@@ -108,61 +84,26 @@ then
     echo $b >> ../raw/newraw.lst
     echo `echo $b | awk -F/ '{print $(NF)}'` >> ../raw/newdims.lst 
   done < missing_preproc.tmp
-
   echo "Some data has not been preprocessed yet.  See missing_preproc.tmp for scenes."
   echo "Missing directories are listed in ../raw/newraw.lst. Consider doing the following:"
-  case $sat in 
-    "S1A")
-         echo "For S1A Data:"
-         echo "cd ../raw"
-         echo "raw2prmslc_S1A.sh [trk] [site]  preproc_porotomo.lst"
-         ;;
-    "S1B")
-         echo "For S1B Data:"
-         echo "cd ../raw"
-         echo "raw2prmslc_S1B.sh [trk] [site]  preproc_porotomo.lst"
-         ;;
-     "TSX")
-         echo "For TSX Data:"
-         echo "cd ../raw"
-         if [[ ${servername} == "porotomo" ]]; then
-           echo "for i in ""\`""cat"" newraw.lst""\`"";"" do  scp -r""  $""maule:""$""i .; done"
-         fi
-         echo "raw2prmslc_TSX.sh newdims.lst [site]"
-         ;;
-     "ALOS")
-         echo "For ALOS Data:"
-         echo "cd ../raw"
-         if [[ ${servername} == "porotomo" ]]; then
-           echo "for i in ""\`""cat"" newraw.lst""\`"";"" do  scp -r""  $""maule:""$""i .; done"
-         fi
-         echo "raw2prmslc_ALOS.sh preproc_porotomo.lst"
-         ;;
-     "ERS1")
-         echo "For ERS1 Data:"
-         echo "cd ../raw"
-	 #if [[ ${servername} == "porotomo" ]]; then
-         #  echo "for i in ""\`""cat"" newraw.lst""\`"";"" do  scp -r""  $""maule:""$""i .; done"
-	 #fi
-         echo "raw2prmslc_ERS.sh preproc_porotomo.lst"
-         ;;
-     "ERS2")
-         echo "For ERS2 Data:"
-         echo "cd ../raw"
-         #if [[ ${servername} == "porotomo" ]]; then
-         #  echo "for i in ""\`""cat"" newraw.lst""\`"";"" do  scp -r""  $""maule:""$""i .; done"
-         #fi
-         echo "raw2prmslc_ERS.sh preproc_porotomo.lst"
-         ;;
-     "ENVI")
-         echo "For ENVI Data:"
-         echo "cd ../raw"
-	 if [[ ${servername} == "porotomo" ]]; then
-           echo "for i in ""\`""cat"" newraw.lst""\`"";"" do  scp -r""  $""maule:""$""i .; done"
-	 fi
-         echo "raw2prmslc_ENVI.sh preproc_porotomo.lst"
-         ;;
-  esac
+  echo "For S1A Data:"
+  echo "cd ../raw"
+  echo "raw2prmslc_S1B.sh [trk] [site]  preproc_porotomo.lst"
+  echo "For S1B Data:"
+  echo "cd ../raw"
+  echo "raw2prmslc_S1B.sh [trk] [site]  preproc_porotomo.lst"
+  echo "For all other satellites:"
+  echo "cd ../raw"
+  echo "for i in ""\`""cat"" newraw.lst""\`"";"" do  scp -r""  $""maule:""$""i .; done"
+  echo "NOTE: raw2prmslc scripts may need to be run:"
+  echo " If sat = TSX, in raw do"
+  echo "raw2prmslc_TSX.sh newdims.lst [site]"
+  echo "If sat = ALOS, in raw do"
+  echo "raw2prmslc_ALOS.sh preproc_porotomo.lst"
+  echo "If sat = ERS, in raw do"
+  echo "raw2prmslc_ERS.sh preproc_porotomo.lst"
+  echo "If sat = ENVI, in raw do"
+  echo "raw2prmslc_ENVI.sh preproc_porotomo.lst"
   exit 1
 else
   rm missing_preproc.tmp
@@ -195,7 +136,7 @@ then
   wv=0.0562356424
 fi
 orbdir=`head -1 RAW.tmp | awk '{print $8}'`
-dem=`grep $site ~ebaluyut/gmtsar-aux/site_dems.txt | awk '{print $2}'`
+dem=`grep $site /t31/ebaluyut/gmtsar-aux/site_dems.txt | awk '{print $2}'`
 ## cut down S1A file names to epoch and subswath only
 #if [[ "$sat" == "S1A" ]]
 #then
