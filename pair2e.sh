@@ -268,8 +268,9 @@ echo SAT = $sat
 # build the command
 if [ "$sat" == "TSX" ]
 then
-  if [[ "$site" == "dcamp" || "$site" == "tungs" || "$site" == "dixie" ]]
+  if [[ "$site" == "dcamp" || "$site" == "tungs" || "$site" == "dixie" || "$site" == "tusca" ]]
   then
+    echo "USING AIRBUS VERSION OF P2P FOR TSX"
     echo p2p_TSX_SLC_airbus.csh $mst $slv $cnf >> run.sh
   else
     echo p2p_TSX_SLC.csh $mst $slv $cnf >> run.sh
