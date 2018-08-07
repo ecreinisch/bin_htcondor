@@ -16,6 +16,7 @@
 # edit ECR 20180605 updates for S1B naming convention 
 # edit ECR 20180802 allow twins to be recorded
 # edit ECR 20180803 make script able to be run on maule
+# edit ECR 20180807 add catch for files that don't pre-process successfully
 
 if [[ $# -eq 0 ]]
 then
@@ -50,8 +51,12 @@ echo "host machine is: " ${servername}
 if [[ ${servername} == "porotomo" ]]; then
    scp $maule:/s21/insar/${sat}/${sat}_OrderList.txt /t31/insar/${sat}/
    elist="/t31/insar/${sat}/${sat}_OrderList.txt"
+   rsync -avu --ignore-existing $maule:/s21/insar/${sat}/${trk}/preproc/ .
+ #  rsync -avu $maule:/s21/insar/${sat}/${trk}/preproc/${sat}_${trk}_${site}_pairs.txt .
 elif [[ ${servername} == "maule" ]]; then
    elist="/s21/insar/${sat}/${sat}_OrderList.txt"
+   rsync -avu --ignore-existing $t31/insar/${sat}/${trk}/preproc/ .
+ #  rsync -avu $t31/insar/${sat}/${trk}/preproc/${sat}_${trk}_${site}_pairs.txt .
 else
    echo "Unrecognize host server name.  Please make sure you are using maule or porotomo servers."
    exit 1
@@ -274,6 +279,11 @@ while read line; do
    ddoy_mast=`grep clock_start $mast.PRM | awk '{print $3}' |tail -1 | awk '{printf("%3.12f\n", $1)}'`
    burst=nan
  fi
+
+ if [[ -z $ddoy_mast ]]; then
+   ddoy_mast=nan
+ fi
+
  # get orbit info from epoch list
  orb1=`echo $line | awk '{print $7}'` 
  if [[ -z "$orb1" ]]
@@ -291,6 +301,11 @@ while read line; do
   else
     ddoy_slav=`grep clock_start $slav.PRM | awk '{print $3}' |tail -1 | awk '{printf("%3.12f\n", $1)}'`
   fi
+
+ if [[ -z $ddoy_slav ]]; then
+   ddoy_slav=nan
+ fi
+
   # get orbit info from epoch list
   orb2=`echo $line | awk '{print $7}'`
   if [[ -z "$orb2" ]]
@@ -300,6 +315,7 @@ while read line; do
 
   #get delta days
   ddays=`echo $(( ( $(date -ud "${slav}" +'%s') - $(date -ud "${mast}" +'%s') )/60/60/24 ))`
+  echo ddays = $ddays
 
   # get pair baseline information
   if [[ "$sat" == "S1A" ]]
@@ -317,13 +333,13 @@ while read line; do
   elif [[ "$sat" == "TSX" ]]
   then
     eTSX_baseline.csh $mast.PRM $slav.PRM > bline.tmp
-  elif [[ "$sat" == "ALOS"* ]]
-  then
-    ALOS_baseline $mast.PRM $slav.PRM > bline.tmp
+ # elif [[ "$sat" == "ALOS"* ]]
+ # then
+ #   ALOS_baseline $mast.PRM $slav.PRM > bline.tmp
   else
    SAT_baseline $mast.PRM $slav.PRM > bline.tmp
   fi
-  if [[ `cat bline.tmp | wc -l` == 0 ]]
+  if [[ `cat bline.tmp | grep B_perpendicular | wc -l` == 0 ]]
   then 
    bpar=nan
    bperp=nan

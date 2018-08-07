@@ -38,7 +38,9 @@ while read -r img led; do
  fi
  scene_date=`echo $img | awk -F- '{print $3}'`
  ALOS_pre_process_SLC $img $led
+ #ALOS_pre_process $img $led
  mv *.PRM ../preproc/${scene_date}.PRM
  mv *.SLC ../preproc/${scene_date}.SLC 
+ mv *.LED ../preproc/
 done < $1
 
