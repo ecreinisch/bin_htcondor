@@ -5,6 +5,7 @@
 # edit 20170425 ECR change to one list regardless of directory naming convention
 # edit 20170504 ECR and Kurt Feigl
 # update ECR 20180803 update to run on maule server
+# update ECR 20180813 fix definition of maule_path for maule server
 
 
 if [[ $# -eq 0 ]]
@@ -30,7 +31,11 @@ elif [[ ${servername} != "porotomo" && ${servername} != "maule" ]]; then
 fi
 
 # get track information to copy to appropriate directory on maule
-maule_path=`echo $(pwd) | awk -F/t31/ '{print "/s21/"$2}' | awk -Fraw '{print $1"preproc/"}'` 
+if [[ ${servername} == "porotomo" ]]; then
+   maule_path=`echo $(pwd) | awk -F/t31/ '{print "/s21/"$2}' | awk -Fraw '{print $1"preproc/"}'` 
+else
+   maule_path=`echo $(pwd) | awk -F/raw '{print $1"/preproc/"}'`
+fi
 echo $maule_path
 
 #while read -r i; do
@@ -79,7 +84,6 @@ if [[ ${servername} == "porotomo" ]]; then
   #  rm -r $i
 else
   mv ${c_tar}.tgz ${maule_path}
-
 fi
 
 done < $rawlst #$TList
