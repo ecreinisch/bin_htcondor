@@ -6,6 +6,7 @@
 # edit ECR 20171128 add -o and -q options for month matching
 # edit ECR 20180406 remove duplicate lines
 # edit ECR 20180514 fix sed line for replacing outdated header
+# edit ECR 20180807 set default not to include twins
 
 if [[ $# -eq 0 ]]
 then
@@ -34,6 +35,9 @@ then
  echo "bash-4.1$ generate_PAIRSmake.sh -fTSX_T91_brady_pairs.txt -p20160225/20160415 -w100"
  exit 1
 fi
+
+# set initial catch for removing twins
+twins=0
 
 # sort through each flag
 while getopts ":f:b:M:S:m:o:s:d:l:q:e:g:p:w:n:" opt; do
@@ -171,6 +175,16 @@ while getopts ":f:b:M:S:m:o:s:d:l:q:e:g:p:w:n:" opt; do
   esac
 done
 
+# remove twins if not needed
+if [[ $twins == 0 ]]; then
+   while read line; do
+     if [[ $(echo $line | awk '{print $1}') == $(echo $line | awk '{print $2}') ]]; then 
+       sed -i "/$line/d" PAIRSmake.txt
+     fi
+   done < PAIRSmake.txt
+
+fi
+
 # add header
 # make sure text file has header, add one if not
 header=`head -1 PAIRSmake.txt`
@@ -185,4 +199,4 @@ fi
 # clean up
  awk '!seen[$0]++' PAIRSmake.txt > file.tmp 
  column -t file.tmp > PAIRSmake.txt
- rm pairs.tmp file.tmp
+# rm pairs.tmp file.tmp

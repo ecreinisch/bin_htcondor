@@ -4,6 +4,7 @@
 # edit 20170216 ECR remove dimlist option
 # edit 20170425 ECR change to one list regardless of directory naming convention
 # edit 20170504 ECR and Kurt Feigl
+# update ECR 20180803 update to run on maule server
 
 
 if [[ $# -eq 0 ]]
@@ -17,6 +18,16 @@ fi
 rawlst=$1
 site=$2
 overwrite=$3
+
+# determine host machine
+servername=$(echo $HOSTNAME | awk -F. '{print $1}')
+if [[ ${servername} == "ice" ]]; then
+   echo "Currently on ice server. Please log in to porotomo and re-source your setup.sh script before proceeding."
+   exit 1
+elif [[ ${servername} != "porotomo" && ${servername} != "maule" ]]; then
+   echo "Unrecognized host server name.  Please make sure you are on maule or porotomo."
+   exit 1
+fi
 
 # get track information to copy to appropriate directory on maule
 maule_path=`echo $(pwd) | awk -F/t31/ '{print "/s21/"$2}' | awk -Fraw '{print $1"preproc/"}'` 
@@ -61,12 +72,15 @@ echo "xml file is" $a "image data is " $b "name of output is " $c
  make_slc_tsx $a $b $c
 
 tar -czvf ${c_tar}.tgz $c.PRM $c.SLC $c.LED
-scp ${c_tar}.tgz $maule:${maule_path}
-# scp -r $i $maule:${maule_path}
 
-# remove temp files
-rm -r $i
-rm ${c_tar}.tgz 
+if [[ ${servername} == "porotomo" ]]; then
+  scp ${c_tar}.tgz $maule:${maule_path}
+  #  rm ${c_tar}.tgz 
+  #  rm -r $i
+else
+  mv ${c_tar}.tgz ${maule_path}
+
+fi
 
 done < $rawlst #$TList
 

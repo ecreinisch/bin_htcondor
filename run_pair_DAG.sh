@@ -27,6 +27,11 @@ xmax=`get_site_dims.sh ${site} 1 | awk -F-R '{print $2}' | awk -F/ '{print $2}'`
 ymin=`get_site_dims.sh ${site} 1 | awk -F-R '{print $2}' | awk -F/ '{print $3}'`
 ymax=`get_site_dims.sh ${site} 1 | awk -F-R '{print $2}' | awk -F/ '{print $4}'`
 
+echo xmin = $xmin
+echo xmax = $xmax
+echo ymin = $ymin
+echo ymax = $ymax
+
 # set DEM and make sure cut version of DEM exists on maule
 echo "check for cut dem on maule"
 echo MAULE = $maule

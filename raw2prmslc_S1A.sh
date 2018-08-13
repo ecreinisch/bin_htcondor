@@ -3,6 +3,7 @@
 # run in raw directory
 # 20170427 Elena C Reinisch
 # update ECR 20180327 update for new get_site_dims.sh
+# update ECR 20180803 update to run on maule server
 
 if [[ $# -eq 0 ]]
 then
@@ -18,9 +19,21 @@ fi
 trk=$1
 site=$2
 sat="S1A"
+
+# determine host machine
+servername=$(echo $HOSTNAME | awk -F. '{print $1}')
+if [[ ${servername} == "ice" ]]; then
+   echo "Currently on ice server. Please log in to porotomo and re-source your setup.sh script before proceeding."
+   exit 1
+elif [[ ${servername} != "porotomo" && ${servername} != "maule" ]]; then
+   echo "Unrecognized host server name.  Please make sure you are on maule or porotomo."
+   exit 1
+fi
+
+
 #site=`grep $sat /t31/ebaluyut/gmtsar-aux/site_sats.txt | grep $trk | awk '{print $1}'`
-subswath=`grep $site /t31/ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $trk | awk '{print $4}' | awk -FF '{print $2}'`
-demf=`grep $site /t31/ebaluyut/gmtsar-aux/site_dems.txt | awk '{print $2}'`
+subswath=`grep $site ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $trk | awk '{print $4}' | awk -FF '{print $2}'`
+demf=`grep $site ~ebaluyut/gmtsar-aux/site_dems.txt | awk '{print $2}'`
 
 echo subswath =  $subswath
 
@@ -28,7 +41,9 @@ echo subswath =  $subswath
 while read -r a b; do
   if [[ ! -d $a ]]
   then
-     scp -r $maule:/s21/insar/S1A/${trk}/raw/$a .
+     if [[ ${servername} == "porotomo" ]]; then
+       scp -r $maule:/s21/insar/S1A/${trk}/raw/$a .
+     fi
      cp $a/$b .
   fi
 done < $3
@@ -49,7 +64,11 @@ cd raw_tmp
 # set up dem link
 region=`get_site_dims.sh $site 1`
 echo DEMF = $demf
-grdcut /t31/ebaluyut/scratch/TEST_GMTSAR/insar/dem/$demf -Gdem.grd $region 
+if [[ ${servername} == "porotomo" ]]; then
+  grdcut /t31/ebaluyut/scratch/TEST_GMTSAR/insar/dem/$demf -Gdem.grd $region 
+else
+  grdcut /s21/insar/condor/feigl/insar/dem/$demf -Gdem.grd $region
+fi
 
 # split data by 1SSV and 1SDV
 grep _1SDV_ tmp.lst > DV.lst

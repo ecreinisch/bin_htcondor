@@ -4,6 +4,7 @@
 # edit ECR 20170828 remove cases statement for sites, pull polygon info from get_site_polygon.sh
 # edit ECR 20170828 add beam mode option and nan placeholder for optional parameters
 # edit ECR 20180322 add --asfResponseTimeout=25 to mitigate ASF time outs
+# edit ECR 20180807 add check for frame discrepancy (in reference to ALOS T112 Frame 6450 discrepancy for maule)
 
 if [[ $# -eq 0 ]]
 then
@@ -98,4 +99,24 @@ fi
 if [[ "$status" == "download" ]]
 then
   ssara_federated_query.py --platform=ALOS --intersectsWith="$polygon" --asfResponseTimeout=25 -s $tstart -e $tend $trk $frame $beammode --$status
+fi
+
+if [[ ! -z $frame ]]; then
+# double check that frame information in query file is correct (in reference to ALOS T112 Frame 6450 discrepancy for maule)
+newkml=$(ls ssara*.kml | tail -1)
+if [[ `grep "Download URL" ${newkml} | awk -F/ '{print $NF}' | awk -F- '{print substr($1, 12, 4)}' | sort -u | wc -l` -gt 1 ]]; then
+   echo "discrepancy between frames (more than one frame downloaded). Check kml and downloaded zip files"
+   exit 1
+fi
+
+dataframe=$(grep "Download URL" ${newkml} | awk -F/ '{print $NF}' | awk -F- '{print substr($1, 12, 4)}' | sort -u)
+
+if [[ `grep "First Frame" ${newkml} | awk -F" : " '{print $2}' | head -1` != ${dataframe} ]]; then
+   echo "Discrepancy between kml listed frame and frame of data.  Editing kml file to include proper frame."
+   echo "To reproduce this error, run:"
+   echo "ssara_federated_query.py --platform=ALOS --intersectsWith=$polygon --asfResponseTimeout=25 -s $tstart -e $tend $trk $frame $beammode --kml"
+   kmlframe=$(grep "First Frame" ${newkml} | awk -F" : " '{print $2}' | head -1)
+   sed -i "s/Frame : ${kmlframe}/Frame : ${dataframe}/g" ${newkml}
+fi
+
 fi

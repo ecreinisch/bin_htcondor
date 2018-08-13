@@ -75,7 +75,7 @@ fi
 
 ls ssara_search*.kml > OrderList
 while read -r a; do
-    grep \<Placemark\>\<name\> $a | awk -F name\> '{print $2}' | awk '{print $1}' > scene_id.tmp
+    grep \<Placemark\>\<name\> $a | awk -F name\> '{print $2}' |awk -FT '{print $1}' | awk '{print $1}' > scene_id.tmp
     chmod a+w scene_id.tmp
     while read -r b; do
     #pull info for scene id
