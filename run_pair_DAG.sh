@@ -218,6 +218,7 @@ error = ${sat}_${track}_In${mast}_${slav}-process.err
 #  output (or "screen output").
 executable = run_pair.sh  
 arguments = "$sat $track $mast $slav $user $satparam $demf $filter_wv $xmin $xmax $ymin $ymax $site"
+# TODO: this next line overwrites the previous output file defined 8 lines above
 output = ${sat}_${track}_In${mast}_${slav}.out
 
 # Specify that HTCondor should transfer files to and from the
