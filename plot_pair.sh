@@ -13,6 +13,7 @@
 # update ECR SB 20180418 change polar cpt to copper cpt for unwrap/drange
 # update SAB 20180508 change copper cpt to cool cpt for unwrap/drange
 # update SAB 20180510 change makecpt to grd2cpt for unwrapped 
+# update ECR 20180815 adding cosoc to database
 
 if [[ $# -eq 0 ]]
 then
@@ -301,12 +302,16 @@ else # use UTM format files
     cat ${site}_gps_utm.txt | awk '{print $1,$2 , $(NF)}' > text.tmp
     pstext text.tmp -R -F+jBL+f8p -J -Gwhite -N -O -K  >> ${outfile}
     rm text.tmp
-  elif [[ "$site" == "tungs" ]] || [[ "$site" == "dcamp" ]]
+  elif [[ "$site" == "tungs" ]] || [[ "$site" == "dcamp" ]] 
   then
     cat ${site}_wells_prod_utm.txt | awk '{print $1,$2}' | psxy $region -J -St0.2 -Gblack -O -K -V -P >> ${outfile}
     cat ${site}_wells_inj_utm.txt | awk '{print $1,$2}' | psxy $region -J -Si0.2 -Gblack -O -K -V -P >> ${outfile}
     cat ${site}_wells_mon_utm.txt | awk '{print $1,$2}' | psxy $region -J -Ss0.2 -Gblack -O -K -V -P >> ${outfile}
     rm ${site}_wells*_utm.txt
+  elif [[ "$site" == "cosoc" ]]
+  then
+    cat ${site}_wells_prod_utm.txt | awk '{print $1,$2}' | psxy $region -J -St0.2 -Gred -O -K -V -P >> ${outfile}
+    cat ${site}_wells_inj_utm.txt | awk '{print $1,$2}' | psxy $region -J -Si0.2 -Gblue -O -K -V -P >> ${outfile}
   elif [[ -e ${site}_wells_utm.txt ]]
   then
     cat ${site}_wells_utm.txt  | awk '{print $1,$2}' | psxy $region -J -St0.25 -Sl10-Gblack -D5/5 -O -K -V -P >> ${outfile}
