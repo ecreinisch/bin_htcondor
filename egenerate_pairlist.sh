@@ -17,6 +17,7 @@
 # edit ECR 20180802 allow twins to be recorded
 # edit ECR 20180803 make script able to be run on maule
 # edit ECR 20180807 add catch for files that don't pre-process successfully
+# edit ECR 20180827 clear bline.tmp for each pair to ensure that no measurements get carried over to successive pairs
 
 if [[ $# -eq 0 ]]
 then
@@ -219,6 +220,7 @@ dem=`grep $site ~ebaluyut/gmtsar-aux/site_dems.txt | awk '{print $2}'`
 #fi
 # initialize pair file if doesn't exist
 touch ${sat}_${trk}_${site}_pairs.txt
+
 if [[ `cat ${sat}_${trk}_${site}_pairs.txt | wc -l` == "0" ]]
 then
 echo "#mast slav orb1 orb2 doy_mast doy_slav dt nan trk orbdir subswath/strip site wv bpar bperp burst sat dem filter_wv processed unwrapped pha_std t_crit t_stat res_mean res_std res_rms user" > ${sat}_${trk}_${site}_pairs.txt
@@ -318,26 +320,30 @@ while read line; do
   echo ddays = $ddays
 
   # get pair baseline information
-  if [[ "$sat" == "S1A" ]]
-  then
-   SAT_baseline ${sat}${mast}_${subswath}.PRM ${sat}${slav}_${subswath}.PRM > bline.tmp
-  elif [[ "$sat" == "S1B" ]]
-  then
-   ln -s ${sat}${mast}_${subswath}.PRM S1A${mast}_${subswath}.PRM
-   ln -s ${sat}${slav}_${subswath}.PRM S1A${slav}_${subswath}.PRM
-   ln -s ${sat}${slav}_${subswath}.LED S1A${slav}_${subswath}.LED
-   ln -s ${sat}${slav}_${subswath}.LED S1A${slav}_${subswath}.LED
-   ln -s ${sat}${slav}_${subswath}.SLC S1A${slav}_${subswath}.SLC
-   ln -s ${sat}${slav}_${subswath}.SLC S1A${slav}_${subswath}.SLC
-   SAT_baseline ${sat}${mast}_${subswath}.PRM ${sat}${slav}_${subswath}.PRM > bline.tmp
-  elif [[ "$sat" == "TSX" ]]
-  then
-    eTSX_baseline.csh $mast.PRM $slav.PRM > bline.tmp
- # elif [[ "$sat" == "ALOS"* ]]
- # then
- #   ALOS_baseline $mast.PRM $slav.PRM > bline.tmp
+  if [[ "${mast}" != "${slav} " ]]; then
+    if [[ "$sat" == "S1A" ]]
+   then
+    SAT_baseline ${sat}${mast}_${subswath}.PRM ${sat}${slav}_${subswath}.PRM > bline.tmp
+   elif [[ "$sat" == "S1B" ]]
+   then
+    ln -s ${sat}${mast}_${subswath}.PRM S1A${mast}_${subswath}.PRM
+    ln -s ${sat}${slav}_${subswath}.PRM S1A${slav}_${subswath}.PRM
+    ln -s ${sat}${slav}_${subswath}.LED S1A${slav}_${subswath}.LED
+    ln -s ${sat}${slav}_${subswath}.LED S1A${slav}_${subswath}.LED
+    ln -s ${sat}${slav}_${subswath}.SLC S1A${slav}_${subswath}.SLC
+    ln -s ${sat}${slav}_${subswath}.SLC S1A${slav}_${subswath}.SLC
+    SAT_baseline ${sat}${mast}_${subswath}.PRM ${sat}${slav}_${subswath}.PRM > bline.tmp
+   elif [[ "$sat" == "T"*"X" ]]
+   then
+     eTSX_baseline.csh $mast.PRM $slav.PRM > bline.tmp
+  # elif [[ "$sat" == "ALOS"* ]]
+  # then
+  #   ALOS_baseline $mast.PRM $slav.PRM > bline.tmp
+   else
+    SAT_baseline $mast.PRM $slav.PRM > bline.tmp
+   fi
   else
-   SAT_baseline $mast.PRM $slav.PRM > bline.tmp
+    > bline.tmp
   fi
   if [[ `cat bline.tmp | grep B_perpendicular | wc -l` == 0 ]]
   then 
@@ -350,6 +356,7 @@ while read line; do
 
   # print to outfile
   echo $mast $slav $orb1 $orb2 $ddoy_mast $ddoy_slav $ddays NAN $trk $orbdir $subswath $site $wv $bpar $bperp $burst $sat $dem | awk '{printf("%#8d %#8d %#5s %#5s %#3.15f %#3.15f %#5d %#3s %#5s %#1s %#10s %#5s %#5.4f %#6.1f %#6.1f %#5s %#5s %#25s\n", $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)}' >> ${sat}_${trk}_${site}_pairs.txt  
+  rm bline.tmp
  done < slav.tmp
 done < RAW.tmp
 
