@@ -312,6 +312,10 @@ else # use UTM format files
   then
     cat ${site}_wells_prod_utm.txt | awk '{print $1,$2}' | psxy $region -J -St0.2 -Gred -O -K -V -P >> ${outfile}
     cat ${site}_wells_inj_utm.txt | awk '{print $1,$2}' | psxy $region -J -Si0.2 -Gblue -O -K -V -P >> ${outfile}
+    cat ${site}_gps_utm.txt | awk '{print $1,$2}' | psxy ${region} -J -Sa0.5 -Gblack -O -K -V -P >> ${outfile}
+    cat ${site}_gps_utm.txt | awk '{print $1,$2 , $(NF)}' > text.tmp
+    pstext text.tmp -R -F+jBL+f8p -J -Gwhite -N -O -K  >> ${outfile}
+    rm text.tmp
   elif [[ -e ${site}_wells_utm.txt ]]
   then
     cat ${site}_wells_utm.txt  | awk '{print $1,$2}' | psxy $region -J -St0.25 -Sl10-Gblack -D5/5 -O -K -V -P >> ${outfile}

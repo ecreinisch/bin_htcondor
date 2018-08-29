@@ -1,4 +1,5 @@
-#!/bin/sh 
+#!/bin/bash  
+# add -vex to above line for diagnostic purposes  
 # based on file from Kurt Feigl
 # edit Elena Reinisch 20160909 add subregions for Brady, McGinness Hills,  and Fawnskin
 # takes argument for study area:
@@ -20,6 +21,7 @@
 # 20180327 ECR update for new gmtsar-aux layout
 # 20180327 ECR update for new get_site_dims.sh
 # 20180418 ECR update removing outdated line for amp_utm
+# 20180829 ECR update to make robust for southern hemisphere areas
 
 if [[ $# -eq 0 ]]
 then
@@ -141,11 +143,11 @@ for GRD in ../../topo/dem_ll.grd drhomaskd_ll.grd re_ll.grd display_amp_ll.grd i
    # note that the plus sign in the -Ju switch assumes northern hemisphere
    if [[ $UTMGRD == "re"* || $UTMGRD == "im"* || $UTMGRD == "drhomaskd"* || $UTMGRD == *".grd" ]]
    then
-     grdproject $CUTGRD -Ju+$ZONE/1:1 -C -F $RANGES -G$UTMGRD  
+     grdproject $CUTGRD -Ju$ZONE/1:1 -C -F $RANGES -G$UTMGRD  
    else
      # convert grd file to temporary text file
      grd2xyz $CUTGRD > grd_ll.tmp
-     mapproject grd_ll.tmp -Ju+$ZONE/1:1 -C -F > grd_utm.tmp
+     mapproject grd_ll.tmp -Ju$ZONE/1:1 -C -F > grd_utm.tmp
      xnodes=`grdinfo $CUTGRD -C | awk '{print $10}'`
      ynodes=`grdinfo $CUTGRD -C | awk '{print $11}'`
      deltax=`echo ${URANGES}/${xnodes}/${ynodes} | awk -FR '{print $2}' | awk -F/ '{print ($2-$1)/($5-1)}'`
