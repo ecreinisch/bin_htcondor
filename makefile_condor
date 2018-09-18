@@ -1,3 +1,4 @@
+SHELL := /bin/bash # Use bash syntax
 # Make file for copying to different servers
 site=
 
