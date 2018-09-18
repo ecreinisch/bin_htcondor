@@ -4,6 +4,7 @@
 # update ECR 20170417 update to incoporate reordering columns, untar new downloads, and update existing epoch list
 # update ECR 20170420 update to add in archived scenes
 # update ECR 20180327 update for new gmtsar-aux layout
+# update ECR 20180918 update to correctly pull epoch info from new ssara layout
 
 
 # decide if looking through archives or not
@@ -69,7 +70,8 @@ then
 ls ssara_search*.kml > OrderList
 while read -r a; do
    echo READING FILE $a
-    grep \<Placemark\>\<name\> $a | awk -F name\> '{print $2}' | awk '{print $1}' > scene_id.tmp
+    #grep \<Placemark\>\<name\> $a | awk -F name\> '{print $2}' | awk '{print $1}' > scene_id.tmp
+    grep \<Placemark\>\<name\> $a | awk -F name\> '{print $2}' |awk -FT '{print $1}' | awk '{print $1}' > scene_id.tmp
     while read -r b; do
     #pull info for scene id
     epoch=$b
