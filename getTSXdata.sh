@@ -5,6 +5,7 @@
 # Elena C Reinisch
 # 20170214
 # update ECR 20180319 update for new bin_htcondor repo
+# update ECR 20180919 update for new WInSAR data layout (parameter names, host site, etc)
 
 if [[ $# -eq 0 ]]
 then
@@ -13,7 +14,7 @@ then
   echo "-s: query for scenes after [date], given in YYYY-MM-DD format"
   echo "-e: query for scenes before [date], given in YYYY-MM-DD format"
   echo "-t: query for scenes from [track], number only"
-  echo "-d: download in addition to saving search results (y) or save search results only (n, or don’t specify flag)"
+  echo "-d: download in addition to saving search results (y) or save search results only (n, or don't specify flag)"
   echo "-c: collection name (optional, default is TSX feigl_RES1236); enter %20 in place of spaces (e.g., TSX%20feigl_RES1236)"
   echo "Example: /usr1/ebaluyut/bin_htcondor/getTSXdata.sh -s2016-10-01 -e2016-12-01 -t53"
   echo "Example: /usr1/ebaluyut/bin_htcondor/getTSXdata.sh -s2016-10-01 -e2016-12-01 -t53 -dy"
@@ -28,7 +29,9 @@ collection_name="TSX feigl_RES1236"
 download_status=0
 
 # define initial query string
-query_string="http://www.unavco.org/SarArchive/SarScene?format=CEOS,ENVISAT,GEOTIFF,HDF5,COSAR,UNSPECIFIED&firstResult=0&status=archived&maxResults=1000"
+#query_string="http://www.unavco.org/SarArchive/SarScene?format=CEOS,ENVISAT,GEOTIFF,HDF5,COSAR,UNSPECIFIED&firstResult=0&status=archived&maxResults=1000"
+query_string="http://web-services.unavco.org/brokered/ssara/api/sar/search?format=CEOS,ENVISAT,GEOTIFF,HDF5,COSAR,UNSPECIFIED&firstResult=0&status=archived&maxResults=1000&platform=TANDEM-X 1,TERRASAR-X 1"
+
 #query_string="http://www.unavco.org/SarArchive/SarScene?firstResult=0&format=UNSPECIFIED,GEOTIFF,HDF5,CEOS,ENVISAT,COSAR&maxResults=1000&status=archived"
 
 # cycle through optional search parameters and update query string
@@ -44,7 +47,8 @@ while getopts ":s:e:t:d:c:" opt; do
       ;;
     t)
       echo "querying for scenes from track $OPTARG" >&2
-      query_string=$query_string"&track=$OPTARG"
+      #query_string=$query_string"&track=$OPTARG"
+      query_string=$query_string"&relativeOrbit=$OPTARG"
       ;;
     d)
       if [[ "$OPTARG" == *"y"* ]]

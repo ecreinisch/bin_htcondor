@@ -6,6 +6,7 @@
 # 20170214
 # update ECR 20180319 update for new bin_htcondor repo
 # update ECR 20180709 remove collection restriction to WInSAR ESA
+# update ECR 20180919 update for new WInSAR data layout (parameter names, host site, etc)
 
 if [[ $# -eq 0 ]]
 then
@@ -30,7 +31,8 @@ fi
 download_status=0
 
 # define initial query string
-query_string="http://www.unavco.org/SarArchive/SarScene?format=CEOS,ENVISAT,GEOTIFF,HDF5,COSAR,UNSPECIFIED&firstResult=0&status=archived&satellite=ENV1&maxResults=1000"
+#query_string="http://www.unavco.org/SarArchive/SarScene?format=CEOS,ENVISAT,GEOTIFF,HDF5,COSAR,UNSPECIFIED&firstResult=0&status=archived&satellite=ENV1&maxResults=1000"
+query_string="http://web-services.unavco.org/brokered/ssara/api/sar/search?format=CEOS,ENVISAT,GEOTIFF,HDF5,COSAR,UNSPECIFIED&firstResult=0&status=archived&maxResults=1000&platform=ENVISAT"
 #query_string="http://www.unavco.org/SarArchive/SarScene?firstResult=0&format=UNSPECIFIED,GEOTIFF,HDF5,CEOS,ENVISAT,COSAR&maxResults=1000&status=archived"
 
 # cycle through optional search parameters and update query string
@@ -46,7 +48,8 @@ while getopts ":s:e:t:f:d:p:c:" opt; do
       ;;
     t)
       echo "querying for scenes from track $OPTARG" >&2
-      query_string=$query_string"&track=$OPTARG"
+      #query_string=$query_string"&track=$OPTARG"
+      query_string=$query_string"&relativeOrbit=$OPTARG"
       ;;
     f)
       echo "querying for scenes from frame $OPTARG" >&2
@@ -88,7 +91,7 @@ done
 # save collection name to query string
 collection_name=`echo '&collectionName=WInSAR%20ESA'`
 echo COLLECTION_NAME = $collection_name
-#query_string=${query_string}${collection_name}
+query_string=${query_string}${collection_name}
 echo QUERY_STRING =  $query_string
 
 # pull html data for download metadata
