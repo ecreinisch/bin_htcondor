@@ -14,6 +14,8 @@
 # update SAB 20180508 change copper cpt to cool cpt for unwrap/drange
 # update SAB 20180510 change makecpt to grd2cpt for unwrapped 
 # update ECR 20180815 adding cosoc to database
+# update ECR 20180919 only copy well files if they exist under gmtsar-aux
+# update ECR 20180919 add tusca wells
 
 if [[ $# -eq 0 ]]
 then
@@ -42,7 +44,11 @@ demf=${12}
 cdir=`pwd`
 
 # get appropriate well files
-cp ~ebaluyut/gmtsar-aux/${site}/* .
+if [[ -d "/usr1/ebaluyut/gmtsar-aux/${site}" ]]; then
+  if [[ `ls /usr1/ebaluyut/gmtsar-aux/${site} | wc -l` -gt 0 ]]; then
+    cp ~ebaluyut/gmtsar-aux/${site}/* .
+  fi
+fi
 
 # set gmt environment varibles
 #gmtset PS_MEDIA = letter
@@ -271,7 +277,7 @@ then
     cat ${site}_fumaroles_ll.txt | awk '{print $1,$2}' | psxy ${region}  -J -Sd0.25 -W.75  -O -K -V -P >> ${outfile}
     pstext text.tmp -R -F+jBL+f8p -J -Gwhite -N -O -K  >> ${outfile}
     rm ${site}_prd.ll ${site}_inj.ll  ${site}_stm.ll ${site}_box.txt
-  elif [[ "$site" == "tungs" ]] || [[ "$site" == "dcamp" ]]
+  elif [[ "$site" == "tungs" ]] || [[ "$site" == "dcamp" ]] || [[ "$site" == "tusca" ]]
   then
     cat ${site}_wells_prod.txt | awk '{print $1,$2}' | psxy $region -J -St0.2 -Gblack -O -K -V -P >> ${outfile}
     cat ${site}_wells_inj.txt | awk '{print $1,$2}' | psxy $region -J -Si0.2 -Gblack -O -K -V -P >> ${outfile}
@@ -302,7 +308,7 @@ else # use UTM format files
     cat ${site}_gps_utm.txt | awk '{print $1,$2 , $(NF)}' > text.tmp
     pstext text.tmp -R -F+jBL+f8p -J -Gwhite -N -O -K  >> ${outfile}
     rm text.tmp
-  elif [[ "$site" == "tungs" ]] || [[ "$site" == "dcamp" ]] 
+  elif [[ "$site" == "tungs" ]] || [[ "$site" == "dcamp" ]] || [[ "$site" == "tusca" ]]
   then
     cat ${site}_wells_prod_utm.txt | awk '{print $1,$2}' | psxy $region -J -St0.2 -Gblack -O -K -V -P >> ${outfile}
     cat ${site}_wells_inj_utm.txt | awk '{print $1,$2}' | psxy $region -J -Si0.2 -Gblack -O -K -V -P >> ${outfile}
