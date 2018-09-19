@@ -1,4 +1,4 @@
-#!/bin/bash -vex
+#!/bin/bash 
 # script for making clean gmt plots comparing phase from 2 different satellites
 # Elena C Reinisch 20161004
 # 20170531 ECR update to allow for UTM plots as well
@@ -10,6 +10,7 @@
 # update ECR SB 20180418 change polar cpt to copper cpt for unwrap/drange
 # update SAB 20180508 change copper cpt to cool cpt for unwrap/drange
 # update SAB 20180510 changed makecpt to grd2cpt for unwrapped to improve contrast
+# update ECR 20180919 only copy well files if they exist under gmtsar-aux
 
 if [[ $# -eq 0 ]]
 then
@@ -38,7 +39,11 @@ cdir=`pwd`
 echo ${outfile}
 
 # get appropriate well files
-cp ~ebaluyut/gmtsar-aux/${site}/* .
+if [[ -d "/usr1/ebaluyut/gmtsar-aux/${site}" ]]; then
+  if [[ `ls /usr1/ebaluyut/gmtsar-aux/${site} | wc -l` -gt 0 ]]; then
+    cp ~ebaluyut/gmtsar-aux/${site}/* .
+  fi
+fi
 
 # set gmt environment varibles
 #gmtset PS_MEDIA = letter
