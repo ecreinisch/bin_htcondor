@@ -11,6 +11,7 @@
 # update SAB 20180508 change copper cpt to cool cpt for unwrap/drange
 # update SAB 20180510 changed makecpt to grd2cpt for unwrapped to improve contrast
 # update ECR 20180919 only copy well files if they exist under gmtsar-aux
+# update ECR 20180919 add tusca wells 
 
 if [[ $# -eq 0 ]]
 then
@@ -190,7 +191,7 @@ then
     cat ${site}_prd.ll | awk '{print $1,$2}' | psxy $region -J -St0.25 -Gblack -O -K -V -P >> ${outfile}
     cat ${site}_inj.ll | awk '{print $1,$2}' | psxy $region -J -Si0.25 -Gblack -O -K -V -P >> ${outfile}
     cat ${site}_stm.ll | awk '{print $1,$2}' | psxy $region -J -Ss0.25 -Gblack -O -K -V -P >> ${outfile}
- elif [[ "$site" == "tungs" ]] || [[ "$site" == "dcamp" ]]
+ elif [[ "$site" == "tungs" ]] || [[ "$site" == "dcamp" ]] || [[ "$site" == "tusca" ]]
   then
     cat ${site}_wells_prod.txt | awk '{print $1,$2}' | psxy $region -J -St0.2 -Gblack -O -K -V -P >> ${outfile}
     cat ${site}_wells_inj.txt | awk '{print $1,$2}' | psxy $region -J -Si0.2 -Gblack -O -K -V -P >> ${outfile}
@@ -219,7 +220,7 @@ else # use UTM format files
     cat ${site}_prd.utm | awk '{print $1,$2}' | psxy $region -J -St0.25 -Gblack -O -K -V -P >> ${outfile}
     cat ${site}_inj.utm | awk '{print $1,$2}' | psxy $region -J -Si0.25 -Gblack -O -K -V -P >> ${outfile}
     cat ${site}_stm.utm | awk '{print $1,$2}' | psxy $region -J -Ss0.25 -Gblack -O -K -V -P >> ${outfile}
- elif [[ "$site" == "tungs" ]] || [[ "$site" == "dcamp" ]]
+ elif [[ "$site" == "tungs" ]] || [[ "$site" == "dcamp" ]] || [[ "$site" == "tusca" ]]
   then
     cat ${site}_wells_prod_utm.txt | awk '{print $1,$2}' | psxy $region -J -St0.2 -Gblack -O -K -V -P >> ${outfile}
     cat ${site}_wells_inj_utm.txt | awk '{print $1,$2}' | psxy $region -J -Si0.2 -Gblack -O -K -V -P >> ${outfile}
@@ -390,7 +391,7 @@ then
     cat ${site}_inj.ll | awk '{print $1,$2}' | psxy $region -J -Si0.25 -Gblack -O -K -V -P >> ${outfile}
     cat ${site}_stm.ll | awk '{print $1,$2}' | psxy $region -J -Ss0.25 -Gblack -O -K -V -P >> ${outfile}
     rm ${site}_prd.ll ${site}_inj.ll  ${site}_stm.ll ${site}_box.txt
- elif [[ "$site" == "tungs" ]] || [[ "$site" == "dcamp" ]]
+ elif [[ "$site" == "tungs" ]] || [[ "$site" == "dcamp" ]] || [[ "$site" == "tusca" ]]
   then
     cat ${site}_wells_prod.txt | awk '{print $1,$2}' | psxy $region -J -St0.2 -Gblack -O -K -V -P >> ${outfile}
     cat ${site}_wells_inj.txt | awk '{print $1,$2}' | psxy $region -J -Si0.2 -Gblack -O -K -V -P >> ${outfile}
@@ -419,7 +420,7 @@ else # use UTM format files
     cat ${site}_prd.utm | awk '{print $1,$2}' | psxy $region -J -St0.25 -Gblack -O -K -V -P >> ${outfile}
     cat ${site}_inj.utm | awk '{print $1,$2}' | psxy $region -J -Si0.25 -Gblack -O -K -V -P >> ${outfile}
     cat ${site}_stm.utm | awk '{print $1,$2}' | psxy $region -J -Ss0.25 -Gblack -O -K -V -P >> ${outfile}
- elif [[ "$site" == "tungs" ]] || [[ "$site" == "dcamp" ]]
+ elif [[ "$site" == "tungs" ]] || [[ "$site" == "dcamp" ]] || [[ "$site" == "tusca" ]]
   then
     cat ${site}_wells_prod_utm.txt | awk '{print $1,$2}' | psxy $region -J -St0.2 -Gblack -O -K -V -P >> ${outfile}
     cat ${site}_wells_inj_utm.txt | awk '{print $1,$2}' | psxy $region -J -Si0.2 -Gblack -O -K -V -P >> ${outfile}
