@@ -3,6 +3,7 @@
 #20170220 ECR make SAFE.lst and EOF.lst input files
 #20170425 ECR text file input now needs only SAFEdir list because EOF files are contained in SAFEdir
 #20170425 ECR optional -c flag to copy to maule
+#20180919 ECR add S1B
 
 if [[ $# -eq 0 ]]
 then
@@ -43,6 +44,7 @@ cp $3 raw.lst
 
 while read -r a b; do
  epoch=`echo $a | awk -FT '{print $1}' | awk -F_ '{print $(NF)}'`
+ pair_sat=`echo $a | awk '{print substr($1, 1, 3)}'`
 # mkdir tmp/S1A${epoch}_F${subswath}
 # cp $a/annotation/*${subswath}.xml tmp/S1A${epoch}_F${subswath}/
 # cp $a/measurement/*${subswath}.tiff tmp/S1A${epoch}_F${subswath}/
@@ -50,10 +52,10 @@ while read -r a b; do
 # cd tmp
 # tar -czvf S1A${epoch}_${subswath}.tgz S1A${epoch}_F${subswath}
  #tar -czvf S1A${epoch}_${subswath}.tgz $a/annotation/*${subswath}.xml $a/measurement/*${subswath}.tiff $a/$b
- xmlname=`find $a/annotation -maxdepth 1 -name "s1a*${subswath}.xml"`
- tiffname=`find $a/measurement -maxdepth 1 -name "s1a*${subswath}.tiff"`
- tar -czvf S1A${epoch}_${subswath}.tgz $xmlname $tiffname $a/$b
- mv S1A${epoch}_${subswath}.tgz ../preproc/
+ xmlname=`find $a/annotation -maxdepth 1 -name "s1*${subswath}.xml"`
+ tiffname=`find $a/measurement -maxdepth 1 -name "s1*${subswath}.tiff"`
+ tar -czvf ${pair_sat}${epoch}_${subswath}.tgz $xmlname $tiffname $a/$b
+ mv ${pair_sat}${epoch}_${subswath}.tgz ../preproc/
 done < raw.lst
 
 #rm -rf raw.lst tmp

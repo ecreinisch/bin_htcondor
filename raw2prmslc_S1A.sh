@@ -70,9 +70,11 @@ else
   grdcut /s21/insar/condor/feigl/insar/dem/$demf -Gdem.grd $region
 fi
 
-# split data by 1SSV and 1SDV
-grep _1SDV_ tmp.lst > DV.lst
-grep _1SSV_ tmp.lst > SV.lst
+## split data by 1SSV and 1SDV
+#grep _1SDV_ tmp.lst > DV.lst
+#grep _1SSV_ tmp.lst > SV.lst
+cp tmp.lst DV.lst
+cp tmp.lst SV.lst
 
 # set up master 
 head -1 DV.lst > mastDV.lst
@@ -89,25 +91,25 @@ msafe_dir=$c
 mEOFfile=$d
 echo msafe_dir = $c
 echo mEOFfile = $d
-mbase_name=`find ../${msafe_dir}/annotation -name "s1a*00${subswath}.xml" | awk -F/ '{print $(NF)}' | awk -F. '{print $1}'`
+mbase_name=`find ../${msafe_dir}/annotation -name "s1*00${subswath}.xml" | awk -F/ '{print $(NF)}' | awk -F. '{print $1}'`
 #awk 'NR>1 {print $0}' < ../${msafe_dir}/manifest.safe > tmp_file
 #cat ../${msafe_dir}/annotation/${mbase_name}.xml tmp_file /t31/ebaluyut/GMTSAR_ShortCourse/Example_S1A_Stack_CPGF_T173/raw_orig/s1a-aux-cal.xml > ./${mbase_name}.xml
 cat ../${msafe_dir}/annotation/${mbase_name}.xml > ./${mbase_name}.xml
 
 # set up symbolic links
-ln -s ../${msafe_dir}/measurement/s1a*00${subswath}.tiff .
+ln -s ../${msafe_dir}/measurement/s1*00${subswath}.tiff .
 ln -s ../${msafe_dir}/${mEOFfile} .
 while read -r a b; do
 safe_dir=$a
 EOFfile=$b
 echo EOFfile = $b
-base_name=`find ../$a/annotation -name "s1a*00${subswath}.xml" | awk -F/ '{print $(NF)}' | awk -F. '{print $1}'`
+base_name=`find ../$a/annotation -name "s1*00${subswath}.xml" | awk -F/ '{print $(NF)}' | awk -F. '{print $1}'`
 #awk 'NR>1 {print $0}' < ../$a/manifest.safe > tmp_file
 #cat ../$a/annotation/${base_name}.xml tmp_file /t31/ebaluyut/GMTSAR_ShortCourse/Example_S1A_Stack_CPGF_T173/raw_orig/s1a-aux-cal.xml > ./${base_name}.xml
 cat ../${safe_dir}/annotation/${base_name}.xml > ./${base_name}.xml
 
 # set up symbolic links
-ln -s ../$a/measurement/s1a*00${subswath}.tiff .
+ln -s ../$a/measurement/s1*00${subswath}.tiff .
 ln -s ../${safe_dir}/${EOFfile} .
 
 # record to data.in
@@ -122,26 +124,26 @@ while read -r c d; do
 msafe_dir=$c
 mEOFfile=$d
 echo MSAFEDIR = $msafe_dir
-mbase_name=`find ../${msafe_dir}/annotation -name "s1a*00${subswath}.xml" | awk -F/ '{print $(NF)}' | awk -F. '{print $1}'`
+mbase_name=`find ../${msafe_dir}/annotation -name "s1*00${subswath}.xml" | awk -F/ '{print $(NF)}' | awk -F. '{print $1}'`
 echo MBASE_NAME = $mbase_name
 #awk 'NR>1 {print $0}' < ../${msafe_dir}/manifest.safe > tmp_file
 #cat ../${msafe_dir}/annotation/${mbase_name}.xml tmp_file /t31/ebaluyut/GMTSAR_ShortCourse/Example_S1A_Stack_CPGF_T173/raw_orig/s1a-aux-cal.xml > ./${mbase_name}.xml
 cat ../${msafe_dir}/annotation/${mbase_name}.xml > ./${mbase_name}.xml
 
 # set up symbolic links
-ln -s ../${msafe_dir}/measurement/s1a*00${subswath}.tiff .
+ln -s ../${msafe_dir}/measurement/s1*00${subswath}.tiff .
 cp ../${msafe_dir}/${mEOFfile} .
 while read -r a b; do
 safe_dir=$a
 EOFfile=$b
 echo EOFfile = $b
-base_name=`find ../$a/annotation -name "s1a*00${subswath}.xml" | awk -F/ '{print $(NF)}' | awk -F. '{print $1}'`
+base_name=`find ../$a/annotation -name "s1*00${subswath}.xml" | awk -F/ '{print $(NF)}' | awk -F. '{print $1}'`
 #awk 'NR>1 {print $0}' < ../$a/manifest.safe > tmp_file
 #cat ../$a/annotation/${base_name}.xml tmp_file /t31/ebaluyut/GMTSAR_ShortCourse/Example_S1A_Stack_CPGF_T173/raw_orig/s1a-aux-cal.xml > ./${base_name}.xml
 cat ../${safe_dir}/annotation/${base_name}.xml > ./${base_name}.xml
 
 # set up symbolic links
-ln -s ../$a/measurement/s1a*00${subswath}.tiff .
+ln -s ../$a/measurement/s1*00${subswath}.tiff .
 cp ../${safe_dir}/${EOFfile} .
 
 # record to data.in
