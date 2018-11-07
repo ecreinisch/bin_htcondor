@@ -5,6 +5,7 @@
 # update ECR 20170420 update to add in archived scenes
 # update ECR 20180327 update for new gmtsar-aux layout
 # update ECR 20180918 update to correctly pull epoch info from new ssara layout
+# update ECR 20180919 update to incorporate S1B data as well
 
 
 # decide if looking through archives or not
@@ -85,7 +86,7 @@ while read -r a; do
     # extract information from text file 
     scene_date=`echo $epoch | sed "s/-//g"`
     trk=`grep "Relative orbit" scene_info.tmp | head -${ncount} | tail -1 | awk '{print "T"$3}'`
-    sat=S1A
+    sat=`grep "platform" scene_info.tmp | head -${ncount} | tail -1 | awk -F- '{print "S"$2}'`
     # make track directory if doesn't exist
     mkdir -p ../${trk}
     mkdir -p ../${trk}/raw
@@ -119,10 +120,10 @@ while read -r a; do
          nline=`grep $scene_date Submitted_Orders.txt | sed "s/[^ ]*[^ ]/$estatus/9"`
          sed -i "/${scene_date}/c\@${nline}" Submitted_Orders.txt
          sed -i 's/@//g' Submitted_Orders.txt
-       elif [[ ! -z `find ../${trk}/raw -name "S1A*${scene_date}*${orbit}*" ` ]]
+       elif [[ ! -z `find ../${trk}/raw -name "${sat}*${scene_date}*${orbit}*" ` ]]
        then
          estatus=D
-         dirname=`find ../${trk}/raw -maxdepth 1 -name "S1A*${scene_date}*${orbit}*" -type d | awk -Fraw/ '{print $2}' | awk -F/ '{print $1}'`
+         dirname=`find ../${trk}/raw -maxdepth 1 -name "${sat}*${scene_date}*${orbit}*" -type d | awk -Fraw/ '{print $2}' | awk -F/ '{print $1}'`
          data_loc2=/s21/insar/S1A/${trk}/raw/${dirname}
          data_loc="\/s21\/insar\/S1A\/${trk}\/raw\/${dirname}"
         # orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'` # consider adding lines to untar filename and move directory to specified location, so we can update url and data_loc, and then we can grep for orbit
@@ -153,10 +154,10 @@ while read -r a; do
         filename=`grep $scene_date Submitted_Orders.txt | awk '{print $11'}`
      #already untarred and put in raw dir
      #grep "Download URL" scene.tmp | awk '{print $4}'
-     if [[ ! -z `find ../${trk}/raw -name "*S1A*${scene_date}*${orbit}*" ` ]]
+     if [[ ! -z `find ../${trk}/raw -name "*${sat}*${scene_date}*${orbit}*" ` ]]
        then
          estatus=D
-         dirname=`find ../${trk}/raw -maxdepth 1 -name "*S1A*${scene_date}*${orbit}*" -type d | awk -Fraw/ '{print $2}' | awk -F/ '{print $1}'`
+         dirname=`find ../${trk}/raw -maxdepth 1 -name "*${sat}*${scene_date}*${orbit}*" -type d | awk -Fraw/ '{print $2}' | awk -F/ '{print $1}'`
          data_loc="\/s21\/insar\/S1A\/${trk}\/raw\/${dirname}"
          data_loc2=/s21/insar/S1A/${trk}/raw/${dirname}
         # orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'` 
@@ -174,7 +175,7 @@ while read -r a; do
          data_loc="\/s21\/insar\/S1A\/${trk}\/raw\/${dirname}"
          mkdir -p untarred
          mv ${filename} untarred/
-         data_loc2=/s21/insar/TSX/${trk}/raw/${dirname}
+         data_loc2=/s21/insar/S1A/${trk}/raw/${dirname}
          #orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'`  # consider adding lines to untar filename and move directory to specified location, so we can update url and data_loc, and then we can grep for orbit
          nline=`grep $scene_date Submitted_Orders.txt | grep $site | sed -e "s/[^ ]*[^ ]/$estatus/9" | sed -e "s/[^ ]*[^ ]/$data_loc/12" | sed -e "s/[^ ]*[^ ]/${orbit}/7"`
          sed -i "/${scene_date}/c\@${nline}" Submitted_Orders.txt
@@ -187,7 +188,6 @@ while read -r a; do
     
    else
     # info for epoch not in list yet; add information
-    sat=S1A
     echo NEW TRACK = $trk
     echo ORBIT = $orbit
     #trk=T$(sed "5q;d" scene_info.tmp | awk '{print $1}')
@@ -219,20 +219,20 @@ while read -r a; do
          dirname=nan
          data_loc2=nan
          filename=nan
-     elif [[ ! -z `find ../${trk}/raw -name "*S1A*${scene_date}*${orbit}*" ` ]]
+     elif [[ ! -z `find ../${trk}/raw -name "*${sat}*${scene_date}*${orbit}*" ` ]]
        then
          echo "Data already in raw directory"
          estatus=D
-         dirname=`find ../${trk}/raw -maxdepth 1 -name "*S1A*${scene_date}*${orbit}*" | awk -Fraw/ '{print $2}' | awk -F/ '{print $1}'`
+         dirname=`find ../${trk}/raw -maxdepth 1 -name "*${sat}*${scene_date}*${orbit}*" | awk -Fraw/ '{print $2}' | awk -F/ '{print $1}'`
          filename=${dirname}.zip
          data_loc="\/s21\/insar\/S1A\/${trk}\/raw\/${dirname}"
          data_loc2=/s21/insar/S1A/${trk}/raw/${dirname}
          #frame=`echo $dirname | awk -F- '{print substr($1, length($1)-3, 4)}'`
         # orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'` # consider adding lines to untar filename and move directory to specified location, so we can update url and data_loc, and then we can grep for orbit
-     elif [[ ! -z `find . -maxdepth 1 -name "S1A*${scene_date}*${orbit}*.zip"` ]]
+     elif [[ ! -z `find . -maxdepth 1 -name "${sat}*${scene_date}*${orbit}*.zip"` ]]
        then
          echo "data in zip file"
-         filename=`find . -maxdepth 1 -name "S1A*${scene_date}*${orbit}*.zip" | awk -F/ '{print $2}'`
+         filename=`find . -maxdepth 1 -name "${sat}*${scene_date}*${orbit}*.zip" | awk -F/ '{print $2}'`
          echo FILENAME=$filename
          estatus=D
          unzip ${filename}
@@ -284,7 +284,7 @@ fi
 # if arch = 1 get list of archived dims and TSX directories
 if [[ "$arch" == 1 ]]
 then
-  find /s21/insar/S1A/*/raw -name "S1A*" -type d > s1a.tmp
+  find /s21/insar/S1A/*/raw -name "S1*" -type d > s1a.tmp
   while read -r a; do
   data_loc2=$a
   scene_date=`echo $data_loc2 | awk -F/ '{print $(NF)}' | awk -F_  '{print $6}' | awk -FT '{print $1}'`
@@ -294,7 +294,7 @@ then
     estatus=D
     dirname=`echo $data_loc2 | awk -F/ '{print $(NF)}'`
     orbit=`echo $data_loc2 | awk -F/ '{print $(NF)}' | awk -F_ '{print $(NF-2)}'`
-    sat=S1A
+    sat=$(echo $dirname | awk '{print substr($1, 1, 3)}')
     trk=`echo $data_loc2 | awk -F/ '{print $(NF - 2)}'`
     #frame=`echo $data_loc2 | awk -F/ '{print $(NF)}' | awk -FALPSRP '{print substr($2, 6, 4)}'`
     frame=nan

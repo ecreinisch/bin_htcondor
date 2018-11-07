@@ -5,6 +5,7 @@
 # Elena C Reinisch 20170828
 # update ECR 20180321 change calling for txt files based on new gmtsar-aux organization
 # update ECR 20180406 rsync to sync whole directory
+# update ECR 20180919 add S1B
 
 if [[ $# -eq 0 ]]
 then
@@ -33,6 +34,10 @@ echo "$site $sat $trk $frame" >> ~ebaluyut/gmtsar-aux/site_sats.txt
 if [[ "$sat" == "TSX" ]]
 then
   echo "$site TDX $trk $frame" >> ~ebaluyut/gmtsar-aux/site_sats.txt
+fi
+if [[ "$sat" == "S1A" ]]
+then 
+  echo "$site S1B $trk $frame" >> ~ebaluyut/gmtsar-aux/site_sats.txt
 fi
 
 #scp ~ebaluyut/gmtsar-aux/site_sats.txt $t31/ebaluyut/gmtsar-aux/

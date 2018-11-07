@@ -18,6 +18,7 @@
 # edit ECR 20180803 make script able to be run on maule
 # edit ECR 20180807 add catch for files that don't pre-process successfully
 # edit ECR 20180827 clear bline.tmp for each pair to ensure that no measurements get carried over to successive pairs
+# edit ECR 20180919 merge S1A and S1B
 
 if [[ $# -eq 0 ]]
 then
@@ -71,28 +72,29 @@ subswath=`head -1 RAW.tmp | awk '{print $5}'`
 while read line; do
  epoch=`echo $line | awk '{print $1}'`
  dirname=`echo $line | awk '{print $12}'`
+ pair_sat=`echo $line | awk '{print $3}'`
  if [[ ! -e "${epoch}.PRM" && ! -e "S1A${epoch}_${subswath}.PRM" && ! -e "S1B${epoch}_${subswath}.PRM" ]]
  then
-   if [[ $sat == "S1A" ]]; then
+   if [[ $pair_sat == "S1A" ]]; then
      if [[ ${servername} == "porotomo" ]]; then
-       scp $maule:/s21/insar/${sat}/aux_poeorb .
+       scp $maule:/s21/insar/${pair_sat}/aux_poeorb .
        auxepoch=`head -1 aux_poeorb | awk -F_ '{print $8}' | awk -FT '{print $1}'`
        rm aux_poeorb
      else
-       auxepoch=`head -1 /s21/insar/${sat}/aux_poeorb | awk -F_ '{print $8}' | awk -FT '{print $1}'`
+       auxepoch=`head -1 /s21/insar/${pair_sat}/aux_poeorb | awk -F_ '{print $8}' | awk -FT '{print $1}'`
      fi
      if [[ $epoch -lt $auxepoch ]]; then
         echo "$epoch $dirname" >> missing_preproc.tmp
      else
         sed -i "/${epoch}/d" RAW.tmp
      fi
-   elif [[ $sat == "S1B" ]]; then
+   elif [[ $pair_sat == "S1B" ]]; then
      if [[ ${servername} == "porotomo" ]]; then
-       scp $maule:/s21/insar/${sat}/aux_poeorb_S1B .
+       scp $maule:/s21/insar/${pair_sat}/aux_poeorb_S1B .
        auxepoch=`head -1 aux_poeorb_S1B | awk -F_ '{print $8}' | awk -FT '{print $1}'`
        rm aux_poeorb_S1B
      else
-       auxepoch=`head -1 /s21/insar/${sat}/aux_poeorb_S1B | awk -F_ '{print $8}' | awk -FT '{print $1}'`
+       auxepoch=`head -1 /s21/insar/${pair_sat}/aux_poeorb_S1B | awk -F_ '{print $8}' | awk -FT '{print $1}'`
      fi
      if [[ $epoch -lt $auxepoch ]]; then
         echo "$epoch $dirname" >> missing_preproc.tmp
@@ -104,6 +106,12 @@ while read line; do
    fi
  fi
 done < RAW.tmp
+
+# reassign S1B data to S1A
+if [[ $sat == "S1B" ]]
+then
+  sat=S1A
+fi
 
 if [[ `cat missing_preproc.tmp | wc -l` -gt 0 ]]
 then
@@ -119,15 +127,15 @@ then
   echo "Missing directories are listed in ../raw/newraw.lst. Consider doing the following:"
   case $sat in 
     "S1A")
-         echo "For S1A Data:"
+         echo "For S1A and S1B Data:"
          echo "cd ../raw"
          echo "raw2prmslc_S1A.sh [trk] [site]  preproc_porotomo.lst"
          ;;
-    "S1B")
-         echo "For S1B Data:"
-         echo "cd ../raw"
-         echo "raw2prmslc_S1B.sh [trk] [site]  preproc_porotomo.lst"
-         ;;
+#    "S1B")
+#         echo "For S1B Data:"
+#         echo "cd ../raw"
+#         echo "raw2prmslc_S1B.sh [trk] [site]  preproc_porotomo.lst"
+#         ;;
      "TSX")
          echo "For TSX Data:"
          echo "cd ../raw"
@@ -176,6 +184,12 @@ fi
 
 # get environment variables
 sat=`head -1 RAW.tmp | awk '{print $3}'`
+
+# reassign S1B data to S1A
+if [[ $sat == "S1B" ]]
+then
+  sat=S1A
+fi
 
 if [[ $sat == *"ALOS"* ]]
 then
