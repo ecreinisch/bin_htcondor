@@ -20,6 +20,7 @@ if [[ `echo $bin_htcondor_home | grep "~" | wc -l` -gt 0 ]]; then
 fi
 
 while read line; do
+  if [[ `echo $line | grep ">" | wc -l` -eq 0 ]]; then
   lat=$(echo $line | awk '{print $2}')
   lon=$(echo $line | awk '{print $1}')
   extradata=$(echo $line | awk '{print $3}')
@@ -28,5 +29,8 @@ while read line; do
   utmy=$(grep Northing utm.tmp | awk '{print $3}')
   echo $utmx $utmy $extradata >> $utmfile
   rm utm.tmp
+  else
+  echo $line >> $utmfile
+  fi
 done < $latlonfile
 
