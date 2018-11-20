@@ -30,11 +30,13 @@ fi
 download_status=0
 
 # define initial query string
-query_string="http://www.unavco.org/SarArchive/SarScene?format=CEOS,ERSSAT,GEOTIFF,HDF5,COSAR,UNSPECIFIED&firstResult=0&status=archived&maxResults=1000"
+#query_string="http://www.unavco.org/SarArchive/SarScene?format=CEOS,ERSSAT,GEOTIFF,HDF5,COSAR,UNSPECIFIED&firstResult=0&status=archived&maxResults=1000"
+query_string="http://web-services.unavco.org/brokered/ssara/api/sar/search?format=CEOS,ENVISAT,GEOTIFF,HDF5,COSAR,UNSPECIFIED&firstResult=0&status=archived&maxResults=1000"
 #query_string="http://www.unavco.org/SarArchive/SarScene?firstResult=0&format=UNSPECIFIED,GEOTIFF,HDF5,CEOS,ERSSAT,COSAR&maxResults=1000&status=archived"
 
 #define default satellite option
-satellite="&satellite=ERS1,ERS2"
+#satellite="&satellite=ERS1,ERS2"
+satellite="&platform=ERS-1,ERS-2"
 
 # cycle through optional search parameters and update query string
 while getopts ":s:e:t:f:d:p:r:c:" opt; do
@@ -49,7 +51,8 @@ while getopts ":s:e:t:f:d:p:r:c:" opt; do
       ;;
     t)
       echo "querying for scenes from track $OPTARG" >&2
-      query_string=$query_string"&track=$OPTARG"
+      #query_string=$query_string"&track=$OPTARG"
+      query_string=$query_string"&relativeOrbit=$OPTARG"
       ;;
     f)
       echo "querying for scenes from frame $OPTARG" >&2
@@ -57,7 +60,8 @@ while getopts ":s:e:t:f:d:p:r:c:" opt; do
       ;;
     r)
       echo "querying for scenes from satellite ERS$OPTARG" >&2
-      satellite="&satellite=ERS$OPTARG"
+      #satellite="&satellite=ERS$OPTARG"
+      satellite="&platform=ERS-$OPTARG"
       ;;
     p)
       echo "querying for scenes which intersect with polygon $OPTARG" >&2

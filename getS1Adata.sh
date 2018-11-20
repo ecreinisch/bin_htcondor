@@ -12,7 +12,7 @@
 
 if [[ $# -eq 0 ]]
 then
-  echo "query and download S1A data"
+  echo "query and download S1A and S1B data"
   echo "inputs: [site] [query start interval date, given in YYYY-MM-DD] [query end interval date, given in YYYY-MM-DD] [optional track/frame, number only, e.g. 144 (for track only), 144/14 (for tack and frame)] [d/k, d for download k for kml file]"
   echo "Example, kml only:"
   echo " getS1Adata.sh brady 2016-10-01 2016-12-01 k"
@@ -81,7 +81,7 @@ fi
 lount=0
 qcount=0
 while [[ $lcount -lt 6 && $qcount -eq 0 ]]; do
-  ssara_federated_query.py --platform=SENTINEL-1A --intersectsWith="$polygon" ${trk} ${frame} --asfResponseTimeout=25 -s $tstart -e $tend --kml
+  ssara_federated_query.py --platform="SENTINEL-1A,SENTINEL-1B" --intersectsWith="$polygon" ${trk} ${frame} --asfResponseTimeout=25 -s $tstart -e $tend --kml
 
   let lcount=lcount+1
   qcount=`cat $(ls ssara_search*.kml | tail -1) | grep "Start Time" | wc -l`
