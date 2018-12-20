@@ -6,6 +6,7 @@
 # update ECR 20171109 change name of Order List to TSX_OrderList.txt
 # update ECR 20180327 update for new gmtsar-aux layout
 # update ECR 20180802 check for missing prepended 0s for order IDs in receipts, adjust as necessary 
+# update ECR 20181219 remove unicode replacement character from pdf files if exist
 
 
 # decide if looking through archives or not
@@ -266,6 +267,15 @@ then
 
     # extract information from text file
     scene_date=`grep "\<Temporal Selection\>" order.tmp | awk '{print $3}' | awk -FT '{print $1}' | sed  's/-//g'`
+    
+    # check if needs fixed for new formatting
+    if [[ -z $scene_date ]]; then
+      scene_date=`grep "Temporal" order.tmp | awk -F: '{print $2}' | awk -FT '{print $1}'| awk '{printf("%s%s%s", substr($1, 3, 4), substr($1, 9, 2), substr($1, 13, 2))}'`
+      cp order.tmp order_tmp.tmp
+      iconv -f utf8 -t ascii//TRANSLIT < order_tmp.tmp >  order.tmp
+      rm order_tmp.tmp
+    fi
+    echo $scene_date
 
     # check to see if already in epoch list
     if [[ `grep $scene_date Submitted_Orders.txt | grep winsar | wc -l` -gt 0 || `grep $scene_date Submitted_Orders.txt | grep archvd | wc -l` -gt 0 ]]
