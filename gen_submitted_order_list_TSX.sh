@@ -279,7 +279,7 @@ then
     
     # check if needs fixed for new formatting
     if [[ -z $scene_date ]]; then
-       scene_date=`grep "Temporal" order.tmp | awk -F: '{print $2}' | awk -FT '{print $1}'`
+       scene_date=`grep "Temporal" order.tmp | awk -F: '{print $2}' | awk -FT '{print $1}' | awk '{printf("%s%s%s", substr($1, 3, 4), substr($1, 9, 2), substr($1, 13, 2))}' `
 
     fi
     echo $scene_date
@@ -491,6 +491,7 @@ then
  fi
 
 else # geoportal case
+   echo "GEOPORTAL CASE"
    # loop through text file for multiple orders
    grep "Start Time" -A2 order.tmp | grep 201  > scene_id.tmp
    while read -r b; do
