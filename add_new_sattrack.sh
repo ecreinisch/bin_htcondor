@@ -23,11 +23,19 @@ trk=$3
 frame=$4
 
 # check to see if site ID is already in use
-if [[ `grep $site ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $trk | grep $frame | wc -l` -gt 0 ]]
-then
-   echo "It looks like this is already in the database.  Please double check."
+if [[ -z $frame ]]; then
+   if [[ `grep $site ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $trk | wc -l` -gt 0 ]]
+   then
+     echo "It looks like this is already in the database.  Please double check."
+     exit 1
+   fi 
+else
+   if [[ `grep $site ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $trk | grep $frame | wc -l` -gt 0 ]]
+   then
+     echo "It looks like this is already in the database.  Please double check."
    exit 1
-fi
+   fi
+fi 
 
 # add sat information to site_sats.txt 
 echo "$site $sat $trk $frame" >> ~ebaluyut/gmtsar-aux/site_sats.txt
