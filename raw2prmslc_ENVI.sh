@@ -2,6 +2,7 @@
 # script to run pre-processing for Envisat pairs; for pair database only - not used for interferogram formation
 # Elena C Reinisch 20170725
 # update ECR 20180803 update to run on maule server
+# update ECR 20190108 fix raw_stem_name to not include .baq suffix
 
 if [[ $# -eq 0 ]]
 then
@@ -24,7 +25,10 @@ fi
 
 
 while read -r a; do
-  raw_stem_name=$a
+  raw_stem_name=`echo $a | awk -F\.baq '{print $1}'`
+  if [[ ! -f $a ]]; then
+     cp ../preproc/$a* .
+  fi
   # run preprocessing with default values
   ENVI_pre_process $raw_stem_name 0 0 0
 done < $1
