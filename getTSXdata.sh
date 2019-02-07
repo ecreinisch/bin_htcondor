@@ -6,6 +6,7 @@
 # 20170214
 # update ECR 20180319 update for new bin_htcondor repo
 # update ECR 20180919 update for new WInSAR data layout (parameter names, host site, etc)
+# update ECR 20190108 update for new WInSAR portal queries
 
 if [[ $# -eq 0 ]]
 then
@@ -30,7 +31,7 @@ download_status=0
 
 # define initial query string
 #query_string="http://www.unavco.org/SarArchive/SarScene?format=CEOS,ENVISAT,GEOTIFF,HDF5,COSAR,UNSPECIFIED&firstResult=0&status=archived&maxResults=1000"
-query_string="http://web-services.unavco.org/brokered/ssara/api/sar/search?format=CEOS,ENVISAT,GEOTIFF,HDF5,COSAR,UNSPECIFIED&firstResult=0&status=archived&maxResults=1000&platform=TANDEM-X 1,TERRASAR-X 1"
+query_string="https://web-services.unavco.org/brokered/ssara/api/sar/search?format=CEOS,ENVISAT,GEOTIFF,HDF5,COSAR,UNSPECIFIED&firstResult=0&status=archived&maxResults=1000&platform=TANDEM-X 1,TERRASAR-X 1"
 
 #query_string="http://www.unavco.org/SarArchive/SarScene?firstResult=0&format=UNSPECIFIED,GEOTIFF,HDF5,CEOS,ENVISAT,COSAR&maxResults=1000&status=archived"
 

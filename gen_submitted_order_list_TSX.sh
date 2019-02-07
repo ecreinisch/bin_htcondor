@@ -7,6 +7,7 @@
 # update ECR 20180327 update for new gmtsar-aux layout
 # update ECR 20180802 check for missing prepended 0s for order IDs in receipts, adjust as necessary 
 # update ECR 20190104 update to incorporate new geoportal receipts 
+# update ECR 20190206 handle geoportal receipt formatting issues
 
 
 # decide if looking through archives or not
@@ -269,6 +270,10 @@ then
    if [[ `grep Address order.tmp | wc -l` -eq 0 ]]
    then
       is_geoportal=1
+      cp order.tmp test.tmp
+      iconv -f utf8 -t ascii//TRANSLIT < test.tmp > order.tmp
+      rm test.tmp
+      sed -i '/^\s*$/d' order.tmp
    else
       is_geoportal=0
    fi
@@ -493,14 +498,28 @@ then
 else # geoportal case
    echo "GEOPORTAL CASE"
    # loop through text file for multiple orders
-   grep "Start Time" -A2 order.tmp | grep 201  > scene_id.tmp
+   if [[ -z `grep "Start Time" -A2 order.tmp | head -2 | tail -1 | grep "Z"` ]]; then
+      grep "Start Time" -A2 order.tmp | grep 201  > scene_id.tmp
+      cp scene_id.tmp scene_id2.tmp
+      grep "Start Time" -A2 order.tmp | grep "Z"  > scene_id.tmp
+      paste scene_id2.tmp scene_id.tmp > test.tmp 
+      cat test.tmp | sed 's/\t//g' > scene_id2.tmp
+      rm test.tmp
+   else
+      grep "Start Time" -A1 order.tmp | grep 201  > scene_id.tmp
+   fi  
    while read -r b; do
       #pull info for scene id
       epoch=$b
       grep $epoch -B47 order.tmp > scene_info.tmp
+   if [[ -f scene_id2.tmp ]]; then
+      epoch=`grep $epoch scene_id2.tmp`
+      rm scene_id2.tmp
+   fi
       # select information from text file
-    scene_date=`echo $epoch | awk -FT '{printf("%s-%s\n", substr($1, 1,7),substr($1, 8, 2))}' | sed "s/-//g"`
-    trk=`grep Orbit -A2 scene_info.tmp | tail -1 | awk '{print "T"$1}'`
+    #scene_date=`echo $epoch | awk -FT '{printf("%s-%s\n", substr($1, 1,7),substr($1, 8, 2))}' | sed "s/-//g"`
+    scene_date=`echo $epoch | awk -FT '{print $1}' | sed 's/-//g'`
+    trk=`grep Orbit: -A1 scene_info.tmp | tail -1 | awk '{print "T"$1}'`
     orbit=nan
     sat=TSX
     echo $scene_date
@@ -613,9 +632,9 @@ else # geoportal case
     # if not future scene, pull info differently
     if [[ `grep FutureScene order.tmp | wc -l` == 0 ]]
     then
-      trk=`grep Orbit -A2 scene_info.tmp | tail -1 | awk '{print "T"$1}'`
-      swath=`grep Beam -A2 scene_info.tmp | tail -1`
-      ascdes=`grep "Pass Direction" -A2 scene_info.tmp | tail -1 | awk '{print substr($1, 1, 1)}'`
+      trk=`grep Orbit: -A1 scene_info.tmp | tail -1 | awk '{print "T"$1}'`
+      swath=`grep Beam -A1 scene_info.tmp | tail -1`
+      ascdes=`grep "Pass Direction" -A1 scene_info.tmp | tail -1 | awk '{print substr($1, 1, 1)}'`
 
       if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
       then
@@ -629,16 +648,16 @@ else # geoportal case
         site=nan
       fi
     else
-      trk=`grep Orbit -A2 scene_info.tmp | tail -1 | awk '{print "T"$1}'`
-      swath=`grep Beam -A2 scene_info.tmp | tail -1`
-      ascdes=`grep "Pass Direction" -A2 scene_info.tmp | tail -1 | awk '{print substr($1, 1, 1)}'`
+      trk=`grep Orbit -A1 scene_info.tmp | tail -1 | awk '{print "T"$1}'`
+      swath=`grep Beam -A1 scene_info.tmp | tail -1`
+      ascdes=`grep "Pass Direction" -A1 scene_info.tmp | tail -1 | awk '{print substr($1, 1, 1)}'`
     fi
     frame=nan
     orbit=nan
     esource=winsar
     url=nan
     data_loc=nan
-    filename=`grep "Order name" -A2 order.tmp | tail -1`
+    filename=`grep "Order name" -A1 order.tmp | tail -1`
     #data_loc=$data_loc2
 
     if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
