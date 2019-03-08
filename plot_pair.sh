@@ -145,6 +145,10 @@ then
 
 #20180510 SAB changed makecpt to grd2cpt for unwrapped phase plot 
   makecpt -T-25/25/0.25 -Cpolar -D -I > cpt.cpt # unwrapped phase plot
+zmin=`grdinfo -C -L2 r2mm.grd | awk '{print $6}'`
+  zmax=`grdinfo -C -L2 r2mm.grd | awk '{print $7}'`
+  dz=`echo $zmax $zmin | awk '{print ($1-$2)/50}'`
+  makecpt -T${zmin}/${zmax}/${dz} -Cpolar -D -I > cpt.cpt # unwrapped phase plot
 #  grd2cpt r2mm.grd -Cpolar -D -I > cpt.cpt # unwrapped phase plot
   if [[ $isutm == 0 ]] # if not UTM, plot with file's region, dlat, and dlon
   then
@@ -152,7 +156,8 @@ then
   else
     grdimage r2mm.grd -Y7 -C${cdir}/cpt.cpt $jflag $region -P -K > ${outfile}
   fi 
-  psscale -C${cdir}/unwrap.cpt -D3.5/-1/${lengthx}/0.1h -Baf1+l"Range change (mm)" -O -K  >> ${outfile}
+  #psscale -C${cdir}/${pair1}/unwrap.cpt -D3.5/-1/${lengthx}/0.1h -Baf1+l"Range change (mm)" -O -K  >> ${outfile}
+  psscale -C${cdir}/cpt.cpt -D3.5/-1/${lengthx}/0.1h -Baf1+l"Range change (mm)" -O -K  >> ${outfile}
   rm cpt.cpt r2mm.grd
 # if file is stacked unwrapped (unwrap_ll.grd)
 elif [[ "$pha1" == *"avg_range"* ]] || [[ "$pha1" == *"stack"* ]] || [[ "$pha1"* == *"summed"* ]]
