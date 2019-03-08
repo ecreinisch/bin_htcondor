@@ -51,6 +51,7 @@ elif [[ "$sat" == "ERS"* ]]
 then
   tar -xf orbits_ERS.tgz
   rm orbits_ERS.tgz
+  sat=ERS
 fi
 
 # clean up

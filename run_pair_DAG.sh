@@ -84,6 +84,11 @@ if [[ "$sat" == "TDX" ]]
 then
   sat="TSX"
 fi
+if [[ "$sat" == "ERS"* ]]
+then
+  sat="ERS"
+fi
+
 satparam=$k
 echo $mast
 echo $slav
