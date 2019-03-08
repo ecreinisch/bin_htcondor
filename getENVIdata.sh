@@ -93,7 +93,7 @@ done
 # save collection name to query string
 collection_name=`echo '&collectionName=WInSAR%20ESA'`
 echo COLLECTION_NAME = $collection_name
-query_string=${query_string}${collection_name}
+#query_string=${query_string}${collection_name}
 echo QUERY_STRING =  $query_string
 
 # pull html data for download metadata

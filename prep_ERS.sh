@@ -18,6 +18,7 @@ while read -r a; do
   scene_date=`echo $datadir  | awk -F_ '{print $5}' | awk -FT '{print $1}'`
   if [[ `ls ../preproc/*${scene_date}* | wc -l` -eq 0 ]]
   then
+     echo $scene_date
      # make a link to each necessary data file in preproc, renamed to epoch date
      cp $datadir/DAT_01.001 ${scene_date}.dat
      cp $datadir/LEA_01.001 ${scene_date}.ldr
@@ -43,7 +44,9 @@ while read -r a; do
   mv ${scene_date}.tgz ${scene_date}.dat ${scene_date}.ldr ../preproc/
   fi
 done < dirlist.tmp
-scp preproc_porotomo.lst $t31/insar/${sat}/${trk}/raw/
+
+#scp preproc_porotomo.lst $t31/insar/${sat}/${trk}/raw/
+scp preproc_porotomo.lst $t31/insar/ERS/${trk}/raw/
 
 # remove temporary list files
 rm dirlist.tmp 

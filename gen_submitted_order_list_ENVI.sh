@@ -82,10 +82,11 @@ while read -r a; do
     else
        grep $epoch -A11 $a > scene_info.tmp
        grep $epoch -B2 $a | head -1 >> scene_info.tmp # get download URL, which appears before $epoch in new query format
+       grep $epoch -B9 $a | head -1 >> scene_info.tmp # get download URL, which appears before $epoch in new query format
     fi
     # extract information from text file 
     scene_date=`echo $epoch | sed "s/-//g"`
-    orbit=`grep absoluteOrbit scene_info.tmp | awk -F\: '{print $2}' | awk '{print substr($1, 1, 5)}'`
+    orbit=`grep absoluteOrbit scene_info.tmp  | head -1 | awk -F\: '{print $2}' | awk '{print substr($1, 1, 5)}'`
     if [[ $newstyle -eq 0 ]]; then
       trk=`grep relativeOrbit scene_info.tmp | awk -F\: '{print "T"$2}'`
       sat=`grep satelliteName scene_info.tmp | awk -F\: '{print $2}' | sed 's/-//' | sed 's/"//g'`
