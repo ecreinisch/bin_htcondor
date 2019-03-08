@@ -12,6 +12,7 @@
 # update SAB 20180510 changed makecpt to grd2cpt for unwrapped to improve contrast
 # update ECR 20180919 only copy well files if they exist under gmtsar-aux
 # update ECR 20180919 add tusca wells 
+# update ECR 20180308 update line 87 to deal with floating point numbers
 
 if [[ $# -eq 0 ]]
 then
@@ -84,7 +85,7 @@ dx=`get_site_dims.sh ${site} 2 | awk -FR '{print $2}' | awk -F/ '{print $2 - $1}
 dy=`get_site_dims.sh ${site} 2 | awk -FR '{print $2}' | awk -F/ '{print $4 - $3}'`
 echo DY = $dy
 echo DX = $dx
-if [[ $dy -ge $dx ]]
+if [[ `echo $dy | awk '{printf("%5.0f", $1)}'` -ge `echo $dx | awk '{printf("%5.0f", $1)}'` ]]
 then
   pratio=`get_site_dims.sh ${site} 2 | awk -FR '{print $2}' | awk -F/ '{printf("%1d\n", ($2-$1)/($4-$3)*7)}'`
   jflag="-JX${pratio}/7"

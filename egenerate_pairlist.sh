@@ -19,6 +19,7 @@
 # edit ECR 20180807 add catch for files that don't pre-process successfully
 # edit ECR 20180827 clear bline.tmp for each pair to ensure that no measurements get carried over to successive pairs
 # edit ECR 20180919 merge S1A and S1B
+# edit ECR 20190304 merge ERS1 and ERS2 to ERS
 
 if [[ $# -eq 0 ]]
 then
@@ -39,6 +40,10 @@ trk=$3
 frame=$4
 > RAW.tmp
 > missing_preproc.tmp
+
+if [[ "$sat" == "ERS1" || "$sat" == "ERS2" ]]; then
+   sat=ERS
+fi
 
 # determine host machine
 servername=$(echo $HOSTNAME | awk -F. '{print $1}')
@@ -152,16 +157,16 @@ then
          fi
          echo "raw2prmslc_ALOS.sh preproc_porotomo.lst"
          ;;
-     "ERS1")
-         echo "For ERS1 Data:"
-         echo "cd ../raw"
-	 #if [[ ${servername} == "porotomo" ]]; then
-         #  echo "for i in ""\`""cat"" newraw.lst""\`"";"" do  scp -r""  $""maule:""$""i .; done"
-	 #fi
-         echo "raw2prmslc_ERS.sh preproc_porotomo.lst"
-         ;;
-     "ERS2")
-         echo "For ERS2 Data:"
+#     "ERS1")
+#         echo "For ERS1 Data:"
+#         echo "cd ../raw"
+#	 #if [[ ${servername} == "porotomo" ]]; then
+#         #  echo "for i in ""\`""cat"" newraw.lst""\`"";"" do  scp -r""  $""maule:""$""i .; done"
+#	 #fi
+#         echo "raw2prmslc_ERS.sh preproc_porotomo.lst"
+#         ;;
+     "ERS")
+         echo "For ERS Data:"
          echo "cd ../raw"
          #if [[ ${servername} == "porotomo" ]]; then
          #  echo "for i in ""\`""cat"" newraw.lst""\`"";"" do  scp -r""  $""maule:""$""i .; done"

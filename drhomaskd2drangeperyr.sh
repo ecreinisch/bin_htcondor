@@ -19,6 +19,10 @@ fi
 # find difference in years
 mast=`grdinfo $drhofile | grep dyear | sed 's/;//g' | awk '{print $5}'`
 slav=`grdinfo $drhofile | grep dyear | sed 's/;//g' | awk '{print $8}'`
+if [[ -z $mast ]]; then
+  mast=`pwd | awk -F/ '{print $NF}' | awk -F_ '{print $1}' | awk -FIn '{print $2}'`
+  slav=`pwd | awk -F/ '{print $NF}' | awk -F_ '{print $2}'`
+fi
 myear=`echo $mast | awk '{print substr($1, 1, 4)}'`
 myearend=`echo $mast | awk '{print substr($1, 1, 4)"-12-31" }'`
 mday=`echo $mast | awk '{print substr($1, 5, 3)}'`
