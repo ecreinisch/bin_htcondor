@@ -5,6 +5,7 @@
 # update ECR 20170420 update to add in archived scenes
 # udpate ECR 20171109 change order list name to ERS*_OrderList.txt
 # update ECR 20180327 update for new gmtsar-aux layout
+# update ECR 20190108 update for new WInSAR order query layout
 
 
 # decide if looking through archives or not
@@ -32,7 +33,7 @@ then
     echo "gen_submitted_order_list_ERS.sh"
     echo "when run in a directory containing order receipts, generates list of orders to date"
     echo "outputs ENVI_Orders file with columns of #date site sat track swath frame orbit ascdes status source filename path url"
-    echo "Run with 1 argument of source when needing to update epoch list after downloading .gz file to the appropriate downloads directory (e.g., airbus or winsar)"
+    echo "Run with 1 argument of source when needing to update epoch list after downloading .gz file to the appropriate downloads directory (e.g., winsar)"
     echo "e.g.: ./gen_submitted_order_list_ERS.sh winsar"
     echo "Run with second -a argument when needing check if archived files are included (and include if needed)"
     echo "e.g.: ./gen_submitted_order_list_ERS.sh winsar -a"
@@ -63,17 +64,38 @@ if [[ $ftype == w ]]
 then
 ls query-2*.txt > OrderList
 while read -r a; do
-    grep startTime $a | awk '{print $1}' | awk -F\" '{print $(NF)}' > scene_id.tmp
+    if [[ `grep startTime $a | grep Z | wc -l` -eq 0 ]]; then
+       newstyle=0
+       grep startTime $a | awk '{print $1}' | awk -F\" '{print $(NF)}' > scene_id.tmp
+    else # new receipt style
+       newstyle=1
+       grep startTime $a |sed 's/ //g' | awk '{print $1}' | awk -F\" '{print $(NF-1)}' | awk -FT '{print $1}' > scene_id.tmp
+    fi
     while read -r b; do
     #pull info for scene id
     epoch=$b
-    grep $epoch -A11 $a > scene_info.tmp
-
+    echo $epoch
+    if [[ $newstyle -eq 0 ]]; then
+       grep $epoch -A11 $a > scene_info.tmp
+    else
+       grep $epoch -A11 $a > scene_info.tmp
+       grep $epoch -B2 $a | head -1 >> scene_info.tmp # get download URL, which appears before $epoch in new query format
+    fi
     # extract information from text file 
-    scene_date=`echo $epoch | sed "s/-//g"`
-    trk=`grep relativeOrbit scene_info.tmp | awk -F\: '{print "T"$2}'`
-    orbit=`grep absoluteOrbit scene_info.tmp | awk -F\: '{print $2}'`
-    sat=`grep satelliteName scene_info.tmp | awk -F\: '{print $2}' | sed 's/-//' | sed 's/"//g'`
+    scene_date=`echo $epoch | sed 's/-//g' | sed 's/ //g'`
+    orbit=`grep absoluteOrbit scene_info.tmp | awk -F\: '{print $2}' | awk '{print substr($1, 1, 5)}'`
+    if [[ $newstyle -eq 0 ]]; then
+      trk=`grep relativeOrbit scene_info.tmp | awk -F\: '{print "T"$2}'`
+      sat=`grep satelliteName scene_info.tmp | awk -F\: '{print $2}' | sed 's/-//' | sed 's/"//g'`
+    else
+      trk=`grep relativeOrbit scene_info.tmp | tail -1 | awk -F\: '{print $2}' | awk -F\} '{print "T"$1}' | sed 's/ //g'`
+      sat=`grep platform scene_info.tmp | head -1 | awk -F\: '{print $2}' | sed 's/-//' | sed 's/"//g'  | sed 's/ //g'`
+    fi
+    if [[ $newstyle -eq 0 ]]; then
+      frame=`grep firstFrame scene_info.tmp | awk -F\: '{print $2}'`
+    else
+      frame=`grep frame scene_info.tmp | head -1 |  awk -F\: '{print $2}' | sed 's/ //g'`
+    fi
     # check if date is already in the list
     if [[ `grep $scene_date Submitted_Orders.txt | wc -l` -gt 0 ]]
     then # if already in list
@@ -148,6 +170,8 @@ while read -r a; do
    else
     # info for epoch not in list yet; add information
     echo TRACK = $trk
+    echo $scene_date
+    echo $orbit
     swath=nan #`sed "5q;d" scene_info.tmp | awk '{print $8}'`
     ascdes=`grep flightDirection scene_info.tmp | awk -F\" '{print $4}'`
     esource=winsar
@@ -159,7 +183,7 @@ while read -r a; do
     then
        if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
        then
-          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
+          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $frame | awk '{print $1}'`
        else
           site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | awk '{print $1}'`
        fi
@@ -174,30 +198,50 @@ while read -r a; do
        estatus=C
      elif [[ ! -z `find ../${trk}/raw -name "ER0*${scene_date}*${orbit}*" ` ]]
      then
+         echo THIS CASE 0
          estatus=D
          dirname=`find ../${trk}/raw -name "ER0*${scene_date}*${orbit}*" | awk -Fraw/ '{print $2}' | awk -F/ '{print $1}'`
          filename=${dirname}.tar.gz
          data_loc="\/s21\/insar\/${sat}\/${trk}\/raw\/${dirname}"
          data_loc2=/s21/insar/${sat}/${trk}/raw/${dirname}
-         frame=`grep firstFrame scene_info.tmp | awk -F\: '{print $2}'`
-     elif [[ ! -z `find . -name ER0*${scene_date}*${orbit}*` ]]
+         if [[ $newstyle -eq 0 ]]; then
+           frame=`grep firstFrame scene_info.tmp | awk -F\: '{print $2}'`
+         else
+           frame=`grep frame scene_info.tmp | head -1 |  awk -F\: '{print $2}'`
+         fi
+     elif [[ ! -z `find . -name "ER0*${scene_date}*${orbit}*"` ]]
      then
-         filename=`ls -d ER0*${scene_date}*${orbit}*`.tar.gz
+         echo THIS CASE 1
          estatus=D
          dirname=`ls -d ER0*${scene_date}*${orbit}*`
+         filename=${dirname}.tar.gz
+         echo $dirname
          mv $dirname /s21/insar/${sat}/${trk}/raw/
          data_loc="\/s21\/insar\/${sat}\/${trk}\/raw\/${dirname}"
          data_loc2=/s21/insar/${sat}/${trk}/raw/${dirname}
-         frame=`grep firstFrame scene_info.tmp | awk -F\: '{print $2}'`
+         if [[ $newstyle -eq 0 ]]; then
+           frame=`grep firstFrame scene_info.tmp | awk -F\: '{print $2}'`
+         else
+           frame=`grep frame scene_info.tmp | head -1 |  awk -F\: '{print $2}'`
+         fi
      else 
+       echo CASE 2
        estatus=A
        data_loc2=$data_loc
-       frame=`grep firstFrame scene_info.tmp | awk -F\: '{print $2}'`
+         if [[ $newstyle -eq 0 ]]; then
+           frame=`grep firstFrame scene_info.tmp | awk -F\: '{print $2}'`
+         else
+           frame=`grep frame scene_info.tmp | head -1 |  awk -F\: '{print $2}'`
+         fi
      fi
    else
      estatus=P
      data_loc2=$data_loc
-     frame=`grep firstFrame scene_info.tmp | awk -F\: '{print $2}'`
+         if [[ $newstyle -eq 0 ]]; then
+           frame=`grep firstFrame scene_info.tmp | awk -F\: '{print $2}'`
+         else
+           frame=`grep frame scene_info.tmp | head -1 |  awk -F\: '{print $2}'`
+         fi
    fi
 
     # save information to new text file 
@@ -236,7 +280,7 @@ then
     then
        if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
        then
-          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
+          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $frame | awk '{print $1}'`
        else
           site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | awk '{print $1}'`
        fi
@@ -249,6 +293,8 @@ then
    fi
   done < ers.tmp
 fi
+
+sat=`echo $sat | sed 's/ //g'`
 
 # clean up output 
 #column -t Submitted_Orders.txt | sort | sed '1h;1d;$!H;$!d;G' > ../${sat}_Orders-`date +%Y%m%d_%H%M`.txt

@@ -6,8 +6,7 @@
 # update ECR 20171109 change name of Order List to TSX_OrderList.txt
 # update ECR 20180327 update for new gmtsar-aux layout
 # update ECR 20180802 check for missing prepended 0s for order IDs in receipts, adjust as necessary 
-# update ECR 20190104 update to incorporate new geoportal receipts 
-# update ECR 20190206 handle geoportal receipt formatting issues
+# update ECR 20181219 remove unicode replacement character from pdf files if exist
 
 
 # decide if looking through archives or not
@@ -266,26 +265,15 @@ then
     # convert pdf of receipt to text file
     pdftotext "$a" order.tmp
 
-   # check to see if from geoportal or not based on whether address info is in pdf
-   if [[ `grep Address order.tmp | wc -l` -eq 0 ]]
-   then
-      is_geoportal=1
-      cp order.tmp test.tmp
-      iconv -f utf8 -t ascii//TRANSLIT < test.tmp > order.tmp
-      rm test.tmp
-      sed -i '/^\s*$/d' order.tmp
-   else
-      is_geoportal=0
-   fi
-   
-    if [[ $is_geoportal -eq 0 ]]; then
     # extract information from text file
     scene_date=`grep "\<Temporal Selection\>" order.tmp | awk '{print $3}' | awk -FT '{print $1}' | sed  's/-//g'`
     
     # check if needs fixed for new formatting
     if [[ -z $scene_date ]]; then
-       scene_date=`grep "Temporal" order.tmp | awk -F: '{print $2}' | awk -FT '{print $1}' | awk '{printf("%s%s%s", substr($1, 3, 4), substr($1, 9, 2), substr($1, 13, 2))}' `
-
+      scene_date=`grep "Temporal" order.tmp | awk -F: '{print $2}' | awk -FT '{print $1}'| awk '{printf("%s%s%s", substr($1, 3, 4), substr($1, 9, 2), substr($1, 13, 2))}'`
+      cp order.tmp order_tmp.tmp
+      iconv -f utf8 -t ascii//TRANSLIT < order_tmp.tmp >  order.tmp
+      rm order_tmp.tmp
     fi
     echo $scene_date
 
@@ -293,7 +281,7 @@ then
     if [[ `grep $scene_date Submitted_Orders.txt | grep winsar | wc -l` -gt 0 || `grep $scene_date Submitted_Orders.txt | grep archvd | wc -l` -gt 0 ]]
     then
     # make sure that source says winsar
-    #sed -i 's/[^ ]*[^ ]/winsar/10' Submitted_Orders.txt
+    sed -i 's/[^ ]*[^ ]/winsar/10' Submitted_Orders.txt
     # get metadata
     trk=`grep $scene_date Submitted_Orders.txt | grep winsar | awk '{print $4}'`
     swath=`grep $scene_date Submitted_Orders.txt | grep winsar | awk '{print $5}'`
@@ -495,249 +483,11 @@ then
    echo "$scene_date $site $sat $trk $swath $frame $orbit $ascdes $estatus $esource $filename $data_loc2 $url"  >> Submitted_Orders.txt
  fi
 
-else # geoportal case
-   echo "GEOPORTAL CASE"
-   # loop through text file for multiple orders
-   if [[ -z `grep "Start Time" -A2 order.tmp | head -2 | tail -1 | grep "Z"` ]]; then
-      grep "Start Time" -A2 order.tmp | grep 201  > scene_id.tmp
-      cp scene_id.tmp scene_id2.tmp
-      grep "Start Time" -A2 order.tmp | grep "Z"  > scene_id.tmp
-      paste scene_id2.tmp scene_id.tmp > test.tmp 
-      cat test.tmp | sed 's/\t//g' > scene_id2.tmp
-      rm test.tmp
-   else
-      grep "Start Time" -A1 order.tmp | grep 201  > scene_id.tmp
-   fi  
-   while read -r b; do
-      #pull info for scene id
-      epoch=$b
-      grep $epoch -B47 order.tmp > scene_info.tmp
-   if [[ -f scene_id2.tmp ]]; then
-      epoch=`grep $epoch scene_id2.tmp`
-      rm scene_id2.tmp
-   fi
-      # select information from text file
-    #scene_date=`echo $epoch | awk -FT '{printf("%s-%s\n", substr($1, 1,7),substr($1, 8, 2))}' | sed "s/-//g"`
-    scene_date=`echo $epoch | awk -FT '{print $1}' | sed 's/-//g'`
-    trk=`grep Orbit: -A1 scene_info.tmp | tail -1 | awk '{print "T"$1}'`
-    orbit=nan
-    sat=TSX
-    echo $scene_date
-
-    # check to see if already in epoch list
-    if [[ `grep $scene_date Submitted_Orders.txt | grep winsar | wc -l` -gt 0 || `grep $scene_date Submitted_Orders.txt | grep archvd | wc -l` -gt 0 ]]
-    then
-    # make sure that source says winsar
-    #sed -i 's/[^ ]*[^ ]/winsar/10' Submitted_Orders.txt
-    # get metadata
-    trk=`grep $scene_date Submitted_Orders.txt | grep winsar | awk '{print $4}'`
-    swath=`grep $scene_date Submitted_Orders.txt | grep winsar | awk '{print $5}'`
-    if [[ -z $trk ]]
-    then
-      trk=`grep $scene_date Submitted_Orders.txt | grep archvd | awk '{print $4}'`
-    fi
-    if [[ -z $swath ]]
-    then
-      swath=`grep $scene_date Submitted_Orders.txt | grep  archvd | awk '{print $5}'`
-    fi
-
-    # Update Order status. P if in future; A if in past
-    # Check to see if epoch date has passed
-   if [[ `echo $(( ( $(date +'%s') - $(date -ud $scene_date +'%s') )/60/60/24 ))` -gt 0 ]]
-   then
-     # update only if status = P or status = A
-     if [[ `grep $scene_date Submitted_Orders.txt | awk '{print $9}'` == "P" || `grep $scene_date Submitted_Orders.txt | awk '{print $9}'` == "A" ]]
-     then
-        filename=`grep $scene_date Submitted_Orders.txt | awk '{print $11'}`
-       if [[ ! -z `grep ${scene_date} ../Cancelled_Orders.txt | grep $(echo $trk | awk -FT '{print $2}') | grep $( echo ${swath} | sed 's/D//' | sed 's/R//')` ]]
-       then
-         estatus=C
-         nline=`grep $scene_date Submitted_Orders.txt | sed "s/[^ ]*[^ ]/$estatus/9"`
-         sed -i "/${scene_date}/c\@${nline}" Submitted_Orders.txt
-         sed -i 's/@//g' Submitted_Orders.txt
-       elif [[  ! -z `grep ${scene_date} Missing_Orders.txt` ]]
-       then
-       estatus=M
-       nline=`grep $scene_date Submitted_Orders.txt | sed "s/[^ ]*[^ ]/$estatus/9"`
-       sed -i "/${scene_date}/c\@${nline}" Submitted_Orders.txt
-       sed -i 's/@//g' Submitted_Orders.txt
-       elif [[ ! -z `find ../${trk}/raw -name "*${scene_date}*.xml" ` ]]
-       then
-         estatus=D
-         dirname=`find ../${trk}/raw -name "*${scene_date}*.xml" | tail -1 | awk -Fraw/ '{print $2}' | awk -F/ '{print $1}'`
-         data_loc2=/s21/insar/TSX/${trk}/raw/${dirname}
-         data_loc="\/s21\/insar\/TSX\/${trk}\/raw\/${dirname}"
-         orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'` # consider adding lines to untar filename and move directory to specified location, so we can update url and data_loc, and then we can grep for orbit
-         nline=`grep $scene_date Submitted_Orders.txt | sed "s/[^ ]*[^ ]/$estatus/9" | sed "s/[^ ]*[^ ]/$data_loc/12" | sed "s/[^ ]*[^ ]/${orbit}/7"`
-         sed -i "/${scene_date}/c\@${nline}" Submitted_Orders.txt
-         sed -i 's/@//g' Submitted_Orders.txt
-       elif [[ ! -z `find . -name "T*${scene_date}*.gz"` ]]
-       then
-         estatus=D
-         tar -xzvf `find . -name "T*${scene_date}*.gz"` > tar.tmp
-         dirname=`head -1 tar.tmp | awk -F/ '{print $1}'`
-         mv $dirname /s21/insar/TSX/${trk}/raw/
-         data_loc="\/s21\/insar\/TSX\/${trk}\/raw\/${dirname}"
-        #mkdir -p untarred
-         mv `find . -name "*${scene_date}*.gz"` untarred/
-         data_loc2=/s21/insar/TSX/${trk}/raw/${dirname}
-         orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'`
-         nline=`grep $scene_date Submitted_Orders.txt | sed "s/[^ ]*[^ ]/$estatus/9" | sed "s/[^ ]*[^ ]/$data_loc/12" | sed "s/[^ ]*[^ ]/${orbit}/7"`
-         sed -i "/${scene_date}/c\@${nline}" Submitted_Orders.txt
-         sed -i 's/@//g' Submitted_Orders.txt
-       else
-         estatus=N
-         orbit=nan
-       fi
-    # check to see if downloaded but metadata missing
-     elif [[ `grep $scene_date Submitted_Orders.txt | awk '{print $9}'` == "D" && (`grep $scene_date Submitted_Orders.txt | awk '{print $12}'` == "nan" || `grep $scene_date Submitted_Orders.txt | awk '{print $7}'` == "nan") ]]
-     then
-        filename=`grep $scene_date Submitted_Orders.txt | awk '{print $11'}`
-     #already untarred and put in raw dir
-     if [[ ! -z `find ../${trk}/raw/T* -name "*${scene_date}*.xml" ` ]]
-       then
-         estatus=D
-         dirname=`find ../${trk}/raw -name "*${scene_date}*.xml" | tail -1 | awk -Fraw/ '{print $2}' | awk -F/ '{print $1}'`
-         data_loc="\/s21\/insar\/TSX\/${trk}\/raw\/${dirname}"
-         data_loc2=/s21/insar/TSX/${trk}/raw/${dirname}
-         orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'`
-         nline=`grep $scene_date Submitted_Orders.txt | sed "s/[^ ]*[^ ]/$estatus/9" | sed "s/[^ ]*[^ ]/$data_loc/12" | sed "s/[^ ]*[^ ]/${orbit}/7"`
-         sed -i "/${scene_date}/c\@${nline}" Submitted_Orders.txt
-         sed -i 's/@//g' Submitted_Orders.txt
-      # not untarred yet
-       elif [[ ! -z `find . -name "*${scene_date}*.gz"` ]]
-       then
-         estatus=D
-         tar -xzvf `find . -name "*${scene_date}*.gz"` > tar.tmp
-         dirname=`head -1 tar.tmp | awk -F/ '{print $1}'`
-         rm tar.tmp
-         mv $dirname /s21/insar/TSX/${trk}/raw/
-         data_loc="\/s21\/insar\/TSX\/${trk}\/raw\/${dirname}"
-         mkdir -p untarred
-         mv `find . -name "*${scene_date}*.gz"` untarred/
-         data_loc2=/s21/insar/TSX/${trk}/raw/${dirname}
-         orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'`  # consider adding lines to untar filename and move directory to specified location, so we can update url and data_loc, and then we can grep for orbit
-         nline=`grep $scene_date Submitted_Orders.txt | sed -e "s/[^ ]*[^ ]/$estatus/9" | sed -e "s/[^ ]*[^ ]/$data_loc/12" | sed -e "s/[^ ]*[^ ]/${orbit}/7"`
-         sed -i "/${scene_date}/c\@${nline}" Submitted_Orders.txt
-         sed -i 's/@//g' Submitted_Orders.txt
-       fi
-     fi
-   fi
-
-
-   else
-    # info for epoch not in list yet; add information
-    sat=TSX
-
-    # if not future scene, pull info differently
-    if [[ `grep FutureScene order.tmp | wc -l` == 0 ]]
-    then
-      trk=`grep Orbit: -A1 scene_info.tmp | tail -1 | awk '{print "T"$1}'`
-      swath=`grep Beam -A1 scene_info.tmp | tail -1`
-      ascdes=`grep "Pass Direction" -A1 scene_info.tmp | tail -1 | awk '{print substr($1, 1, 1)}'`
-
-      if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
-      then
-        if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
-        then
-           site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
-        else
-           site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | awk '{print $1}'`
-        fi
-      else
-        site=nan
-      fi
-    else
-      trk=`grep Orbit -A1 scene_info.tmp | tail -1 | awk '{print "T"$1}'`
-      swath=`grep Beam -A1 scene_info.tmp | tail -1`
-      ascdes=`grep "Pass Direction" -A1 scene_info.tmp | tail -1 | awk '{print substr($1, 1, 1)}'`
-    fi
-    frame=nan
-    orbit=nan
-    esource=winsar
-    url=nan
-    data_loc=nan
-    filename=`grep "Order name" -A1 order.tmp | tail -1`
-    #data_loc=$data_loc2
-
-    if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 0 ]]
-    then
-       if [[ `grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | wc -l` -gt 1 ]]
-       then
-          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $swath | awk '{print $1}'`
-       else
-          site=`grep $trk ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | awk '{print $1}'`
-       fi
-    else
-       site=nan
-    fi
-
-
-   # get order status. P if in future; A if in past
-   if [[ `echo $(( ( $(date +'%s') - $(date -ud $scene_date +'%s') )/60/60/24 ))` -gt 0 ]]
-   then
-     if [[ ! -z `grep ${scene_date} ../Cancelled_Orders.txt | grep $(echo $trk | awk -FT '{print $2}') | grep $( echo ${swath} | sed 's/D//' | sed 's/R//')` ]]
-     then
-       estatus=C
-       url=nan
-       data_loc2=nan
-       orbit=nan
-     elif [[  ! -z `grep ${scene_date} Missing_Orders.txt` ]]
-     then
-       estatus=M
-       url=nan
-       data_loc2=nan
-       orbit=nan
-     elif [[ ! -z `find ../${trk}/raw -name "*${scene_date}*.xml" ` ]]
-     then
-         estatus=D
-         dirname=`find ../${trk}/raw -name "*${scene_date}*.xml" | tail -1 | awk -Fraw/ '{print $2}' | awk -F/ '{print $1}'`
-         data_loc="\/s21\/insar\/TSX\/${trk}\/raw\/${dirname}"
-         data_loc2=/s21/insar/TSX/${trk}/raw/${dirname}
-         orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'` # consider adding lines to untar filename and move directory to specified location, so we can update url and data_loc, and then we can grep for orbit
-         getTSXdata.sh -s`date -d "$scene_date -1 days" +'%Y-%m-%d'` -e`date -d "$scene_date +1 days" +'%Y-%m-%d'` -t`echo $trk | awk -FT '{print $2}'` -dn
-         url=`cat $(ls query*.txt | tail -1) | tr , '\n' | grep downloadUrl | awk -F\" '{print $4}'`
-         echo "URL IS" $url
-     elif [[ ! -z `find . -name "*${scene_date}*.gz"` ]]
-     then
-         estatus=D
-         tar -xzvf `find . -name "*${scene_date}*.gz"` > tar.tmp
-         dirname=`head -1 tar.tmp | awk -F/ '{print $1}'`
-         rm tar.tmp
-         mv $dirname /s21/insar/TSX/${trk}/raw/
-         data_loc="\/s21\/insar\/TSX\/${trk}\/raw\/${dirname}"
-         mkdir -p untarred
-         mv_tar_file=`find . -name "*${scene_date}*.gz"`
-         mv $mv_tar_file untarred/
-         data_loc2=/s21/insar/TSX/${trk}/raw/${dirname}
-         orbit=`grep absOrbit ${data_loc2}/T*B/T*${epoch_date}*/T*${epoch_date}*.xml | awk -F\> '{print $2}' | awk -F\< '{print $1}'`
-         getTSXdata.sh -s`date -d "$scene_date -1 days" +'%Y-%m-%d'` -e`date -d "$scene_date +1 days" +'%Y-%m-%d'` -t`echo $trk | -FT '{print $2}'` -dn
-         url=`cat $(ls query*.txt | tail -1) | tr , '\n' | grep downloadUrl | awk -F\" '{print $4}'`
-     else
-      estatus=A
-      data_loc2=nan
-      url=nan
-      orbit=nan
-     fi
-   else
-     estatus=P
-     data_loc2=nan
-     url=nan
-     orbit=nan
-   fi 
-
-    # save information to new text file
-   echo "$scene_date $site $sat $trk $swath $frame $orbit $ascdes $estatus $esource $filename $data_loc2 $url"  >> Submitted_Orders.txt
- fi # check for new scene
- done < scene_id.tmp
- fi # check for geoportal case
-# from new eoweb geoportal
-
  # clean up
     rm *.tmp
 
 done < OrderList
-fi # check for winsar orders
+fi
 
 ## ARCHIVED FILES
 # if arch = 1 get list of archived dims and TSX directories

@@ -5,6 +5,7 @@
 # Elena C Reinisch
 # 20170214
 # update ECR 20180319 update for new bin_htcondor repo
+# update ECR 20190107 update for new WInSAR portal queries
 
 if [[ $# -eq 0 ]]
 then
@@ -31,7 +32,7 @@ download_status=0
 
 # define initial query string
 #query_string="http://www.unavco.org/SarArchive/SarScene?format=CEOS,ERSSAT,GEOTIFF,HDF5,COSAR,UNSPECIFIED&firstResult=0&status=archived&maxResults=1000"
-query_string="http://web-services.unavco.org/brokered/ssara/api/sar/search?format=CEOS,ENVISAT,GEOTIFF,HDF5,COSAR,UNSPECIFIED&firstResult=0&status=archived&maxResults=1000"
+query_string="https://web-services.unavco.org/brokered/ssara/api/sar/search?format=CEOS&firstResult=0&status=archived&maxResults=1000"
 #query_string="http://www.unavco.org/SarArchive/SarScene?firstResult=0&format=UNSPECIFIED,GEOTIFF,HDF5,CEOS,ERSSAT,COSAR&maxResults=1000&status=archived"
 
 #define default satellite option
@@ -65,7 +66,9 @@ while getopts ":s:e:t:f:d:p:r:c:" opt; do
       ;;
     p)
       echo "querying for scenes which intersect with polygon $OPTARG" >&2
-      query_string=$query_string"&intersectsWith=`get_site_polygon.sh $OPTARG`"
+      #query_string=$query_string&intersectsWith=$(get_site_polygon.sh $OPTARG)
+      #query_string=$query_string"&intersectsWith=`get_site_polygon.sh $OPTARG`"
+      query_string=$query_string"&intersectsWith=`get_site_polygon.sh $OPTARG | sed 's/ /\%20/g'`"
       ;;
     d)
       if [[ "$OPTARG" == *"y"* ]]
@@ -100,6 +103,7 @@ done
 collection_name=`echo '&collectionName=WInSAR%20ESA'`
 echo COLLECTION_NAME = $collection_name
 query_string=${query_string}${collection_name}${satellite}
+#query_string=${query_string}${collection_name}
 echo QUERY_STRING =  $query_string
 
 # pull html data for download metadata
