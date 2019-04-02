@@ -71,7 +71,7 @@ while read -r a; do
        grep startTime $a | awk '{print $1}' | awk -F\" '{print $(NF)}' > scene_id.tmp
     else # new receipt style
        newstyle=1
-       grep startTime $a |sed 's/ //g' | awk '{print $1}' | awk -F\" '{print $(NF-1)}' | awk -FT '{print $1}' > scene_id.tmp
+       grep startTime $a |sed 's/ //g' | awk '{print $1}' | awk -F\" '{print $(NF-1)}' | awk -FT '{print $1}' | sort -u > scene_id.tmp
     fi
     while read -r b; do
     #pull info for scene id
@@ -83,6 +83,11 @@ while read -r a; do
        grep $epoch -A11 $a > scene_info.tmp
        grep $epoch -B2 $a | head -1 >> scene_info.tmp # get download URL, which appears before $epoch in new query format
        grep $epoch -B9 $a | head -1 >> scene_info.tmp # get download URL, which appears before $epoch in new query format
+       grep $epoch -B4 $a | head -1 >> scene_info.tmp # get download URL, which appears before $epoch in new query format
+       grep $epoch -B5 $a | head -1 >> scene_info.tmp # get download URL, which appears before $epoch in new query format
+       grep $epoch -B6 $a | head -1 >> scene_info.tmp # get download URL, which appears before $epoch in new query format
+       grep $epoch -B3 $a | head -1 >> scene_info.tmp # get download URL, which appears before $epoch in new query format
+       grep $epoch -A19 $a | grep "export" >> scene_info.tmp
     fi
     # extract information from text file 
     scene_date=`echo $epoch | sed "s/-//g"`
@@ -185,7 +190,7 @@ while read -r a; do
     swath=nan #`sed "5q;d" scene_info.tmp | awk '{print $8}'`
     #frame=
     #orbit=nan
-    ascdes=`grep flightDirection scene_info.tmp | awk -F\" '{print $4}'`
+    ascdes=`grep flightDirection scene_info.tmp | awk -F\" '{print $4}' | head -1`
     esource=winsar
     url=`grep downloadUrl scene_info.tmp | awk -F\" '{print $4}'`
     data_loc=nan
@@ -217,7 +222,7 @@ while read -r a; do
          data_loc="\/s21\/insar\/ENVI\/${trk}\/raw\/${dirname}"
          data_loc2=/s21/insar/ENVI/${trk}/raw/${dirname}
          #frame=`grep firstFrame scene_info.tmp | awk -F\: '{print $2}'`
-     elif [[ ! -z `find . -name ASA*${scene_date}*${orbit}*` ]]
+     elif [[ ! -z `find . -name "ASA*${scene_date}*${orbit}*"` ]]
      then
          echo THIS CASE 1
          filename=`ls -d ASA*${scene_date}*${orbit}*`

@@ -15,7 +15,11 @@ trk=`echo $cpwd | awk -F/raw '{print $1}' | awk -F/ '{print $(NF)}'`
 while read -r a; do
   datadir=$a
   # get calendar date of scene
-  scene_date=`echo $a | awk -F0CNPDE '{print $2}' | awk -F_ '{print $1}'`
+  if [[ "$datadir" == *"CNPDE"* ]]; then
+  scene_date=`echo $a | awk -FCNPDE '{print $2}' | awk -F_ '{print $1}'`
+  else
+  scene_date=`echo $a | awk -FCNPDK '{print $2}' | awk -F_ '{print $1}'`
+  fi
   if [[ `ls ../preproc/*${scene_date}* | wc -l` -eq 0 ]]
   then
      # replace data ID with scene date in link version for HTCondor
