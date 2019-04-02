@@ -1,5 +1,5 @@
 #!/bin/bash
-# 20170217 Elena C Reinisch copy necessary data to submit-3 for preprocessing
+# 20170217 Elena C Reinisch copy necessary data to submit-2 for preprocessing
 #20170220 ECR make SAFE.lst and EOF.lst input files
 #20170425 ECR text file input now needs only SAFEdir list because EOF files are contained in SAFEdir
 #20170425 ECR optional -c flag to copy to maule

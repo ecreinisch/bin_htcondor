@@ -33,7 +33,7 @@ export PATH=/usr/sbin:$PATH
 export PATH=${bin_htcondor_home}:$PATH
 
 # Environment variables set for each user of HTCondor workflow
-export submit3='' #'feigl@submit-3.chtc.wisc.edu'
+export submit2='' #'feigl@submit-2.chtc.wisc.edu'
 export maule='' # 'feigl@maule.ssec.wisc.edu'
 
 # export SAR credentials

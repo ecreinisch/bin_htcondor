@@ -24,7 +24,7 @@ then
  echo "-l[val] : print pairs with time interval less than [val] in days"
  echo "-g[val] : print pairs with time interval greater than [val] in days"
  echo "-e[val] : print pairs designated in file [val]; format of [val] should have a column of master epochs in yyyymmdd format and a column of slave epochs in yyymmdd format"
- echo "-n[val] : print pairs that are NOT designated in file [val]; format of [val] should have a column of master epochs in yyyymmdd format and a column of slave epochs in yyymmdd format.  This is most likely to be used on submit-3 to re-run some pairs of the dataset."
+ echo "-n[val] : print pairs that are NOT designated in file [val]; format of [val] should have a column of master epochs in yyyymmdd format and a column of slave epochs in yyymmdd format.  This is most likely to be used on submit-2 to re-run some pairs of the dataset."
  echo "-o[val] : print pairs with master month equal to [val] (e.g., 09, 10, etc)"
  echo "-q[val] : print pairs with slave month equal to [val] (e.g., 09, 10, etc)"
  echo "-p[val1/val2] : print successive pairs between val1 and val2; val1 and val2 should be in yyyymmdd format"

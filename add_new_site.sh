@@ -97,4 +97,4 @@ echo "${polygon}" >> ~ebaluyut/gmtsar-aux/site_poly.txt
 
 # sync between servers
 rsync -a ~ebaluyut/gmtsar-aux/ $t31/ebaluyut/gmtsar-aux 
-rsync -a ~ebaluyut/gmtsar-aux/ $submit3:/home/ebaluyut/gmtsar-aux 
+rsync -a ~ebaluyut/gmtsar-aux/ $submit2:/home/ebaluyut/gmtsar-aux 

@@ -58,4 +58,4 @@ ssh -Y $ice "mkdir -p /mnt/t31/insar/$sat/$trk/raw; mkdir -p /mnt/t31/insar/$sat
 
 # sync between servers
 rsync -a ~ebaluyut/gmtsar-aux/ $t31/ebaluyut/gmtsar-aux
-rsync -a ~ebaluyut/gmtsar-aux/ $submit3:/home/ebaluyut/gmtsar-aux
+rsync -a ~ebaluyut/gmtsar-aux/ $submit2:/home/ebaluyut/gmtsar-aux

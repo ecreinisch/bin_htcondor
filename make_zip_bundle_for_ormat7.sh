@@ -4,7 +4,7 @@
 # their legends, unit_vectors.txt, and metadata_info.txt into a zip  file
 # should result in a self-describing file name something like "brady_T53_In20111224_20121027.zip"
 #
-# This script should be run in the "intf" directory of processed pairs that have been returned from submit-3
+# This script should be run in the "intf" directory of processed pairs that have been returned from submit-2
 # The script loops through all of the In{yyyymmdd}_{yyyymmdd} directories in the "intf" directory
 # At the end, it moves the zip bundles into a directory called "zips"
 

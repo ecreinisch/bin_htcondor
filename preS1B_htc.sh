@@ -1,5 +1,5 @@
 #!/bin/bash
-# 20180604 Elena C Reinisch copy necessary data to submit-3 for preprocessing
+# 20180604 Elena C Reinisch copy necessary data to submit-2 for preprocessing
 # update 20180606 ECR fix s1a references to s1b
 
 if [[ $# -eq 0 ]]
