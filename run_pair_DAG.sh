@@ -46,7 +46,7 @@ ssh -Y $maule "/home/ebaluyut/bin_htcondor/prepDEMforCondorJob.sh $demf $xmin $x
 
 # get software and ssh tar files
 tar --exclude='.git' -czf bin_htcondor.tgz -C ${bin_htcondor_home} .
-tar -czf GMT5SAR.tgz -C /home/feigl GMT5SAR5.2
+tar -czf GMT5SAR.tgz -C /home/ebaluyut GMT5SAR5.2
 tar -czf ssh.tgz .ssh
 if [[ "$user" != "ebaluyut" ]]
 then
@@ -202,6 +202,16 @@ then
    ncpu=1
    memgb=8GB
    ndisk=18GB
+elif [[ "$sat" == "ENVI" ]]
+then
+   ncpu=1
+   memgb=8GB
+   ndisk=20GB
+elif [[ "$sat" == "ERS"* ]]
+then
+   ncpu=1
+   memgb=8GB
+   ndisk=25GB
 else 
    ncpu=1
    memgb=8GB
