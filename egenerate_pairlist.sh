@@ -275,7 +275,7 @@ while read line; do
 #  echo $epoch >> new_epochs.tmp
 # fi
 done < RAW.tmp
-
+ 
 #loop through each epoch in list
 while read line; do
  mast=`echo $line | awk '{print $1}'`
