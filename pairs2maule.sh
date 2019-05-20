@@ -46,11 +46,11 @@ while read -r line; do
 #       else
 #       ssh -Y $ice "cd /mnt/t31/$ppath/intf; tar -xzvf In${mast}_${slav}.tgz; rm In${mast}_${slav}.tgz; cd ../preproc/; ln ../intf/In${mast}_${slav}/${mast}.PRM . ; ln ../intf/In${mast}_${slav}/${slav}.PRM .; ln ../intf/In${mast}_${slav}/${mast}.LED . ; ln ../intf/In${mast}_${slav}/${slav}.LED ."  < /dev/null
 #       fi
-       scp ${sat}_${trk}_In${mast}_${slav}.log $t31/${ppath}/log/
-       scp ${sat}_${trk}_In${mast}_${slav}.out $t31/${ppath}/log/
-       scp ${sat}_${trk}_In${mast}_${slav}.sub $t31/${ppath}/log/
-       scp ${sat}_${trk}_In${mast}_${slav}-process.err $t31/${ppath}/log/
-       scp ${sat}_${trk}_In${mast}_${slav}-process.out $t31/${ppath}/log/
+       scp ${sat}_${trk}_In${mast}_${slav}.log $maule:/s21/${ppath}/log/
+       scp ${sat}_${trk}_In${mast}_${slav}.out $maule:/s21/${ppath}/log/
+       scp ${sat}_${trk}_In${mast}_${slav}.sub $maule:/s21/${ppath}/log/
+       scp ${sat}_${trk}_In${mast}_${slav}-process.err $maule:/s21/${ppath}/log/
+       scp ${sat}_${trk}_In${mast}_${slav}-process.out $maule:/s21/${ppath}/log/
  #   fi
     rm ${sat}_${trk}_In${mast}_${slav}.* ${sat}_${trk}_In${mast}_${slav}-process.*
 done < PAIRSmake_check.txt
