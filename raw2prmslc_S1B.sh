@@ -4,6 +4,7 @@
 # 20180604 Elena C Reinisch
 # 20180605 ECR rename files to have S1B instead of S1A
 # update ECR 20180803 update to run on maule server
+# update ECR 20190520 update ice to hengill
 
 if [[ $# -eq 0 ]]
 then
@@ -23,8 +24,8 @@ sat="S1B"
 
 # determine host machine
 servername=$(echo $HOSTNAME | awk -F. '{print $1}')
-if [[ ${servername} == "ice" ]]; then
-   echo "Currently on ice server. Please log in to porotomo and re-source your setup.sh script before proceeding."
+if [[ ${servername} == "hengill" ]]; then
+   echo "Currently on hengill server. Please log in to porotomo and re-source your setup.sh script before proceeding."
    exit 1
 elif [[ ${servername} != "porotomo" && ${servername} != "maule" ]]; then
    echo "Unrecognized host server name.  Please make sure you are on maule or porotomo."

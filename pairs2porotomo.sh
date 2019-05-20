@@ -5,6 +5,7 @@
 # edit ECR 20170622 update to work with pairs now copied directly to maule during jobs
 # edit ECR 20170724 update; comment out removing data from gluster via transfer00 because we no longer use gluster
 # edit ECR 20180319 transfer process.err and process.out for each pair
+# edit ECR 20190520 update ice to hengill
 
 # set variables
 ppath=$1
@@ -14,9 +15,9 @@ site=`cat PAIRSmake_check.txt | tail -1 | awk '{print $12}'`
 demf=`cat PAIRSmake_check.txt | tail -1 | awk '{print $18}'`
 > maule_pairs.lst
 # check that ppath exists and setup directory
-ssh -Y $ice "mkdir -p /mnt/t31/$ppath; cd /mnt/t31/$ppath; cp /usr1/ebaluyut/bin_htcondor/makefile_condor makefile; make setup"
+ssh -Y $hengill "mkdir -p /mnt/t31/$ppath; cd /mnt/t31/$ppath; cp /usr1/ebaluyut/bin_htcondor/makefile_condor makefile; make setup"
 site=`cat PAIRSmake_check.txt | tail -1 | awk '{print $12}'`
-ssh -Y $ice "sed -i "/site=/c\site=${site}" /mnt/t31/$ppath/makefile"
+ssh -Y $hengill "sed -i "/site=/c\site=${site}" /mnt/t31/$ppath/makefile"
 
 # loop over PAIRSmake to find successful pairs
 while read -r line; do

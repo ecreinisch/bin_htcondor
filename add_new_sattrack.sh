@@ -6,6 +6,7 @@
 # update ECR 20180321 change calling for txt files based on new gmtsar-aux organization
 # update ECR 20180406 rsync to sync whole directory
 # update ECR 20180919 add S1B
+# update ECR 20190520 change ice to hengill
 
 if [[ $# -eq 0 ]]
 then
@@ -54,7 +55,7 @@ fi
 mkdir -p /s21/insar/$sat/$trk/raw
 mkdir -p /s21/insar/$sat/$trk/preproc
 mkdir -p /s21/insar/$sat/$trk/site
-ssh -Y $ice "mkdir -p /mnt/t31/insar/$sat/$trk/raw; mkdir -p /mnt/t31/insar/$sat/$trk/preproc; mkdir -p /mnt/t31/insar/$sat/$trk/$site"
+ssh -Y $hengill "mkdir -p /mnt/t31/insar/$sat/$trk/raw; mkdir -p /mnt/t31/insar/$sat/$trk/preproc; mkdir -p /mnt/t31/insar/$sat/$trk/$site"
 
 # sync between servers
 rsync -a ~ebaluyut/gmtsar-aux/ $t31/ebaluyut/gmtsar-aux
