@@ -62,4 +62,4 @@ done < PAIRSmake_check.txt
 # check that ppath exists and setup directory
 #ssh -Y ebaluyut@ice.geology.wisc.edu 'scp ebaluyut@submit-3.chtc.wisc.edu:/home/ebaluyut/PAIRSmake_check.txt /mnt/t31/$ppath/intf/; cd /mnt/t31/$ppath; make untar_in; make plots'
 #ssh -Y $ice "scp ${user}@submit-3.chtc.wisc.edu:/home/${user}/PAIRSmake_check.txt /mnt/t31/$ppath/intf/; cd /mnt/t31/$ppath"
-scp maule_pairs.lst PAIRSmake_check.txt /s21/$ppath/intf/
+scp maule_pairs.lst PAIRSmake_check.txt $maule:/s21/$ppath/intf/
