@@ -47,13 +47,14 @@ cdir=`pwd`
 
 # get appropriate well files
 echo "site is " ${site}
+# Testing on the directory does not port well
 #if [[ -d "/usr1/ebaluyut/gmtsar-aux/${site}" ]]; then
 #  if [[ `ls /usr1/ebaluyut/gmtsar-aux/${site} | wc -l` -gt 0 ]]; then
-if [[ -d "~ebaluyut/gmtsar-aux/${site}" ]]; then
-  if [[ `ls ~ebaluyut/gmtsar-aux/${site} | wc -l` -gt 0 ]]; then
+#if [[ -d "~ebaluyut/gmtsar-aux/${site}" ]]; then
+#  if [[ `ls ~ebaluyut/gmtsar-aux/${site} | wc -l` -gt 0 ]]; then
     cp -v ~ebaluyut/gmtsar-aux/${site}/* .
-  fi
-fi
+#  fi
+#fi
 
 # set gmt environment varibles
 #gmtset PS_MEDIA = letter
