@@ -6,6 +6,7 @@
 # update ECR 20180319 update for new bin_htcondor repo
 # update ECR 20180418 also save copy of pdf plot to Plots dir
 # update ECR 20180511 don't add full paths to scripts since already on path
+# update KLF 20190724 find wells
 
 if [[ $# -eq 0 ]]
 then

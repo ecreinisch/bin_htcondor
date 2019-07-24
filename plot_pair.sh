@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 # Elena C Reinisch 20161004
 # script for plotting 1 pair with footer information
 # requires the following text files: prd.ll, stm.ll, inj.ll, box.txt
@@ -16,6 +16,7 @@
 # update ECR 20180815 adding cosoc to database
 # update ECR 20180919 only copy well files if they exist under gmtsar-aux
 # update ECR 20180919 add tusca wells
+# update KLF 20190724 add sanem wells
 
 if [[ $# -eq 0 ]]
 then
@@ -43,12 +44,17 @@ dt=${11}
 demf=${12}
 cdir=`pwd`
 
+
 # get appropriate well files
-if [[ -d "/usr1/ebaluyut/gmtsar-aux/${site}" ]]; then
-  if [[ `ls /usr1/ebaluyut/gmtsar-aux/${site} | wc -l` -gt 0 ]]; then
-    cp ~ebaluyut/gmtsar-aux/${site}/* .
-  fi
-fi
+echo "site is " ${site}
+# Testing on the directory does not port well
+#if [[ -d "/usr1/ebaluyut/gmtsar-aux/${site}" ]]; then
+#  if [[ `ls /usr1/ebaluyut/gmtsar-aux/${site} | wc -l` -gt 0 ]]; then
+#if [[ -d "~ebaluyut/gmtsar-aux/${site}" ]]; then
+#  if [[ `ls ~ebaluyut/gmtsar-aux/${site} | wc -l` -gt 0 ]]; then
+    cp -v ~ebaluyut/gmtsar-aux/${site}/* .
+#  fi
+#fi
 
 # set gmt environment varibles
 #gmtset PS_MEDIA = letter
@@ -313,12 +319,12 @@ else # use UTM format files
     cat ${site}_gps_utm.txt | awk '{print $1,$2 , $(NF)}' > text.tmp
     pstext text.tmp -R -F+jBL+f8p -J -Gwhite -N -O -K  >> ${outfile}
     rm text.tmp
-  elif [[ "$site" == "tungs" ]] || [[ "$site" == "dcamp" ]] || [[ "$site" == "tusca" ]]
+  elif [[ "$site" == "tungs" ]] || [[ "$site" == "dcamp" ]] || [[ "$site" == "tusca" ]] || [[ "$site" == "sanem" ]]
   then
     cat ${site}_wells_prod_utm.txt | awk '{print $1,$2}' | psxy $region -J -St0.2 -Gblack -O -K -V -P >> ${outfile}
     cat ${site}_wells_inj_utm.txt | awk '{print $1,$2}' | psxy $region -J -Si0.2 -Gblack -O -K -V -P >> ${outfile}
     cat ${site}_wells_mon_utm.txt | awk '{print $1,$2}' | psxy $region -J -Ss0.2 -Gblack -O -K -V -P >> ${outfile}
-    rm ${site}_wells*_utm.txt
+    #rm ${site}_wells*_utm.txt
   elif [[ "$site" == "cosoc" ]]
   then
     cat ${site}_wells_prod_utm.txt | awk '{print $1,$2}' | psxy $region -J -St0.2 -Gred -O -K -V -P >> ${outfile}
