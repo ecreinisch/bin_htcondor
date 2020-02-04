@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/bash -vx
+# for debugging, add "-vx" switch to first line
 # how to run a pair of insar images 2060804 Kurt Feigl
 #
 # edit 20170218 Elena C Reinisch, change S1A setup for preprocessing per pair; save PRM and LED files to output
@@ -6,6 +7,8 @@
 # edit 20170801 ECR update to copy maule ALOS data with frame in the name
 # edit 20171114 ECR comment out renaming of p2p_TSX script for airbus and instead add $site to pair2e.sh call
 # edit 20180406 ECR update to pull from new bin_htcondor repo
+# edit 20200124 KF/SAB update to share geoscience group directory
+# edit 20201227 Kurt fix bug that stops run before geocoding
 
 # set up environment variables with path names for GMT and GMTSAR
 mkdir bin_htcondor
@@ -34,9 +37,14 @@ ln -s libnetcdf.so.6.0.0 libnetcdf.so.6
 ln -s libhdf5_hl.so.8.0.2 libhdf5_hl.so.8
 ln -s libhdf5.so.8.0.2 libhdf5.so.8
 ln -s libnetcdf.so.7.2.0 libnetcdf.so.7
+
+#go to user's home directory
 cd ../../
 
-source setup.sh
+#source setup.sh
+source setup_gmtsarv54.sh
+echo maule is $maule
+echo s21 is $s21
 
 # set satellite and track
 sat=$1
@@ -203,7 +211,10 @@ pair2e.sh "$sat" "$mast" "$slav" $satparam dem/${demf} $filter_wv $site $xmin $x
 # actually run the script run.sh output from pair2e.sh
 cd In"$mast"_"$slav"; 
 
-bash run.sh
+# 20200127 try to inherit environmental variables
+#bash run.sh
+chmod +x run.sh
+./run.sh
 
 # clean up afterwards
 find . -type f  ! -name '*.png'  ! -name '*LED*' ! -name '*PRM' ! -name '*.tif' ! -name '*.tiff' ! -name '*.cpt' ! -name '*corr*.grd'  !  -name '*.kml' ! -name 'display_amp*.grd' ! -name 'phase*.grd' ! -name 'unwrap*.grd' ! -name 'trans.dat'  -delete

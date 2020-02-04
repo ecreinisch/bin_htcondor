@@ -30,3 +30,19 @@ export LIBRARY_PATH=$LIBRARY_PATH:`pwd`/gmtsar_dependencies/lib
 #export PETSC_DIR=/mnt/gluster/feigl/petsc
 
 # save account name for maule
+if [[ $USER == "sabatzli" ]]
+then
+    echo "Sams case"
+    # login name is different on remote machine
+    maule="batzli@maule.ssec.wisc.edu"
+else
+    # login name is the same on both machines
+    maule=${USER}'@maule.ssec.wisc.edu'
+fi
+echo maule is: $maule
+export maule
+#
+s21=$maule:/s21
+export s21
+
+    

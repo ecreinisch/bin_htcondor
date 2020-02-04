@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -vx
 #
 # Usage: pair2.sh ERS 12345 67890 /scratch/feigl/dems/bhs.grd [conf.ers.txt]
 #
@@ -8,6 +8,7 @@
 # update ECR 20171114 add variable for site so that p2p_TSX_SLC_airbus.csh is called for tungs and dcamp
 # update ECR 20180116 add variable for site so that p2p_TSX_SLC_airbus.csh is called for dixie (as well as tungs and dcamp)
 # udpate ECR 20180605 add S1B
+# 20200127 KLF try to fix enviroment variables $maule
 
 sat=$1
 mst=$2
