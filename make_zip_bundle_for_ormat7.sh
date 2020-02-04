@@ -11,6 +11,7 @@
 # Updates:
 # 1/29/2019 changed variable definitions to be based on paths rather than arguments
 # 1/29/2019 added loop to the script
+# 02/04/2020 changed all phasefilt_utm to phasefilt_mask_utm
 
 # Get directory variables
 currentpath=`pwd`
@@ -60,13 +61,13 @@ for line in $filelines ; do
 	# make temp copies the files in a directory called tmpzipdir (make directory if it does not exist):
 	mkdir -p ${tmpzipdir}
 	cp /${basepath}/${sat}/${trk}/${site}/${filepath}/${pair_dir}/drhomaskd_utm.grd ${tmpzipdir}/.
-	cp /${basepath}/${sat}/${trk}/${site}/${filepath}/${pair_dir}/phasefilt_utm.grd ${tmpzipdir}/.
+	cp /${basepath}/${sat}/${trk}/${site}/${filepath}/${pair_dir}/phasefilt_mask_utm.grd ${tmpzipdir}/.
 	cp /${basepath}/${sat}/${trk}/${site}/${filepath}/${pair_dir}/drange_utm_byte.tif /${basepath}/${sat}/${trk}/${site}/${filepath}/${pair_dir}/${site}_${date_range}_drange_utm_byte.tif
-	cp /${basepath}/${sat}/${trk}/${site}/${filepath}/${pair_dir}/phasefilt_utm_byte.tif /${basepath}/${sat}/${trk}/${site}/${filepath}/${pair_dir}/${site}_${date_range}_phasefilt_utm_byte.tif
+	cp /${basepath}/${sat}/${trk}/${site}/${filepath}/${pair_dir}/phasefilt_mask_utm_byte.tif /${basepath}/${sat}/${trk}/${site}/${filepath}/${pair_dir}/${site}_${date_range}_phasefilt_mask_utm_byte.tif
 	cp /${basepath}/${sat}/${trk}/${site}/${filepath}/${pair_dir}/${site}_${date_range}_drange_utm_byte.tif ${tmpzipdir}/.
-	cp /${basepath}/${sat}/${trk}/${site}/${filepath}/${pair_dir}/${site}_${date_range}_phasefilt_utm_byte.tif ${tmpzipdir}/.
-	cp /t31/batzli/legend_cool_drange_utm.pdf ${tmpzipdir}/.
-	cp /t31/batzli/legend_phasefilt_utm.pdf ${tmpzipdir}/.
+	cp /${basepath}/${sat}/${trk}/${site}/${filepath}/${pair_dir}/${site}_${date_range}_phasefilt_mask_utm_byte.tif ${tmpzipdir}/.
+	cp /home/ebaluyut/gmtsar-aux/legend_cool_drange_utm.pdf ${tmpzipdir}/.
+	cp /home/ebaluyut/gmtsar-aux/legend_phasefilt_utm.pdf ${tmpzipdir}/.
 	# only grab appropriate line for unit_vectors.txt
 	grep ${pair_dir} /${basepath}/${sat}/${trk}/${site}/${filepath2}/unit_vectors.txt > ${tmpzipdir}/unit_vectors_sub.txt
 	# get the metadata and make a text file

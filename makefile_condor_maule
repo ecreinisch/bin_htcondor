@@ -1,5 +1,6 @@
 SHELL := /bin/bash # Use bash syntax
 # Make file for copying to different servers
+# 20200128 Kurt for GMT v. 5.4
 site=
 
 .PHONY : all
@@ -10,6 +11,7 @@ all :
 	@make prep_log
 	@make topo
 	@make pre_gipht
+	@make plot_pha_mask_utm
 
 .PHONY : setup
 setup : 
@@ -80,6 +82,12 @@ plot_pha_utm :
 	@echo ${cdir}
 	@cd intf; plot_PAIRSmake1.sh PAIRSmake_check.txt phase_utm; cd ${cdir}
 
+.PHONY : plot_pha_mask_utm
+plot_pha_mask_utm :
+	@echo "making plots for phase in UTM"
+	@cdir=`pwd`
+	@echo ${cdir}
+	@cd intf; plot_PAIRSmake1.sh PAIRSmake_check.txt phase_mask_utm; cd ${cdir}
 .PHONY : plot_unw
 plot_unw :
 	@echo "making plots for unwrapped range change"

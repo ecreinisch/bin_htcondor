@@ -9,6 +9,7 @@
 # edit ECR 20180319 remove case statement and replace with output of get_site_polygon.sh 
 # edit ECR 20180322 add --asfResponseTimeout=25 to mitigate ASF time outs; add check to see if EarthData End User Agreement has been signed
 # edit ECR 20180604 add option for frame specification
+# 20191009
 
 if [[ $# -eq 0 ]]
 then
@@ -109,22 +110,22 @@ fi
 
 
 # # unzip downloads
-#> newSAFE.lst
+> newSAFE.lst
 
-#for i in `ls *.zip`; do
-#  if [[ ! -d `echo $i | awk -F.zip '{print $1".SAFE"}'` ]]
-#  then
-##    if [[ `echo $i` == *"1SDV"* ]]
-##    then
-##      # remove dual band data
-##      rm $i
-##    else
-#      echo $i
-#      unzip $i
-#      echo "`echo $i | awk -F.zip '{print $1".SAFE"}'` " >> newSAFE.lst
-##    fi
-#  fi
-#done
+for i in `ls *.zip`; do
+  if [[ ! -d `echo $i | awk -F.zip '{print $1".SAFE"}'` ]]
+  then
+#    if [[ `echo $i` == *"1SDV"* ]]
+#    then
+#      # remove dual band data
+#      rm $i
+#    else
+      echo $i
+      unzip $i
+      echo "`echo $i | awk -F.zip '{print $1".SAFE"}'` " >> newSAFE.lst
+#    fi
+  fi
+done
 
 # COMMENT OUT BELOW BECAUSE NEW SETUP ON MAULE
 ## get orbital info

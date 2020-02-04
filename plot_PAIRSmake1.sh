@@ -7,6 +7,7 @@
 # update ECR 20180418 also save copy of pdf plot to Plots dir
 # update ECR 20180511 don't add full paths to scripts since already on path
 # update KLF 20190724 find wells
+# 20200128 look harder for PAIRSmake.txt file
 
 if [[ $# -eq 0 ]]
 then
@@ -18,7 +19,19 @@ exit 1
 fi
 
 # find all successful pairs
-cat $1 | awk '$20 == 1 {print ;}' > tmp.lst
+if [[ -e $1 ]] 
+   then
+   cat $1 | awk '$20 == 1 {print ;}' > tmp.lst
+else
+   # 20200128
+   # find list of PAIRSmake files
+   pms=`find .. -name "PAIRSmake*"`
+   # find most recent PAIRSmake file
+   pm1=`\ls -lt $pms | head -1 | awk '{print $9}'`
+   cat $pms | awk '$20 == 1 {print ;}' > tmp.lst
+fi 
+
+# second argument is type of grid file to plot
 pha1=$2
 #pha2=$3
 
@@ -51,12 +64,18 @@ while read -r line; do
     # run plotting scripts
    if [[ -e $pair/${pha1}.grd ]]
    then
-   mmperfringe=`echo $line | awk '{printf("%2.1f\n", $13 /2 * 1000)}'`
-   plot_pair.sh $sat $trk $site $pair $pair/${pha1}.grd ${pair}_${pha1}.ps $mmperfringe $bperp $user $filter_wv $dt $demf
-   ps2pdf_crop.sh  ${pair}_${pha1}.ps
-   cp ${pair}_${pha1}.pdf ../Plots/
-   mv ${pair}_${pha1}.ps ${pair}/
-   mv ${pair}_${pha1}.pdf ${pair}/
+      mmperfringe=`echo $line | awk '{printf("%2.1f\n", $13 /2 * 1000)}'`
+      echo "plot_pair.sh $sat $trk $site $pair $pair/${pha1}.grd ${pair}_${pha1}.ps $mmperfringe $bperp $user $filter_wv $dt $demf"
+      plot_pair.sh $sat $trk $site $pair $pair/${pha1}.grd ${pair}_${pha1}.ps $mmperfringe $bperp $user $filter_wv $dt $demf
+      ps2pdf_crop.sh  ${pair}_${pha1}.ps
+      cp ${pair}_${pha1}.pdf ../Plots/
+      mv ${pair}_${pha1}.ps ${pair}/
+      mv ${pair}_${pha1}.pdf ${pair}/
+   else
+      echo ERROR missing $pair/${pha1}.grd
    fi
 done < tmp.lst
-rm tmp.lst
+
+# clean up
+\rm -fv tmp.lst ${site}*.txt gmt.conf  gmt.history
+

@@ -33,7 +33,9 @@ cp new_raw.lst preproc_porotomo.lst
 # put data in condor format 
 preS1A_htc.sh $trk $site preproc_porotomo.lst
 
-scp preproc_porotomo.lst $t31/insar/S1A/${trk}/raw/
+# copy to geology computer (/mnt/t31 is on porotomo.geology.wisc.edu)
+# not needed 
+#scp preproc_porotomo.lst $t31/insar/S1A/${trk}/raw/
 
 # remove temporary list files
 rm dirlist.tmp SAFEdirEOF.tmp allSAFEdir.tmp

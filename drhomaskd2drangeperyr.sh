@@ -3,6 +3,7 @@
 # edits header info and creates tif files
 # used in prepare_grids_for_gipht_esk.sh 
 # Elena C Reinisch 20170713
+# 20200128 Kurt check for existence before proceeding
 
 drhofile=$1
 echo DRHOFILE = $drhofile
@@ -13,6 +14,14 @@ then
 else
  path="."
 fi
+
+# 20200128 check for existence before proceeding
+if [[ ! -e $drhofile ]]
+then
+echo ERROR Could not find range file named $drhofile
+exit 1
+fi
+
 ## find time span of pair in terms of days
 #dt=`grdinfo $drhofile | grep dyear | sed 's/;//g' | awk '{printf("%5.5f", ($8-$5))}'`
 

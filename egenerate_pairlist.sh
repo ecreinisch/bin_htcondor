@@ -63,10 +63,11 @@ if [[ ${servername} == "porotomo" ]]; then
  #  rsync -avu $maule:/s21/insar/${sat}/${trk}/preproc/${sat}_${trk}_${site}_pairs.txt .
 elif [[ ${servername} == "maule" ]]; then
    elist="/s21/insar/${sat}/${sat}_OrderList.txt"
-   rsync -avu --ignore-existing $t31/insar/${sat}/${trk}/preproc/ .
+ #  rsync -avu --ignore-existing $t31/insar/${sat}/${trk}/preproc/ .
  #  rsync -avu $t31/insar/${sat}/${trk}/preproc/${sat}_${trk}_${site}_pairs.txt .
+   echo "Skipping synchronization with porotomo."
 else
-   echo "Unrecognize host server name.  Please make sure you are using maule or porotomo servers."
+   echo "Unrecognized host server name.  Please make sure you are using maule or porotomo servers."
    exit 1
 fi 
 

@@ -6,6 +6,7 @@
 # update ECR 20180327 update for new gmtsar-aux layout
 # update ECR 20180918 update to correctly pull epoch info from new ssara layout
 # update ECR 20180919 update to incorporate S1B data as well
+# 20191008 Update to use /home instead of tilde
 
 
 # decide if looking through archives or not
@@ -93,7 +94,8 @@ while read -r a; do
     #site=`grep $sat ~ebaluyut/gmtsar-aux/site_sats.txt | grep $trk | awk '{print $1}'`
     orbit=`grep "Absolute orbit" scene_info.tmp | head -${ncount} | tail -1 | awk '{print $3}'`
     frame=`grep "First Frame" scene_info.tmp  | head -${ncount} | tail -1 | awk '{print $4}'`
-    swath=`grep $site ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $trk | awk '{print $4}'`
+    #swath=`grep $site ~ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $trk | awk '{print $4}'`
+    swath=`grep $site /home/ebaluyut/gmtsar-aux/site_sats.txt | grep $sat | grep $trk | awk '{print $4}'`
     if [[ -z $swath ]]; then
       swath=TBD
     fi
@@ -255,7 +257,8 @@ while read -r a; do
      #frame=nan
    fi
     # add line for each site using this data
-   grep $sat ~ebaluyut/gmtsar-aux/site_sats.txt | grep $trk > site_sat.tmp
+   #grep $sat ~ebaluyut/gmtsar-aux/site_sats.txt | grep $trk > site_sat.tmp
+   grep $sat /home/ebaluyut/gmtsar-aux/site_sats.txt | grep $trk > site_sat.tmp
     while read line; do
       site=`echo $line | awk '{print $1}'`
       echo SITE = $site
@@ -307,7 +310,8 @@ then
     filename=$dirname
     path=`echo $data_loc2 | sed 's/../\/s21\/insar\/S1A/'`
     # add line for each site using this data
-   grep $sat ~ebaluyut/gmtsar-aux/site_sats.txt | grep $trk > site_sat.tmp
+   #grep $sat ~ebaluyut/gmtsar-aux/site_sats.txt | grep $trk > site_sat.tmp
+   grep $sat /home/ebaluyut/gmtsar-aux/site_sats.txt | grep $trk > site_sat.tmp
     while read line; do
       site=`echo $line | awk '{print $1}'`
       echo SITE = $site

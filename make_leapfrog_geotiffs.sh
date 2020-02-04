@@ -1,21 +1,23 @@
 #!/bin/bash
 #
-# Get variables from command line e.g. ./make_leapfrog_geotiffs.sh phasefilt_utm.tif 20130513 20140511
+# 20200128 Kurt change to masked
+# Get variables from command line e.g. ./make_leapfrog_geotiffs.sh phasefilt_mask_utm.tif 20130513 20140511
 filename="$1"
 masterdate="$2" 
 slavedate="$3"
 date_range=${masterdate}_${slavedate} #e.g. 20130513_20140511
 #  Stretch, index, and add 'no_data' alpha channel to the image and pick the correct color table
-if [ $filename == 'phasefilt_utm.tif' ] 
+#if [ $filename == 'phasefilt_utm.tif' ] 
+if [ $filename == 'phasefilt_mask_utm.tif' ] 
 then
   # make base file name without extension
-  filebase=phasefilt_utm
+  filebase=phasefilt_mask_utm
   # scale the image to unsigned 16-bit integer
-  gdal_translate -of GTiff -ot UInt16 -scale -3.1416 3.1416 1 65535 -a_nodata 0 phasefilt_utm.tif phasefilt_utm_indexed.tif
+  gdal_translate -of GTiff -ot UInt16 -scale -3.1416 3.1416 1 65535 -a_nodata 0 phasefilt_mask_utm.tif phasefilt_mask_utm_indexed.tif
   # work with new 16-bit image
-  filename2=phasefilt_utm_indexed.tif
+  filename2=phasefilt_mask_utm_indexed.tif
   # make base file name without extension
-  filebase2=phasefilt_utm_indexed
+  filebase2=phasefilt_mask_utm_indexed
   # define the correct colortable
   colortable=phasefilt_colortable_UInt16.txt
   # make temporary .vrt template file from original so details of dimensions match in source of .vrt file

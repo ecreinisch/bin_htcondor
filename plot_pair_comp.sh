@@ -13,6 +13,7 @@
 # update ECR 20180919 only copy well files if they exist under gmtsar-aux
 # update ECR 20180919 add tusca wells 
 # update ECR 20180308 update line 87 to deal with floating point numbers
+# update Kurt and Sam updated well logic: commented-out the if statement
 
 if [[ $# -eq 0 ]]
 then
@@ -41,11 +42,11 @@ cdir=`pwd`
 echo ${outfile}
 
 # get appropriate well files
-if [[ -d "/usr1/ebaluyut/gmtsar-aux/${site}" ]]; then
-  if [[ `ls /usr1/ebaluyut/gmtsar-aux/${site} | wc -l` -gt 0 ]]; then
-    cp ~ebaluyut/gmtsar-aux/${site}/* .
-  fi
-fi
+#if [[ -d "/usr1/ebaluyut/gmtsar-aux/${site}" ]]; then
+#  if [[ `ls /usr1/ebaluyut/gmtsar-aux/${site} | wc -l` -gt 0 ]]; then
+    cp -v ~ebaluyut/gmtsar-aux/${site}/* .
+#  fi
+#fi
 
 # set gmt environment varibles
 #gmtset PS_MEDIA = letter
@@ -221,7 +222,7 @@ else # use UTM format files
     cat ${site}_prd.utm | awk '{print $1,$2}' | psxy $region -J -St0.25 -Gblack -O -K -V -P >> ${outfile}
     cat ${site}_inj.utm | awk '{print $1,$2}' | psxy $region -J -Si0.25 -Gblack -O -K -V -P >> ${outfile}
     cat ${site}_stm.utm | awk '{print $1,$2}' | psxy $region -J -Ss0.25 -Gblack -O -K -V -P >> ${outfile}
- elif [[ "$site" == "tungs" ]] || [[ "$site" == "dcamp" ]] || [[ "$site" == "tusca" ]]
+ elif [[ "$site" == "tungs" ]] || [[ "$site" == "dcamp" ]] || [[ "$site" == "tusca" ]] || [[ "$site" == "sanem" ]] || [[ "$site" == "mcgin" ]]
   then
     cat ${site}_wells_prod_utm.txt | awk '{print $1,$2}' | psxy $region -J -St0.2 -Gblack -O -K -V -P >> ${outfile}
     cat ${site}_wells_inj_utm.txt | awk '{print $1,$2}' | psxy $region -J -Si0.2 -Gblack -O -K -V -P >> ${outfile}
