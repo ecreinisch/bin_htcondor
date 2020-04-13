@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -vex
 # add -vex to above line for diagnostic purposes  
 # based on file from Kurt Feigl
 # edit Elena Reinisch 20160909 add subregions for Brady, McGinness Hills,  and Fawnskin
@@ -24,6 +24,7 @@
 # 20180829 ECR update to make robust for southern hemisphere areas
 # 20200128 KLF update to use phase_filt_ll
 # 20200129 KLF handle missing files better
+# 20200325 KLF handle grdsample: Error: Selected region exceeds the Y-boundaries of the grid file by more than one y-increment!
 
 if [[ $# -eq 0 ]]
 then
@@ -124,9 +125,25 @@ else
 	for GRD in  ../../topo/dem_ll.grd drhomaskd_ll.grd re_ll.grd display_amp_ll.grd im_ll.grd refilt_ll.grd imfilt_ll.grd; do
 	    if [[ -e $GRD ]]
 	    then 
-		grdsample $GRD $RANGES -I$incx/$incy -r -G`echo $GRD | sed 's/ll/ll_cut/'`
-            #  echo $GRD | sed 's/ll/ll_cut/'
-            #  echo ${GRD:r}_cut.grd
+                # 20200325 next line throws error 
+		# grdsample $GRD $RANGES -I$incx/$incy -r -V -G`echo $GRD | sed 's/ll/ll_cut/'`
+                # cut first, then resample 
+                # http://gmt.soest.hawaii.edu/doc/5.3.2/gmt.html#n-full
+                #-n[b|c|l|n][+a][+bBC][+c][+tthreshold]
+                #Select grid interpolation mode by adding b for B-spline smoothing, 
+                # c for bicubic interpolation, l for bilinear interpolation, or 
+                # n for nearest-neighbor value (for example to plot categorical data). 
+                # Optionally, append +a to switch off antialiasing (where supported). 
+                # Append +bBC to override the boundary conditions used, adding g for geographic, p for periodic, or n for natural boundary conditions. 
+                # For the latter two you may append x or y to specify just one direction, otherwise both are assumed. 
+                # Append +c to clip the interpolated grid to input z-min/max [Default may exceed limits]. 
+                # Append +tthreshold to control how close to nodes with NaNs the interpolation will go. 
+                # A threshold of 1.0 requires all (4 or 16) nodes involved in interpolation to be non-NaN. 
+                # 0.5 will interpolate about half way from a non-NaN value; 0.1 will go about 90% of the way, etc. 
+                # [Default is bicubic interpolation with antialiasing and a threshold of 0.5, using geographic 
+                # (if grid is known to be geographic) or natural boundary conditions].
+                grdcut  $GRD $RANGES -N -V -Gtemp.grd
+		grdsample temp.grd -I$incx/$incy -r -V -G`echo $GRD | sed 's/ll/ll_cut/'`
 	    fi
 	done # loop over grid files to be cut
 
@@ -252,6 +269,33 @@ else
         # make unit vector files
         #gmt grd2xyz phasefilt_ll.grd  > ${PAIR}_llt.txt
 	gmtconvert trans.dat -bi5 | awk '{print $4, $5, $3}' | column -t > ${PAIR}_llt.txt
+
+        # calculate relative orbit information
+        SAT_baseline $master.PRM $slave.PRM > ${PAIR}_baseline.txt
+        # find perpendicular component of baseline
+        bperp=`grep B_perpendicular ${PAIR}_baseline.txt | awk '{print $3}'`
+        echo bperp is $bperp meter
+
+        # write metadata for gipht
+        # grd_file_namesPHA1.ilist
+        # grd_file_names.data
+        # YYYYMMDD1 YYYYMMDD2 IDATATYPE MPERCY   FNAME
+        #  19920807 19930618  0         0.028333  ../In19920807_19930618/phasefilt_utm.grd          % wrapped phase in radians         in UTM coordinates
+        #  19920807 19930618  2         0.028333  ../In19920807_19930618/drhomaskd_utm.grd          % unwrapped range change in meters in UTM coordinates
+        
+        # get time span in days
+        # https://stackoverflow.com/questions/9008824/how-do-i-get-the-difference-between-two-dates-under-bash
+        let daydiff=(`date +%s -d $slave`-`date +%s -d $master`)/86400
+        echo time span is $daydiff days
+        
+        echo "YYYYMMDD1 YYYYMMDD2 IDATATYPE MPERCY   FNAME" > grd_file_namesPHA.ilist
+        echo "YYYYMMDD1 YYYYMMDD2 IDATATYPE MPERCY   FNAME" > grd_file_namesRHO.ilist
+        echo "$master $slave 0 $metersperfringe ${PAIR}/phasefilt_utm.grd  % wrapped phase in radians in UTM coordinates"        >> grd_file_namesPHA.ilist
+        echo "$master $slave 2 $metersperfringe ${PAIR}/drhomaskd_utm.grd  % unwrapped range change in meters in UTM coordinates" >> grd_file_namesRHO.ilist
+        echo "YYYYMMDD1 YYYYMMDD2 IDATATYPE MPERCY BperpInMeters  TimeSpanInDays FNAME" > grd_file_namesPHA.plist
+        echo "YYYYMMDD1 YYYYMMDD2 IDATATYPE MPERCY BperpInMeters  TimeSpanInDays FNAME" > grd_file_namesRHO.plist
+        echo "$master $slave 0 $metersperfringe $bperp $daydiff ${PAIR}/phasefilt_utm.grd  % wrapped phase in radians in UTM coordinates"         >> grd_file_namesPHA.plist
+        echo "$master $slave 2 $metersperfringe $bperp $daydiff ${PAIR}/drhomaskd_utm.grd  % unwrapped range change in meters in UTM coordinates" >> grd_file_namesRHO.plist
 
 	cd ..
         echo "Finished pair $PAIR and created:"

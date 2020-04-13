@@ -6,6 +6,7 @@
 # edit 20171114 ECR comment out renaming of p2p_TSX script for airbus and instead add $site to pair2e.sh call
 # edit 20180406 ECR update to use new bin_htcondor repo
 # edit 20180604 ECR add S1B
+# edit 20200406 Kurt and Sam try to fix bug about disk usage exceeds request
 
 # set up environment variables with path names for GMT and GMTSAR
 mkdir bin_htcondor

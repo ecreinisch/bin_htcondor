@@ -53,11 +53,11 @@ while read -r line; do
 #       ssh -Y $ice "cd /mnt/t31/$ppath/intf; tar -xzvf In${mast}_${slav}.tgz; rm In${mast}_${slav}.tgz; cd ../preproc/; ln ../intf/In${mast}_${slav}/${mast}.PRM . ; ln ../intf/In${mast}_${slav}/${slav}.PRM .; ln ../intf/In${mast}_${slav}/${mast}.LED . ; ln ../intf/In${mast}_${slav}/${slav}.LED ."  < /dev/null
 #       fi
 #transfer to maule requires environment variable defined for s21 
-       scp ${sat}_${trk}_In${mast}_${slav}.log $s21/${ppath}/log/
-       scp ${sat}_${trk}_In${mast}_${slav}.out $s21/${ppath}/log/
-       scp ${sat}_${trk}_In${mast}_${slav}.sub $s21/${ppath}/log/
-       scp ${sat}_${trk}_In${mast}_${slav}.err $s21/${ppath}/log/
-       scp ${sat}_${trk}_In${mast}_${slav}.hdr $s21/${ppath}/log/
+      scp ${sat}_${trk}_In${mast}_${slav}.log $s21/${ppath}/log/
+      scp ${sat}_${trk}_In${mast}_${slav}.out $s21/${ppath}/log/
+      scp ${sat}_${trk}_In${mast}_${slav}.sub $s21/${ppath}/log/
+      scp ${sat}_${trk}_In${mast}_${slav}.err $s21/${ppath}/log/
+      scp ${sat}_${trk}_In${mast}_${slav}.hdr $s21/${ppath}/log/
 
        # make directory for pair on maule - THIS BREAKS THE LOOP
        #ssh -Y $maule "mkdir -p $s21/${ppath}/intf/In${mast}_${slav}"

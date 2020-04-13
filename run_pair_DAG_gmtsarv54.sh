@@ -1,4 +1,8 @@
-#!/bin/bash -evx
+#!/bin/bash -vx
+# switches in line above:
+#      -e exit on error
+#      -v verbose
+#      -x examine 
 # reads a text file containing information on SAR images, forms pairs, writes submit files, and submits the jobs
 # Elena C Reinisch, 20160808
 # edit 20161030 add variables to cut region, change names of output files to include satellite and track
@@ -16,6 +20,13 @@
 # edit 20180510 fix region commands for new get_site_dims.sh
 # edit 20200107 port to submit-2:/home/groups/geoscience for sharing 
 # edit 20200127 Kurt fix bug that stops run before geocoding
+# edit 20200401 Kurt and Sam add switch to submit interactively
+
+if [ "$#" -eq 0 ]; then
+    echo "usage:"
+    echo $0 
+    echo $0 interactive
+fi
 
 # ** 20200127 Tricky stuff: save account name for maule
 #if [[ $USER == "sabatzli" ]]
@@ -281,11 +292,16 @@ queue
 EOF
 cat ${sat}_${track}_In${mast}_${slav}.sub
 
-# for no child process
-condor_submit ${sat}_${track}_In${mast}_${slav}.sub
+if [ "$#" -eq 2 ]; then
+   echo Now consider running the job interactively by executing the following command 
+   echo condor_submit -interactive ${sat}_${track}_In${mast}_${slav}.sub
+   echo "Then, once the job has started on the condor slot, issue the following command:"
+   echo ./run_pair_gmtsarv54.sh $sat $track $mast $slav $user $satparam $demf $filter_wv $xmin $xmax $ymin $ymax $site
+else
+   # for no child process
+   condor_submit ${sat}_${track}_In${mast}_${slav}.sub
 # 
-#echo Now consider running the job interactively by executing the following command 
-#echo condor_submit -interactive ${sat}_${track}_In${mast}_${slav}.sub
+fi
 
 ## for child process
 ## write to DAGMan submit file

@@ -222,7 +222,9 @@ then
   wv=0.0562356424
 fi
 orbdir=`head -1 RAW.tmp | awk '{print $8}'`
-dem=`grep $site ~ebaluyut/gmtsar-aux/site_dems.txt | awk '{print $2}'`
+#dem=`grep $site ~ebaluyut/gmtsar-aux/site_dems.txt | awk '{print $2}'`
+ls -l /home/ebaluyut/gmtsar-aux/site_dems.txt
+dem=`grep $site /home/ebaluyut/gmtsar-aux/site_dems.txt | awk '{print $2}'`
 ## cut down S1A file names to epoch and subswath only
 #if [[ "$sat" == "S1A" ]]
 #then

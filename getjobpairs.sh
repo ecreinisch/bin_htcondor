@@ -7,7 +7,10 @@
 
 while read -r a; do
 # #cp $a intf/ # copy for now, in case we need to run the same pairs on porotomo
+if [[ -e $a ]]
+then
  mv -v $a intf/ # use once porotomo server is obsolete in workflow
+fi 
 done < $1
 
 #\mv -v In*.tgz intf

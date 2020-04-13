@@ -9,6 +9,7 @@
 # edit 20180406 ECR update to pull from new bin_htcondor repo
 # edit 20200124 KF/SAB update to share geoscience group directory
 # edit 20201227 Kurt fix bug that stops run before geocoding
+# edit 20200406 Kurt and Sam try to fix bug about disk usage exceedes request
 
 # set up environment variables with path names for GMT and GMTSAR
 mkdir bin_htcondor
@@ -66,7 +67,7 @@ then
 fi
 
 # clean up
-rm GMT5SAR_v54.tgz GMT.tgz ssh.tgz gmtsar_dependencies.tgz
+rm -v GMT5SAR_v54.tgz GMT.tgz ssh.tgz gmtsar_dependencies.tgz
 
 # set master and slave variables
 mast=$3
@@ -98,17 +99,17 @@ mkdir dem
 # cut dem down to size
 if [[ "$site" == "test" ]]
 then
-scp $maule:/s21/insar/condor/feigl/insar/dem/${demf} dem/$demf
-xmax=
-xmin=
-ymax=
-ymin=
+   scp $maule:/s21/insar/condor/feigl/insar/dem/${demf} dem/$demf
+   xmax=
+   xmin=
+   ymax=
+   ymin=
 else
-# transfer cut grid file to job server
-scp $maule:/s21/insar/condor/feigl/insar/dem/cut_$demf dem/$demf
-## remove cut grid file from maule
-#ssh -Y $maule "rm /s21/insar/condor/feigl/insar/dem/cut_dem.tmp"
-#grdcut /mnt/gluster/feigl/insar/dem/$demf -Gdem/$demf -R$xmin/$xmax/$ymin/$ymax
+   # transfer cut grid file to job server
+   scp $maule:/s21/insar/condor/feigl/insar/dem/cut_$demf dem/$demf
+   ## remove cut grid file from maule
+   #ssh -Y $maule "rm /s21/insar/condor/feigl/insar/dem/cut_dem.tmp"
+   #grdcut /mnt/gluster/feigl/insar/dem/$demf -Gdem/$demf -R$xmin/$xmax/$ymin/$ymax
 fi
 
 ## get correct p2p file for TSX dcamp and tungs
@@ -217,7 +218,7 @@ chmod +x run.sh
 ./run.sh
 
 # clean up afterwards
-find . -type f  ! -name '*.png'  ! -name '*LED*' ! -name '*PRM' ! -name '*.tif' ! -name '*.tiff' ! -name '*.cpt' ! -name '*corr*.grd'  !  -name '*.kml' ! -name 'display_amp*.grd' ! -name 'phase*.grd' ! -name 'unwrap*.grd' ! -name 'trans.dat'  -delete
+### find . -type f  ! -name '*.png'  ! -name '*LED*' ! -name '*PRM' ! -name '*.tif' ! -name '*.tiff' ! -name '*.cpt' ! -name '*corr*.grd'  !  -name '*.kml' ! -name 'display_amp*.grd' ! -name 'phase*.grd' ! -name 'unwrap*.grd' ! -name 'trans.dat'  -delete
 find . -type l -delete
 mv intf/*/* .
 mv topo/* .
@@ -234,7 +235,7 @@ grdcut unwrap_mask_ll.grd -R${xmin}/${xmax}/${ymin}/${ymax} -Gunwrap_mask_ll.grd
 fi
 
 # print completion status and compute arc if necessary
-if [[ -e "phase_ll.grd" && -e "phasefilt_ll.grd" && -e "unwrap_mask_ll.grd" ]] 
+if [[ -e "phase_ll.grd" && -e "p/hasefilt_ll.grd" && -e "unwrap_mask_ll.grd" ]] 
 then
     pair_status=1
     #grdcut phase_ll.grd -R${xmin}/${xmax}/${ymin}/${ymax} -Gphase_ll.grd
@@ -264,10 +265,11 @@ tar -czvf In${mast}_${slav}.tgz In${mast}_${slav}
 
 # transfer pair to maule under /s21/insar/[sat][trk]/site
 ssh -Y $maule "mkdir -p /s21/insar/$sat/$trk/$site" 
-scp In${mast}_${slav}.tgz $maule:/s21/insar/$sat/$trk/$site/
+#scp In${mast}_${slav}.tgz $maule:/s21/insar/$sat/$trk/$site/
+rsync -av --remove-source-files In${mast}_${slav}.tgz $maule:/s21/insar/$sat/$trk/$site/
 
 # clean up after pair is transferred
-rm In${mast}_${slav}.tgz 
+rm -fv In${mast}_${slav}.tgz 
 #mkdir -p tmp
 #mv * tmp/
 
