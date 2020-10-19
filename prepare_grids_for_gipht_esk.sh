@@ -25,6 +25,7 @@
 # 20200128 KLF update to use phase_filt_ll
 # 20200129 KLF handle missing files better
 # 20200325 KLF handle grdsample: Error: Selected region exceeds the Y-boundaries of the grid file by more than one y-increment!
+# 20200416 KLF project amp and coherence to UTM, also
 
 if [[ $# -eq 0 ]]
 then
@@ -122,7 +123,7 @@ else
 	fi
 
         # cut each grid file
-	for GRD in  ../../topo/dem_ll.grd drhomaskd_ll.grd re_ll.grd display_amp_ll.grd im_ll.grd refilt_ll.grd imfilt_ll.grd; do
+	for GRD in  ../../topo/dem_ll.grd drhomaskd_ll.grd re_ll.grd display_amp_ll.grd im_ll.grd refilt_ll.grd imfilt_ll.grd corr_ll.grd; do
 	    if [[ -e $GRD ]]
 	    then 
                 # 20200325 next line throws error 
@@ -148,7 +149,7 @@ else
 	done # loop over grid files to be cut
 
         # project cut grids into UTM
-	for GRD in ../../topo/dem_ll.grd drhomaskd_ll.grd re_ll.grd display_amp_ll.grd im_ll.grd refilt_ll.grd imfilt_ll.grd; do
+	for GRD in ../../topo/dem_ll.grd drhomaskd_ll.grd re_ll.grd display_amp_ll.grd im_ll.grd refilt_ll.grd imfilt_ll.grd corr_ll.grd; do
 	    if [[ -e $GRD ]]
 	    then 
 		CUTGRD=`echo $GRD | sed 's/ll/ll_cut/'`

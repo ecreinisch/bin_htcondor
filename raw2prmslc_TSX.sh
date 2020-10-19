@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -vex
 # MAKE SURE TO RUN SOURCE /data/stali/setup.sh AND ARE IN BASH SHELL
 # compiles TSX raw data and submits gmtsar preprocess command to get SLC and PRM files.  Outputs in calendar date naming scheme
 # edit 20170216 ECR remove dimlist option
