@@ -21,6 +21,7 @@
 # edit ECR 20180919 merge S1A and S1B
 # edit ECR 20190304 merge ERS1 and ERS2 to ERS
 # edit ECR 20190520 update ice to hengill
+# edit SAB 20201102 update to add server name and paths for askja, changed path to /home/batzli/gmtsar-aux/site_dems.txt etc lines 230,231
 
 if [[ $# -eq 0 ]]
 then
@@ -65,6 +66,9 @@ elif [[ ${servername} == "maule" ]]; then
    elist="/s21/insar/${sat}/${sat}_OrderList.txt"
  #  rsync -avu --ignore-existing $t31/insar/${sat}/${trk}/preproc/ .
  #  rsync -avu $t31/insar/${sat}/${trk}/preproc/${sat}_${trk}_${site}_pairs.txt .
+   echo "Skipping synchronization with porotomo."
+elif [[ ${servername} == "askja" ]]; then
+   elist="/s12/insar/${sat}/${sat}_OrderList.txt"
    echo "Skipping synchronization with porotomo."
 else
    echo "Unrecognized host server name.  Please make sure you are using maule or porotomo servers."
@@ -223,8 +227,8 @@ then
 fi
 orbdir=`head -1 RAW.tmp | awk '{print $8}'`
 #dem=`grep $site ~ebaluyut/gmtsar-aux/site_dems.txt | awk '{print $2}'`
-ls -l /home/ebaluyut/gmtsar-aux/site_dems.txt
-dem=`grep $site /home/ebaluyut/gmtsar-aux/site_dems.txt | awk '{print $2}'`
+ls -l /home/batzli/gmtsar-aux/site_dems.txt
+dem=`grep $site /home/batzli/gmtsar-aux/site_dems.txt | awk '{print $2}'`
 ## cut down S1A file names to epoch and subswath only
 #if [[ "$sat" == "S1A" ]]
 #then

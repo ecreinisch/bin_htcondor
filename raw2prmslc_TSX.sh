@@ -1,5 +1,5 @@
 #!/bin/bash -vex
-# MAKE SURE TO RUN SOURCE /data/stali/setup.sh AND ARE IN BASH SHELL
+# MAKE SURE TO RUN SOURCE /home/batzli/setup.sh AND ARE IN BASH SHELL
 # compiles TSX raw data and submits gmtsar preprocess command to get SLC and PRM files.  Outputs in calendar date naming scheme
 # edit 20170216 ECR remove dimlist option
 # edit 20170425 ECR change to one list regardless of directory naming convention
@@ -7,7 +7,7 @@
 # update ECR 20180803 update to run on maule server
 # update ECR 20180813 fix definition of maule_path for maule server
 # update ECR 20190520 update ice to hengill
-
+# update SAB 20201102 added askja as server name
 
 if [[ $# -eq 0 ]]
 then
@@ -26,15 +26,17 @@ servername=$(echo $HOSTNAME | awk -F. '{print $1}')
 if [[ ${servername} == "hengill" ]]; then
    echo "Currently on hengill server. Please log in to porotomo and re-source your setup.sh script before proceeding."
    exit 1
-elif [[ ${servername} != "porotomo" && ${servername} != "maule" ]]; then
-   echo "Unrecognized host server name.  Please make sure you are on maule or porotomo."
+elif [[ ${servername} != "porotomo" && ${servername} != "maule" && ${servername} != "askja" ]]; then
+   echo "Unrecognized host server name.  Please make sure you are on maule, askja or porotomo."
    exit 1
 fi
 
 # get track information to copy to appropriate directory on maule
 if [[ ${servername} == "porotomo" ]]; then
    maule_path=`echo $(pwd) | awk -F/t31/ '{print "/s21/"$2}' | awk -Fraw '{print $1"preproc/"}'` 
-else
+elif [[ ${servername} == "maule" ]]; then
+   maule_path=`echo $(pwd) | awk -F/raw '{print $1"/preproc/"}'`
+elif [[ ${servername} == "askja" ]]; then
    maule_path=`echo $(pwd) | awk -F/raw '{print $1"/preproc/"}'`
 fi
 echo $maule_path
