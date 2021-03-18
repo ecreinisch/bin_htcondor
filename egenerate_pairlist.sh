@@ -71,7 +71,7 @@ elif [[ ${servername} == "askja" ]]; then
    elist="/s12/insar/${sat}/${sat}_OrderList.txt"
    echo "Skipping synchronization with porotomo."
 else
-   echo "Unrecognized host server name.  Please make sure you are using maule or porotomo servers."
+   echo "Unrecognized host server name.  Please make sure you are using askja maule or porotomo servers."
    exit 1
 fi 
 
@@ -153,7 +153,10 @@ then
          if [[ ${servername} == "porotomo" ]]; then
            echo "for i in ""\`""cat"" newraw.lst""\`"";"" do  scp -r""  $""maule:""$""i .; done"
          fi
-         echo "raw2prmslc_TSX.sh newdims.lst [site]"
+#	 echo "raw2prmslc_TSX.sh newdims.lst ${1}"
+#	 echo "(optional): remake the newdims.lst with: for d in ./*;do [[ -d \"$d\" ]] && echo \"${d##./}\" >> dir.txt; done"
+#	 echo "mv dir.txt newdims.lst"
+	 echo "preprocessTSX.csh all"
          ;;
      "ALOS")
          echo "For ALOS Data:"
@@ -227,8 +230,8 @@ then
 fi
 orbdir=`head -1 RAW.tmp | awk '{print $8}'`
 #dem=`grep $site ~ebaluyut/gmtsar-aux/site_dems.txt | awk '{print $2}'`
-ls -l /home/batzli/gmtsar-aux/site_dems.txt
-dem=`grep $site /home/batzli/gmtsar-aux/site_dems.txt | awk '{print $2}'`
+ls -l ~/gmtsar-aux/site_dems.txt
+dem=`grep $site ~/gmtsar-aux/site_dems.txt | awk '{print $2}'`
 ## cut down S1A file names to epoch and subswath only
 #if [[ "$sat" == "S1A" ]]
 #then
@@ -363,6 +366,7 @@ while read line; do
    elif [[ "$sat" == "T"*"X" ]]
    then
      eTSX_baseline.csh $mast.PRM $slav.PRM > bline.tmp
+     echo "getting pair baseline info for $mast and $slav"
   # elif [[ "$sat" == "ALOS"* ]]
   # then
   #   ALOS_baseline $mast.PRM $slav.PRM > bline.tmp
@@ -399,4 +403,4 @@ then
 fi
 
 # clean up 
-#rm *.tmp  
+rm *.tmp  

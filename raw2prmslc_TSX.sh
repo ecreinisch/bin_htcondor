@@ -1,6 +1,6 @@
 #!/bin/bash -vex
-# MAKE SURE TO RUN SOURCE /home/batzli/setup.sh AND ARE IN BASH SHELL
 # compiles TSX raw data and submits gmtsar preprocess command to get SLC and PRM files.  Outputs in calendar date naming scheme
+# MAKE SURE TO RUN SOURCE /home/batzli/setup.sh AND ARE IN BASH SHELL
 # edit 20170216 ECR remove dimlist option
 # edit 20170425 ECR change to one list regardless of directory naming convention
 # edit 20170504 ECR and Kurt Feigl
@@ -8,6 +8,7 @@
 # update ECR 20180813 fix definition of maule_path for maule server
 # update ECR 20190520 update ice to hengill
 # update SAB 20201102 added askja as server name
+# update Sam and Kurt 20201214 reworking for GMTSARv6 (comments and considering selection of events) 
 
 if [[ $# -eq 0 ]]
 then
@@ -17,8 +18,11 @@ then
  exit 1
 fi
 
+#rawlst is a list of directory names (e.g. /s12/insar/TSX/T91/raw/TDX1_SM_091_strip_005_20201114014508)
 rawlst=$1
+#site is a five lowercase letter code needed here to differentate different sites that may be in the same track
 site=$2
+#overwrite = "w" will overwrite existing data
 overwrite=$3
 
 # determine host machine
@@ -49,7 +53,7 @@ echo $maule_path
 ## scp -r $i $maule:${maule_path}
 #done < $dimList
 
-# loop over list of data directories
+# loop over list of data directories ($rawlst)
 while read -r i; do
  # get name of xml file
  a=`ls $i/T*-1.SAR.L1B/T*/*.xml`
@@ -74,12 +78,17 @@ while read -r i; do
    fi
  fi
 
-echo "xml file is" $a "image data is " $b "name of output is " $c
+# run binary exicutible
+#Usage: make_slc_tsx name_of_xml_file name_of_image_file name_output
+#Example: make_slc_s1a TSX1_SAR__SSC______SM_S_SRA_20120615T162057_20120615T162105.xml IMAGE_HH_SRA_strip_007.cos TSX_HH_20120615
+#Output: TSX_HH_20120615.SLC TSX_HH_20120615.PRM TSX_HH_20120615.LED
+echo "xml file is " $a
+echo "image data is " $b
+echo "name of output is " $c
+make_slc_tsx $a $b $c
 
-# run script 
- make_slc_tsx $a $b $c
-
-tar -czvf ${c_tar}.tgz $c.PRM $c.SLC $c.LED
+# $a is the XML full file name
+tar -czvf ${c_tar}.tgz $c.PRM $c.SLC $c.LED $a
 
 if [[ ${servername} == "porotomo" ]]; then
   scp ${c_tar}.tgz $maule:${maule_path}
@@ -95,4 +104,4 @@ mkdir -p ../preproc
 
 # copy new files to maule
 #scp *.LED *.SLC *.PRM $maule:${maule_path}
-mv *.LED *.SLC *.PRM ../preproc
+\mv -fv *.LED *.SLC *.PRM ../preproc
