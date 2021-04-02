@@ -19,7 +19,7 @@
 # 20210318 Kurt and Sam added self-documentation.
 if [ ! "$#" -eq 12 ]; then
 	echo "$0 needs 12 arguments. Found only $#"
-   	exit 0
+   	exit 1
 fi
 
 sat=${1}
@@ -48,11 +48,11 @@ orb2a=`expr $ref - 1`
 orb2b=`expr $ref + 1`
 homedir=`pwd`
 
-if [ $# -lt 3 ] ; then
-	echo " Usage: pair2.sh ERS 12345 67890 dem/dem.grd [conf.ers.txt]"
-	echo "missing arguments"
-	exit 1
-fi
+# if [ $# -lt 3 ] ; then
+# 	echo " Usage: pair2.sh ERS 12345 67890 dem/dem.grd [conf.ers.txt]"
+# 	echo "missing arguments"
+# 	exit 1
+# fi
 
 if [ $# -gt 3 ] ; then
   case "$sat" in 
@@ -86,8 +86,10 @@ if [ $# -gt 3 ] ; then
     # for htcondor
     #cp $homedir/gmtsar/config/config.tsx.txt .
     # for Askja
-    cp /opt/gmtsar/6.0/share/gmtsar/csh/config.tsx.txt .
-    cnf=$homedir/config.tsx.txt
+    #cp /opt/gmtsar/6.0/share/gmtsar/csh/config.tsx.txt .
+    #cnf=$homedir/config.tsx.txt
+    #cnf=$homedir/config.tsx.txt
+	cnf=/opt/gmtsar/6.0/share/gmtsar/csh/config.tsx.txt
     ;;
   S1A)
     #cnf=$homedir/gmtsar/config/config.s1a.txt
@@ -144,6 +146,9 @@ if [ -d $pairdir ]; then
 fi
 mkdir $pairdir
 cd $pairdir
+cp $cnf .
+cnf=`basename $cnf`
+echo "Configuration filename cnf is $cnf"
 
 # This may or may not have changed in v6.0
 mkdir raw intf SLC topo
@@ -184,25 +189,51 @@ elif [ "$sat" == "TSX" ] ; then
 	# ln -s $RAWdir/${ref}.LED ${ref}.LED
 	# ln -s $RAWdir/${sec}.LED ${sec}.LED
 
-	ln -s $RAWdir/${ref}.SLC ${ref}.SLC
-	ln -s $RAWdir/${sec}.SLC ${sec}.SLC
-	longdirname=`grep ${site} /s12/insar/TSX/TSX_OrderList.txt | grep ${ref} | awk '{print $12}'`
-	echo "longdirname is $longdirname"
-	longbasename=`basename $longdirname`
-	echo "longbasename is $longbasename"
+    # these get deleted in step 1, but they must be there
+	#ln -s $RAWdir/${ref}.SLC ${ref}.SLC
+	#ln -s $RAWdir/${sec}.SLC ${sec}.SLC
+	touch ${ref}.SLC
+	touch ${sec}.SLC
+	touch ${ref}.PRM
+	touch ${sec}.PRM
+	touch ${ref}.LED
+	touch ${sec}.LED
+
+	longdirname1=`grep ${site} /s12/insar/TSX/TSX_OrderList.txt | grep ${ref} | awk '{print $12}'`
+	echo "longdirname1 is $longdirname1"
+	longbasename1=`basename $longdirname1`
+	echo "longbasename is $longbasename1"
+	longdirname2=`grep ${site} /s12/insar/TSX/TSX_OrderList.txt | grep ${sec} | awk '{print $12}'`
+	echo "longdirname2 is $longdirname2"
+	longbasename2=`basename $longdirname2`
+	echo "longbasename2 is $longbasename2"
+
+	# copy the whole thing
+	cp -rv $RAWdir/$longbasename1 .
+	cp -rv $RAWdir/$longbasename2 .
+
 	# links for $ref and $sec .cos and .xml with date names for rsynced earlier run_pair_gmtsarv60.sh
 	#XMLref=`find $RAWdir/TDX1_SM_091_strip_005_20201023014507 -name "*.xml" | grep -v ANNOTATION | grep -v iif`
-	XMLref=`find $RAWdir/$longbasename -name "*.xml" | grep -v ANNOTATION | grep -v iif`
+	#XMLref=`find $RAWdir/$longbasename1 -name "*.xml" | grep -v ANNOTATION | grep -v iif`
+	XMLref=`find $longbasename1 -name "*.xml" | grep -v ANNOTATION | grep -v iif`
 	ln -s $XMLref ${ref}.xml
+	#cp -v $XMLref ${ref}.xml
 	#COSref=`find $RAWdir/TDX1_SM_091_strip_005_20201023014507 -name "*.cos"`
-	COSref=`find $RAWdir/$longbasename -name "*.cos"`
+	#COSref=`find $RAWdir/$longbasename1 -name "*.cos"`
+	COSref=`find $longbasename1 -name "*.cos"`
 	ln -s $COSref ${ref}.cos
+	#cp -v $COSref ${ref}.cos
 	#XMLsec=`find $RAWdir/TDX1_SM_091_strip_005_20201114014508 -name "*.xml" | grep -v ANNOTATION | grep -v iif`
-	XMLsec=`find $RAWdir/$longbasename -name "*.xml" | grep -v ANNOTATION | grep -v iif`
+	#XMLsec=`find $RAWdir/$longbasename2 -name "*.xml" | grep -v ANNOTATION | grep -v iif`
+	XMLsec=`find $longbasename2 -name "*.xml" | grep -v ANNOTATION | grep -v iif`
 	ln -s $XMLsec ${sec}.xml
+    #cp -v $XMLsec ${sec}.xml
 	#COSsec=`find $RAWdir/TDX1_SM_091_strip_005_20201114014508 -name "*.cos"`
-	COSsec=`find $RAWdir/$longbasename -name "*.cos"`
+	#COSsec=`find $RAWdir/$longbasename2 -name "*.cos"`
+	COSsec=`find $longbasename2 -name "*.cos"`
 	ln -s $COSsec ${sec}.cos
+    #cp -v $COSsec ${sec}.cos
+
 elif [[ "$sat" == "S1"* ]] ; then
 	subswath=$satparam
 	ln -s $RAWdir/${sat}*${2}_${subswath}.* .
@@ -250,8 +281,8 @@ echo "#!/bin/sh" > run.sh
 # for Askja
 #echo '#!/usr/bin/env -S bash -v' > run.sh
 
-echo '#This is a test. In a real run, the next line would not be here.' >> run.sh
-echo 'exit 0' >> run.sh
+# echo '#This is a test. In a real run, the next line would not be here.' >> run.sh
+# echo 'exit 0' >> run.sh
 
 ## for ACI HPC cluster jobs to be submitted with batch run.sh
 #echo "#SBATCH --partition=geoscience" >> run.sh
@@ -322,7 +353,10 @@ if [[ "$sat" == "TSX" ]] ; then
   	else
 		#this script is now p2p_processing.csh  
 		#echo p2p_TSX_SLC.csh $ref $sec $cnf >> run.sh
+		# standard out of the box version
 		echo p2p_processing.csh ${sat} ${ref} ${sec} ${cnf} >> run.sh
+		# Kurt's modified version
+     	#echo p2p_processingKF.csh ${sat} $ref $sec $cnf >> run.sh
 	fi
 elif [[ "$sat" == "S1"* ]] ; then
 	echo p2p_S1A_TOPS.csh ${sat}${ref}_${subswath} ${sat}${sec}_${subswath} $cnf >> run.sh
@@ -334,7 +368,7 @@ elif [[ "$sat" == "ALOS" ]] ; then
 		echo p2p_ALOS.csh $ref $sec $cnf >> run.sh
 	fi
 else
-	echo p2p_$sat.csh $ref $sec $cnf >> run.sh
+    echo p2p_$sat.csh $ref $sec $cnf >> run.sh
 fi
 
 # make run.sh executable and actually run the script run.sh (output from pair2e.sh)

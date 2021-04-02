@@ -185,13 +185,13 @@ else
 		#grep sanem /s12/insar/TSX/TSX_OrderList.txt | grep 20190912 | awk '{print $12}'
 		longfilename1=`grep ${site} /s12/insar/TSX/TSX_OrderList.txt | grep ${ref} | awk '{print $12}'`
 		echo "longfilename1 is $longfilename1"
-		echo rsync -rav askja.ssec.wisc.edu:$longfilename1 .
+		rsync -rav askja.ssec.wisc.edu:$longfilename1 .
 		# cp /s12/insar/${sat}/${trk}/preproc/${ref}.LED /s12/${user}/RAW/.
 		# cp /s12/insar/${sat}/${trk}/preproc/${ref}.PRM /s12/${user}/RAW/.
 		# cp /s12/insar/${sat}/${trk}/preproc/${ref}.SLC /s12/${user}/RAW/.
-		echo rsync -rav askja.ssec.wisc.edu:/s12/insar/${sat}/${trk}/preproc/${ref}.LED .
-		echo rsync -rav askja.ssec.wisc.edu:/s12/insar/${sat}/${trk}/preproc/${ref}.PRM .
-		echo rsync -rav askja.ssec.wisc.edu:/s12/insar/${sat}/${trk}/preproc/${ref}.SLC .
+		# rsync -rav askja.ssec.wisc.edu:/s12/insar/${sat}/${trk}/preproc/${ref}.LED .
+		# rsync -rav askja.ssec.wisc.edu:/s12/insar/${sat}/${trk}/preproc/${ref}.PRM .
+		# rsync -rav askja.ssec.wisc.edu:/s12/insar/${sat}/${trk}/preproc/${ref}.SLC .
 
 		# local transfer on Askja
 		#cp /s12/insar/${sat}/${trk}/preproc/${ref}*.tgz .
@@ -221,13 +221,13 @@ else
 		longfilename2=`grep ${site} /s12/insar/TSX/TSX_OrderList.txt | grep ${sec} | awk '{print $12}'`
 		echo "longfilename2 is $longfilename2"
 		
-		echo rsync -rav askja.ssec.wisc.edu:$longfilename2 .
+		rsync -rav askja.ssec.wisc.edu:$longfilename2 .
 		# cp /s12/insar/${sat}/${trk}/preproc/${sec}.LED /s12/${user}/RAW/.
 		# cp /s12/insar/${sat}/${trk}/preproc/${sec}.PRM /s12/${user}/RAW/.
 		# cp /s12/insar/${sat}/${trk}/preproc/${sec}.SLC /s12/${user}/RAW/.
-		echo rsync -rav askja.ssec.wisc.edu:/s12/insar/${sat}/${trk}/preproc/${sec}.LED .
-		echo rsync -rav askja.ssec.wisc.edu:/s12/insar/${sat}/${trk}/preproc/${sec}.PRM .
-		echo rsync -rav askja.ssec.wisc.edu:/s12/insar/${sat}/${trk}/preproc/${sec}.SLC .
+		# rsync -rav askja.ssec.wisc.edu:/s12/insar/${sat}/${trk}/preproc/${sec}.LED .
+		# rsync -rav askja.ssec.wisc.edu:/s12/insar/${sat}/${trk}/preproc/${sec}.PRM .
+		# rsync -rav askja.ssec.wisc.edu:/s12/insar/${sat}/${trk}/preproc/${sec}.SLC .
 
 		# local transfer on Askja
 		#cp /s12/insar/${sat}/${trk}/preproc/${sec}*.tgz .
@@ -294,10 +294,13 @@ cd In"${ref}"_"${sec}"
 #chmod +x run.sh
 echo
 echo
-echo "Now we are in pwd $PWD .Starting run.sh"
+echo "Now we are in pwd $PWD Starting run.sh, logging in $PWD/run.log"
 pwd
 ls 
-./run.sh
+# copy standard error and standard out to screen and log file
+./run.sh |& tee run.log 
+# copy standard error and standard out to screen only
+#./run.sh >& run.log 
 
 # clean up afterwards
 ### find . -type f  ! -name '*.png'  ! -name '*LED*' ! -name '*PRM' ! -name '*.tif' ! -name '*.tiff' ! -name '*.cpt' ! -name '*corr*.grd'  !  -name '*.kml' ! -name 'display_amp*.grd' ! -name 'phase*.grd' ! -name 'unwrap*.grd' ! -name 'trans.dat'  -delete

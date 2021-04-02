@@ -329,6 +329,8 @@ fi
 ## write to DAGMan submit file
 #echo "JOB In${ref}_${sec} In${ref}_${sec}.sub" >> run_pair.dag 
 done < $1
+
+
 # end of "while read" loop from above
 
 ## for child process
