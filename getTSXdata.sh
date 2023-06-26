@@ -9,6 +9,7 @@
 # update ECR 20190108 update for new WInSAR portal queries
 # update SAB 20210303 fixed the moving and untarring steps and added a check/exit for existing .tar.gz files
 # update SAB 20210303 added metadata collection to make database update easier (still does not write directly to the DB)
+# update SAB 20230621 added a character to the $beam making it $beamR for the missing "R" in strip_013R, for example
 # todo SAB 20210304 generate a metadata file for each download to go in preproc (eg. 20201114.mtx) 
 
 if [[ $# -eq 0 ]]
@@ -122,8 +123,9 @@ if [[ "$download_status" == "1" ]]
 		dbepochdate=`grep startTimeUTC $XML | awk 'NR==1{print substr($1,15,4) substr($1,20,2) substr($1,23,2)}'`
 		absorbit=`grep absOrbit $XML | awk 'NR==1{print substr($1,11,5)}'`
 		beam=`grep strip_ $XML | awk 'NR==1{print substr($1,33,9)}'`
+		beamR="${beam}"R
         	cd /s12/insar/TSX/winsar
-                echo "$dbepochdate  ADDME  TSX  T$tracknum    $beam   nan    $absorbit  A       D       dlrdlr  $dbfilename  $dbdirname" >>dbupdates.txt
+                echo "$dbepochdate  ADDME  TSX  T$tracknum    $beamR   nan    $absorbit  A       D       dlrdlr  $dbfilename  $dbdirname" >>dbupdates.txt
 	done
 echo "dont forget to update the database at /s12/insar/TSX/TSX_OrderList.txt with content from ./dbupdates.txt"
 cat dbupdates.txt

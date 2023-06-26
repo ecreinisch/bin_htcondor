@@ -32,5 +32,5 @@ touch $1
 # make the new file group writable
 chmod 664 $1
 # download the new file
-nohup curl -v -o $1 --ftp-ssl --user feigl_RES1236:WHOLESCALE2020 --insecure ftp://cassiopeia.caf.dlr.de/$1 &
+nohup curl -v -o $1 --ftp-ssl --user feigl_RES1236:Winter2023! --insecure ftp://cassiopeia.caf.dlr.de/$1 &
 # nohup curl -v -o $1 --ftp-ssl --user feigl_RES1236:140b68b8 --insecure ftp://cassiopeia.caf.dlr.de/$1 &

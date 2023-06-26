@@ -1,4 +1,5 @@
-#!/usr/bin/env -S bash 
+#!/bin/bash -vex
+#!/usr/bin/env -S bash -x 
 # 	options: -ex
 # 	-x  Print commands and their arguments as they are executed.
 # 	-e  Exit immediately if a command exits with a non-zero status.
@@ -15,8 +16,9 @@
 # 20200127 KLF try to fix enviroment variables $maule
 # 20201130 Sam and Kurt noting necessary changes for migration to 6.0 and Askja
 # 20201209 Sam modified for ref/sec and paths for dem and config.tsx.txt
-# 20210308 Sam added ${12} unwrap value "y" or empty (passed in from run_pair_gmtsarv60.sh) 
+# 20210308 Sam added ${12} unwrap value "0.12" or empty (passed in from run_pair_gmtsarv60.sh) 
 # 20210318 Kurt and Sam added self-documentation.
+# 20210707 Kurt and Sam adapt for docker. "region_cut" must be empty
 if [ ! "$#" -eq 12 ]; then
 	echo "$0 needs 12 arguments. Found only $#"
    	exit 1
@@ -39,7 +41,7 @@ if [[ "$sat" == "ERS2" || "$sat" == "ERS1" ]] ; then
 	sat=ERS
 fi
 
-#regioncut=0 # temporary variable to default to no cutting (for development only)
+#region_cut=0 # temporary variable to default to no cutting (for development only)
 #orb1=$5
 #orb2=$6
 orb1a=`expr $ref - 1`
@@ -47,6 +49,7 @@ orb1b=`expr $ref + 1`
 orb2a=`expr $ref - 1`
 orb2b=`expr $ref + 1`
 homedir=`pwd`
+echo "Working directory homedir is $homedir"
 
 # if [ $# -lt 3 ] ; then
 # 	echo " Usage: pair2.sh ERS 12345 67890 dem/dem.grd [conf.ers.txt]"
@@ -86,10 +89,8 @@ if [ $# -gt 3 ] ; then
     # for htcondor
     #cp $homedir/gmtsar/config/config.tsx.txt .
     # for Askja
-    #cp /opt/gmtsar/6.0/share/gmtsar/csh/config.tsx.txt .
-    #cnf=$homedir/config.tsx.txt
-    #cnf=$homedir/config.tsx.txt
-	cnf=/opt/gmtsar/6.0/share/gmtsar/csh/config.tsx.txt
+    cp /opt/gmtsar/6.0/share/gmtsar/csh/config.tsx.txt .
+    cnf=$homedir/config.tsx.txt
     ;;
   S1A)
     #cnf=$homedir/gmtsar/config/config.s1a.txt
@@ -112,13 +113,31 @@ else
     cnf=$homedir/config.s1a.txt
 fi
 
+echo "Config file cnf is $cnf"
+
 # Edit configuration file in place (-i) with custom parameters 
-if [ $# -gt 5 ] ; then
-	# write subregion for cutting to config file
-	sed -i "/#region_cut2/c\region_cut2 = $xmin/$xmax/$ymin/$ymax" $cnf
-#else
-#   	sed -i "/region_cut2/c\region_cut2 = " $cnf
-fi
+# if [ $# -gt 5 ] ; then
+# 	# write subregion for cutting to config file
+# 	#sed -i "/region_cut/c\region_cut = $xmin/$xmax/$ymin/$ymax" $cnf
+# 	# 2021/07/06 Need to find radar coordinates (range, azimuth) for bounding box of (cut dem)
+# 	echo "Working directory is now $PWD"
+# 	ls -ld *
+# 	cd raw
+#     echo Running dem2topo.csh
+# 	# make the DEM coarser
+#     gmt grdsample -I100e/100e ../topo/dem.grd  -G../topo/dem100m.grd
+# 	dem2topo_ra.csh $ref.PRM ../topo/dem.grd 
+#     #dem2topo_ra.csh 20200415.PRM ../topo/dem.grd 
+# 	#ra=`topo_ra.grd`
+# 	#export ra_cut=`gmt grdinfo -I1/1 topo_ra.grd`
+# 	export ra_cut=`gmt grdinfo -C topo_ra.grd | awk '{printf("%d/%d/%d/%d\n",$2,$3,$4,$5)}'`
+# 	#export ra_cut='0/14350/0/12440'
+# 	cd ..
+#     echo "ra_cut is $ra_cut"
+#     sed -i "/region_cut/c\region_cut = $ra_cut" $cnf
+# #else
+# #   	sed -i "/region_cut2/c\region_cut2 = " $cnf
+# fi
 
 if [ $# -ge 5 ] ; then
 	sed -i "/filter_wavelength/c\filter_wavelength = $filter_wv" $cnf
@@ -127,8 +146,12 @@ fi
 
 # Edit configuration file for unwrapping (default if not edited is "0" meaning "no")
 # this test checks to see if the variable is set as an expression that evaluates to nothing if unwrap is unset
-if [ -z ${unwrap+x} ]; then 
+echo "the unwrap variable is ${unwrap}"
+echo "the config file is ${cnf}"
+if [[ ${unwrap} != 0 ]]; then
+#if [ -z ${unwrap+x} ]; then 
 	sed -i "/threshold_snaphu/c\threshold_snaphu = ${unwrap}" $cnf
+	echo "setting the threshold_snaphu to ${unwrap}"
 fi
 	
 # construct path to RAW data
@@ -156,7 +179,8 @@ mkdir raw intf SLC topo
 # can use relative path name
 # is this broken?
 cd topo
-ln -s ../../$demgrd dem.grd
+#ln -s ../$demgrd dem.grd #attempted fix for below broke the processing.  Needs to be fixed in the move.
+ln -s ../../$demgrd dem.grd #this broke when moving files up and out $DOY directory -- SAB 06/30/21
 cd ..
 
 # set up links to RAW 
@@ -270,6 +294,8 @@ else
 fi
 cd ..
 
+
+
 # can use relative path name
 #cd topo
 #ln -s ../../$demgrd dem.grd
@@ -277,9 +303,11 @@ cd ..
 
 # start to write the commands for the run script with sebang
 # for htcondor
-echo "#!/bin/sh" > run.sh
+#echo "#!/bin/sh" > run.sh
 # for Askja
 #echo '#!/usr/bin/env -S bash -v' > run.sh
+# for everybody
+echo '#!/bin/bash -vx' > run.sh
 
 # echo '#This is a test. In a real run, the next line would not be here.' >> run.sh
 # echo 'exit 0' >> run.sh
@@ -371,12 +399,12 @@ else
     echo p2p_$sat.csh $ref $sec $cnf >> run.sh
 fi
 
-# make run.sh executable and actually run the script run.sh (output from pair2e.sh)
+# make run.sh executable 
 chmod +x run.sh
 
 #cd ..
 echo "print working directory:"
 pwd
-echo "Consider running the following command"
+echo "Leaving pair2e.sh and returning to run_pair_gmtsarv60.sh.  If not run automatically, consider running the following command"
 echo "cd $pairdir; ./run.sh"
 #exit 0

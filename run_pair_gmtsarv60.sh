@@ -1,4 +1,5 @@
-#!/usr/bin/env -S bash 
+#!/bin/bash -vex
+#!/usr/bin/env -S bash -x
 # for debugging, add "-vx" switch after "bash" in the shebang line above.
 # switches in line above:
 #      -e exit on error
@@ -23,7 +24,7 @@
 # edit 20201202 batzli added usage
 # edit 20201228 batzli added some breaks for troublshooting
 # edit 20210305 batzli ran successful pair, removed exit before result file cutting, moving, and cleanup, moved a >cd and actual >./run.sh to pair2e.sh
-# edit 20210308 batzli added ${unwrap} variable ("y" or empthy) to pass through from run_pair_DAG_gmtsarv60.sh to here (run_pair_gmtsarv60.sh) then to pair2e.sh
+# edit 20210308 batzli added ${unwrap} variable ("value" [.12] or empthy) to pass through from run_pair_DAG_gmtsarv60.sh to here (run_pair_gmtsarv60.sh) then to pair2e.sh
 
 if [[ ! $# -eq 14 ]] ; then
     echo '	ERROR: $0 requires 14 arguments.'
@@ -38,7 +39,7 @@ if [[ ! $# -eq 14 ]] ; then
     echo '	$8=filter_wv (filter wavelength)'
     echo '	$9,${10},${11},${12} are xmin xmax ymin ymax'
     echo '	${13}=site'
-    echo '	${14}=unwrap (y or empty) default empty will not unwrap)'
+    echo '	${14}=unwrap (value or empty) default empty will not unwrap)'
     echo '	Example: run_pair_gmtsarv60.sh TSX T144 20180724 20181203 feigl strip_007R tusca_dem_3dep_10m.grd 80 -116.1900101030447 -116.0749982018097 41.41245177646995 41.49864121097495 tusca y'
     exit 0
 fi
@@ -185,7 +186,11 @@ else
 		#grep sanem /s12/insar/TSX/TSX_OrderList.txt | grep 20190912 | awk '{print $12}'
 		longfilename1=`grep ${site} /s12/insar/TSX/TSX_OrderList.txt | grep ${ref} | awk '{print $12}'`
 		echo "longfilename1 is $longfilename1"
+	if [[ ${HOSTNAME} == "askja.ssec.wisc.edu" ]]; then
+		rsync -rav $longfilename1 .
+	else
 		rsync -rav askja.ssec.wisc.edu:$longfilename1 .
+	fi
 		# cp /s12/insar/${sat}/${trk}/preproc/${ref}.LED /s12/${user}/RAW/.
 		# cp /s12/insar/${sat}/${trk}/preproc/${ref}.PRM /s12/${user}/RAW/.
 		# cp /s12/insar/${sat}/${trk}/preproc/${ref}.SLC /s12/${user}/RAW/.
@@ -220,8 +225,11 @@ else
 		#longfilename2=`ls -1d /s12/insar/${sat}/${trk}/raw/* | grep strip | grep ${swath} | grep ${sec}`
 		longfilename2=`grep ${site} /s12/insar/TSX/TSX_OrderList.txt | grep ${sec} | awk '{print $12}'`
 		echo "longfilename2 is $longfilename2"
-		
+	if [[ ${HOSTNAME} == "askja.ssec.wisc.edu" ]]; then
+		rsync -rav $longfilename2 .
+	else	
 		rsync -rav askja.ssec.wisc.edu:$longfilename2 .
+	fi
 		# cp /s12/insar/${sat}/${trk}/preproc/${sec}.LED /s12/${user}/RAW/.
 		# cp /s12/insar/${sat}/${trk}/preproc/${sec}.PRM /s12/${user}/RAW/.
 		# cp /s12/insar/${sat}/${trk}/preproc/${sec}.SLC /s12/${user}/RAW/.
@@ -298,6 +306,9 @@ echo "Now we are in pwd $PWD Starting run.sh, logging in $PWD/run.log"
 pwd
 ls 
 # copy standard error and standard out to screen and log file
+
+exit -1
+
 ./run.sh |& tee run.log 
 # copy standard error and standard out to screen only
 #./run.sh >& run.log 
@@ -309,7 +320,8 @@ ls
 
 # move results out of single intf directory (named by DOY) into current In${ref}_${sec} directory 
 if [[ -d intf ]]; then
-   if [ -f intf/phasefilt_ll.grd ]; then
+	if [ $(find . -name "phasefilt_ll.grd") ]; then
+  #	if [ -f intf/phasefilt_ll.grd ]; then  #this will always fail because file will be in /intf/$DOY/ --SAB 6/30/2021
 		pair_status=1
 		pwd
 		mv -v intf/*/* .
@@ -326,6 +338,7 @@ else
 	pair_status=0	
 fi
 
+echo "pair_status is ${pair_status}"
 
 #if [[ ${ref} != 20170324 || ${sec} != 20170313 ]] ; then
 if [ $pair_status != 0 ]; then
@@ -358,8 +371,8 @@ if [[ -e "phase_ll.grd" && -e "phasefilt_ll.grd" && -e "unwrap_mask_ll.grd" ]] ;
 	echo "arc_std = ${arc_std}"
 	echo "arc_rms = ${arc_rms}"
 	rm arc.grd
-else
-	pair_status=0
+#else
+#	pair_status=0
 fi
 
 echo "pair_status is now ${pair_status}"
@@ -381,5 +394,5 @@ cd ..
 
 #exit 0
 
-echo done with pair In${ref}_${sec}
+echo "done with pair In${ref}_${sec}"
 

@@ -1,8 +1,10 @@
+#!/bin/bash 
 #!/usr/bin/env -S bash 
 
 # script that makes sure there is a cut version of the DEM for each site
 # Elena C Reinisch 20170709
 # batzli 20210211 change for running on askja
+# 2021/07/21 - not needed
 
 if [[ ! $# -eq 5 ]] ; then
     echo "ERROR: $0 requires 5 arguments."
@@ -32,3 +34,4 @@ if [[ ! -e /s12/insar/dem/cut_$demf ]]; then
 else
 	echo "cut version of $demf found.  Will use /s12/insar/dem/cut_$demf "
 fi
+

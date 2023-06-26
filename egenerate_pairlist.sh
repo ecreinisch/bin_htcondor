@@ -230,8 +230,17 @@ then
 fi
 orbdir=`head -1 RAW.tmp | awk '{print $8}'`
 #dem=`grep $site ~ebaluyut/gmtsar-aux/site_dems.txt | awk '{print $2}'`
-ls -l ~/gmtsar-aux/site_dems.txt
-dem=`grep $site ~/gmtsar-aux/site_dems.txt | awk '{print $2}'`
+#ls -l ~/gmtsar-aux/site_dems.txt
+#dem=`grep $site ~/gmtsar-aux/site_dems.txt | awk '{print $2}'`
+
+# 20230624 change to location of siteinfo, not software
+if [[ -f $HOME/siteinfo/site_dems.txt ]]; then
+   dem=`grep $site $HOME/siteinfo/site_dems.txt | awk '{print $2}'`
+else
+   echo ERROR cannot find $HOME/siteinfo/site_dems.txt
+   exit -1
+fi
+
 ## cut down S1A file names to epoch and subswath only
 #if [[ "$sat" == "S1A" ]]
 #then

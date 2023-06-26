@@ -1,4 +1,5 @@
-#!/usr/bin/env -S bash
+#!/bin/bash -vex
+#!/usr/bin/env -S bash -x
 # 	switches in line above after "bash"
 # 	-x  Print commands and their arguments as they are executed.
 # 	-e  Exit immediately if a command exits with a non-zero status.
@@ -47,7 +48,7 @@ user=`echo $HOME | awk -F/ '{print $(NF)}'`
 # set filter wavelength
 filter_wv=`tail -1 $1 | awk '{print $19}'`
 
-# set cut region
+# set cut region in latitude and longitude
 site=`tail -1 $1 | awk '{print $12}'`
 xmin=`get_site_dims.sh ${site} 1 | awk -F-R '{print $2}' | awk -F/ '{print $1}'`
 xmax=`get_site_dims.sh ${site} 1 | awk -F-R '{print $2}' | awk -F/ '{print $2}'`
@@ -80,7 +81,7 @@ ymax=`get_site_dims.sh ${site} 1 | awk -F-R '{print $2}' | awk -F/ '{print $4}'`
    echo "filter_wv=$filter_wv"
    echo "xmin=$xmin xmax=$xmax ymin=$ymin ymax=$ymax"
    echo "site=$site"
-
+   echo "unwrap=${unwrap}"
    echo "missing some so lets keep going..."
 
 #the rest of this is for making a .sub file for HTCondor
@@ -125,15 +126,19 @@ ymax=`get_site_dims.sh ${site} 1 | awk -F-R '{print $2}' | awk -F/ '{print $4}'`
 #echo subuser now is $subuser
 
 #the following "while read" reads each line and all variables of the PAIRSmake.txt (not all present) to make the .sub file for each pair
-#ref  sec  orb1  orb2  doy_mast  doy_slav  dt  nan  trk  orbdir  swath  site  wv  bpar  bperp  burst  sat  dem  processed  unwrapped  pha_std  t_crit  t_stat  res_mean  res_std  res_nu  user
-# a    b    c     d      e         f       g    h    i     j      k      l    m    n      o      p     q    r
 
-while read -r a b c d e f g h i j k l m n o p q r; do
+# a         b         c      d      e                    f                    g    h    i    j       k          l      m       n      o      p      q    r                       s
+# mast      slav      orb1   orb2   doy_mast             doy_slav             dt   nan  trk  orbdir  swath      site   wv      bpar   bperp  burst  sat  dem                     filter_wv   
+# 20200415  20210505  54442  60287  105.054610604005006  124.054702444455998  385  NAN  T30  A       strip_004  forge  0.0311  -20.4  6.7    nan    TSX  forge_dem_3dep_10m.grd  80                      
+
+
+while read -r a b c d e f g h i j k l m n o p q r s; do
 # ignore commented lines
     [[ "$a" =~ ^#.*$ && "$a" != [[:blank:]]  ]] && continue
 ref=$a
 sec=$b
 track=$i
+filter_wv=$s #added by Kurt and Sam 2021/07/02
 sat=$q
 if [[ "$sat" == "TDX" ]]
 then
@@ -292,7 +297,7 @@ cat > ${sat}_${track}_In${ref}_${sec}.sub << EOF
    #  computer where each job runs. The last of these lines *would* be
    #  used if there were any other files needed for the executable to run.
    #  This next part needs to be updated to gmtsarv60 and tar commands uncommented above -- batzli 20210211
-   transfer_input_files = run_pair_gmtsarv54.sh, bin_htcondor.tgz, setup_gmtsarv54.sh, GMT5SAR_v54.tgz,  gmtsar_dependencies.tgz, ssh.tgz,  GMT.tgz ${orbittar}
+   transfer_input_files = run_pair_gmtsarv54.sh, bin_htcondor.tgz, setup_gmtsarv54.sh, GMT5SAR_v54.tgz, gmtsar_dependencies.tgz, ssh.tgz, GMT.tgz ${orbittar}
 
    # additional requirements
    # this will allow us to make sure that you don't have too many jobs transferring data from SSEC at the same time
@@ -300,7 +305,7 @@ cat > ${sat}_${track}_In${ref}_${sec}.sub << EOF
 
    # Tell HTCondor what amount of compute resources
    #  each job will need on the computer where it runs.
-   # It's still important to request enough computing resources. The below 
+   #  It's still important to request enough computing resources. The below 
    #  values are a good starting point, but consider your file sizes for an
    #  estimate of "disk" and use any other information you might have
    #  for "memory" and/or "cpus".
