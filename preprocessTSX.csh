@@ -38,7 +38,10 @@ if (${1} == "all") then
 		endif
 		set COS = `find ./$infolder -name "*.cos"`
 		cp $XML ../preproc/$yyyymmdd.xml
-		make_slc_tsx $XML $COS $yyyymmdd
+		echo looking for make_slc_tsx
+		which make_slc_tsx
+		# 2023/06/22 add full path for Kurt - should not have to do this
+		/opt/gmtsar/6.0/bin/make_slc_tsx $XML $COS $yyyymmdd
 		mv $yyyymmdd.* ../preproc/.
 		#rm ../preproc/$yyyymmdd.SLC
     		@ i = $i + 1
